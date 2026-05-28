@@ -18,6 +18,16 @@ This is a front-end prototype with mock data (no backend/API integration yet).
 
 ## Getting Started
 
+### 0. Ensure pnpm version (recommended in Codespaces)
+
+This project is pinned to `pnpm@11.4.0` via `packageManager` in `package.json`.
+
+```bash
+corepack enable
+corepack prepare pnpm@11.4.0 --activate
+pnpm -v
+```
+
 ### 1. Install dependencies
 
 ```bash
@@ -75,6 +85,6 @@ pnpm dlx skills add shadcn/ui
 ```
 
 Recommended next steps:
-1. Initialize shadcn for this app (`npx shadcn@latest init`) so `components.json` is created.
-2. Add required components with `npx shadcn@latest add <component>`.
+1. Initialize shadcn for this app (`pnpm dlx shadcn@latest init`) so `components.json` is created.
+2. Add required components with `pnpm dlx shadcn@latest add <component>`.
 3. Keep generated UI primitives in `src/components/ui` and compose app-specific components separately.
