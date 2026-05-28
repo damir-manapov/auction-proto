@@ -21,13 +21,13 @@ This is a front-end prototype with mock data (no backend/API integration yet).
 ### 1. Install dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 2. Run development server
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Default local URL:
@@ -39,9 +39,9 @@ http://localhost:5173/
 ## Available Scripts
 
 ```bash
-npm run dev      # start local dev server
-npm run build    # production build
-npm run preview  # preview production build locally
+pnpm dev      # start local dev server
+pnpm build    # production build
+pnpm preview  # preview production build locally
 ```
 
 ## Project Structure
@@ -71,7 +71,7 @@ Installed artifacts:
 Install command used:
 
 ```bash
-npm exec skills add shadcn/ui
+pnpm dlx skills add shadcn/ui
 ```
 
 Recommended next steps:
