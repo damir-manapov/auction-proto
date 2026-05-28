@@ -13,8 +13,12 @@ This is a front-end prototype with mock data (no backend/API integration yet).
 
 ## Tech Stack
 
-- React 18
-- Vite 5
+- React 19
+- Vite 8
+- TypeScript 6
+- Biome 2
+- Vitest 4
+- simple-git-hooks + gitleaks checks
 
 ## Getting Started
 
@@ -52,6 +56,19 @@ http://localhost:5173/
 pnpm dev      # start local dev server
 pnpm build    # production build
 pnpm preview  # preview production build locally
+pnpm format   # format code with Biome
+pnpm lint     # lint with warnings treated as errors
+pnpm typecheck
+pnpm typecheck:tests
+pnpm test
+```
+
+Project check scripts in repo root:
+
+```bash
+bash check.sh      # format + lint + typecheck + tests
+bash health.sh     # gitleaks + outdated deps + security audit
+bash all-checks.sh # runs both scripts
 ```
 
 ## Project Structure
@@ -59,9 +76,13 @@ pnpm preview  # preview production build locally
 ```text
 .
 ├── UpgradeAuctionAdmin.jsx   # main prototype UI
-├── src/main.jsx              # React entry point
+├── src/main.tsx              # React entry point
 ├── index.html                # app shell
-├── vite.config.js            # Vite config
+├── vite.config.ts            # Vite config
+├── tsconfig.json             # strict TS config
+├── biome.json                # Biome config
+├── check.sh                  # quality checks
+├── health.sh                 # security/dependency checks
 └── package.json              # scripts and dependencies
 ```
 
