@@ -1,4 +1,4 @@
-declare module "../UpgradeAuctionAdmin.jsx" {
+declare module "../UpgradeAuctionAdmin" {
   const UpgradeAuctionAdmin: () => JSX.Element;
   export default UpgradeAuctionAdmin;
 }

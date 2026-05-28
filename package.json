@@ -2,6 +2,8 @@
   "name": "auction-proto",
   "private": true,
   "version": "0.1.0",
+  "author": "Alex",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
