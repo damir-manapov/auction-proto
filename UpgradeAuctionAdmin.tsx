@@ -118,6 +118,23 @@ type RulesBooleanKey = {
 type RulesNumberKey = {
   [K in keyof Rules]: Rules[K] extends number ? K : never;
 }[keyof Rules];
+type ChannelRuleKey = keyof Rules["channels"];
+type PaymentMethodKey = keyof Rules["paymentMethods"];
+type PricingHaulKey = "UltraShort" | "Short" | "Medium" | "Long" | "UltraLong";
+
+type TimingRow = {
+  key: RulesNumberKey;
+  label: string;
+  desc: string;
+  min: number;
+  max: number;
+  unit: string;
+};
+
+type PricingRow = {
+  product: string;
+  keys: Record<PricingHaulKey, RulesNumberKey>;
+};
 
 // ─── Design tokens ────────────────────────────────────────────
 const T = {
@@ -1657,20 +1674,24 @@ function FlightList({ onSelect }: { onSelect: (flightId: Flight["id"]) => void }
 
 // ─── GlobalRules ──────────────────────────────────────────────
 function GlobalRules() {
-  const [rules, setRules] = useState(DEFAULT_RULES);
+  const [rules, setRules] = useState<Rules>(DEFAULT_RULES);
   const [saved, setSaved] = useState(true);
-  const [activeSection, setActiveSection] = useState("timing");
+  const [activeSection, setActiveSection] = useState<RuleSectionId>("timing");
 
-  const set = (key, val) => {
+  const setRule = <K extends RulesNumberKey | RulesBooleanKey>(key: K, val: Rules[K]) => {
     setRules((r) => ({ ...r, [key]: val }));
     setSaved(false);
   };
-  const setNested = (key, subkey, val) => {
-    setRules((r) => ({ ...r, [key]: { ...r[key], [subkey]: val } }));
+  const setNestedRule = <K extends "channels" | "paymentMethods", SK extends keyof Rules[K]>(
+    key: K,
+    subkey: SK,
+    val: boolean,
+  ) => {
+    setRules((r) => ({ ...r, [key]: { ...r[key], [subkey]: val } as Rules[K] }));
     setSaved(false);
   };
 
-  const SECTIONS = [
+  const SECTIONS: Array<{ id: RuleSectionId; l: string }> = [
     { id: "timing", l: "Тайминг" },
     { id: "pricing", l: "Ценообразование" },
     { id: "loyalty", l: "Лояльность" },
@@ -1679,7 +1700,15 @@ function GlobalRules() {
     { id: "features", l: "Функции" },
   ];
 
-  const RuleRow = ({ label, desc, children }) => (
+  const RuleRow = ({
+    label,
+    desc,
+    children,
+  }: {
+    label: ReactNode;
+    desc?: ReactNode;
+    children: ReactNode;
+  }) => (
     <div
       style={{
         display: "flex",
@@ -1702,14 +1731,14 @@ function GlobalRules() {
     </div>
   );
 
-  const haulCols = [
+  const haulCols: Array<{ k: PricingHaulKey; lbl: string }> = [
     { k: "UltraShort", lbl: "<1.5ч" },
     { k: "Short", lbl: "1.5–3ч" },
     { k: "Medium", lbl: "3–5ч" },
     { k: "Long", lbl: "5–8ч" },
     { k: "UltraLong", lbl: "8ч+" },
   ];
-  const pricingRows = [
+  const pricingRows: PricingRow[] = [
     {
       product: "Бизнес-класс",
       keys: {
@@ -1741,6 +1770,94 @@ function GlobalRules() {
       },
     },
   ];
+  const timingRows: TimingRow[] = [
+    {
+      key: "inviteDaysBefore",
+      label: "Первое приглашение (PTE)",
+      desc: "За сколько дней отправить первое письмо",
+      min: 1,
+      max: 60,
+      unit: "дн. до вылета",
+    },
+    {
+      key: "chaserHoursBefore",
+      label: "Напоминание (Chaser)",
+      desc: "За сколько часов отправить напоминание без заявки",
+      min: 12,
+      max: 168,
+      unit: "ч. до вылета",
+    },
+    {
+      key: "closureHoursBefore",
+      label: "Закрытие аукциона",
+      desc: "За сколько часов прекратить приём заявок",
+      min: 1,
+      max: 48,
+      unit: "ч. до вылета",
+    },
+  ];
+  const timingToggleRows: Array<{ key: RulesBooleanKey; label: string; desc: string }> = [
+    {
+      key: "autoFulfillment",
+      label: "Авто-фулфилмент",
+      desc: "Автоматически выбирает победителей и обновляет PNR",
+    },
+    {
+      key: "requirePurchased",
+      label: "Только при наличии билета",
+      desc: "Ключевой антидилюционный механизм",
+    },
+    {
+      key: "blindBids",
+      label: "Слепые ставки",
+      desc: "Пассажиры не видят ставки других участников",
+    },
+  ];
+  const loyaltyRows: Array<{ key: RulesNumberKey; tier: Tier; color: string; bg: string }> = [
+    { key: "multiplierPlatinum", tier: "Platinum", color: T.amber, bg: T.amberDim },
+    { key: "multiplierGold", tier: "Gold", color: T.accent, bg: T.accentDim },
+    { key: "multiplierSilver", tier: "Silver", color: T.textSub, bg: T.neutralSoft },
+  ];
+  const loyaltyPreview: Array<{ tier: Tier; mult: number }> = [
+    { tier: "Standard", mult: 1 },
+    { tier: "Silver", mult: 1 + rules.multiplierSilver / 100 },
+    { tier: "Gold", mult: 1 + rules.multiplierGold / 100 },
+    { tier: "Platinum", mult: 1 + rules.multiplierPlatinum / 100 },
+  ];
+  const channelRows: Array<{ key: ChannelRuleKey; label: string; desc: string }> = [
+    { key: "email", label: "Email (PTE + Chaser + Confirm)", desc: "30%+ всех заявок. Базовый канал" },
+    { key: "mmb", label: "Manage My Booking", desc: "+25% к объёму. Средняя ставка выше на 77%" },
+    { key: "app", label: "Мобильное приложение + Push", desc: "+4% к объёму" },
+    { key: "web", label: "Маркетинговая страница", desc: "41% выручки партнёра" },
+    { key: "webcheckin", label: "Онлайн-регистрация", desc: "+10% к выручке. 55% уникальных посетителей" },
+    { key: "pushNotif", label: "Push-уведомления", desc: "Уведомляет о статусе ставки" },
+  ];
+  const paymentRows: Array<{ key: PaymentMethodKey; label: string; desc: string }> = [
+    { key: "visa", label: "Visa", desc: "Поддерживается всеми PSP-партнёрами" },
+    { key: "mastercard", label: "Mastercard", desc: "Поддерживается всеми PSP-партнёрами" },
+    { key: "amex", label: "American Express", desc: "Более высокий средний чек" },
+    { key: "jcb", label: "JCB", desc: "Актуально для маршрутов в Азию" },
+    { key: "diners", label: "Diners Club", desc: "Ограниченная поддержка эквайеров" },
+  ];
+  const featureRows: Array<{ key: RulesBooleanKey; label: string; desc: string }> = [
+    { key: "seatBlocker", label: "Seat Blocker", desc: "+10–20% выручки. Блокировка соседнего места" },
+    { key: "payWithPoints", label: "Pay with Points", desc: "Оплата баллами лояльности" },
+    { key: "crossAirlineUpgrades", label: "Cross Airline Upgrades", desc: "+21% заявок через альянс/кодшер" },
+    { key: "continuousPricing", label: "Continuous Pricing (AI)", desc: "+12% выручки по A/B-тесту" },
+    { key: "autoFulfillment", label: "Авто-фулфилмент", desc: "Автовыбор победителей без ручного одобрения" },
+    { key: "blindBids", label: "Слепые ставки", desc: "Участники не видят предложения других" },
+  ];
+  const featureStatusLabels: Record<
+    "seatBlocker" | "payWithPoints" | "crossAirlineUpgrades" | "continuousPricing" | "autoFulfillment" | "blindBids",
+    string
+  > = {
+    seatBlocker: "Seat Blocker",
+    payWithPoints: "Pay with Points",
+    crossAirlineUpgrades: "Cross Airline",
+    continuousPricing: "Continuous Pricing",
+    autoFulfillment: "Авто-фулфилмент",
+    blindBids: "Слепые ставки",
+  };
 
   return (
     <div
@@ -1831,63 +1948,26 @@ function GlobalRules() {
             <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 14, lineHeight: 1.6 }}>
               Управляет жизненным циклом коммуникаций и автоматическими процессами.
             </div>
-            {[
-              [
-                "inviteDaysBefore",
-                "Первое приглашение (PTE)",
-                "За сколько дней отправить первое письмо",
-                1,
-                60,
-                "дн. до вылета",
-              ],
-              [
-                "chaserHoursBefore",
-                "Напоминание (Chaser)",
-                "За сколько часов отправить напоминание без заявки",
-                12,
-                168,
-                "ч. до вылета",
-              ],
-              [
-                "closureHoursBefore",
-                "Закрытие аукциона",
-                "За сколько часов прекратить приём заявок",
-                1,
-                48,
-                "ч. до вылета",
-              ],
-            ].map(([k, l, d, min, max, u]) => (
-              <RuleRow key={k} label={l} desc={d}>
+            {timingRows.map((row) => (
+              <RuleRow key={row.key} label={row.label} desc={row.desc}>
                 <NumInput
-                  value={rules[k]}
-                  onChange={(v) => set(k, v)}
-                  min={min}
-                  max={max}
-                  unit={u}
+                  value={rules[row.key]}
+                  onChange={(v) => setRule(row.key, v)}
+                  min={row.min}
+                  max={row.max}
+                  unit={row.unit}
                 />
               </RuleRow>
             ))}
-            {[
-              [
-                "autoFulfillment",
-                "Авто-фулфилмент",
-                "Автоматически выбирает победителей и обновляет PNR",
-              ],
-              [
-                "requirePurchased",
-                "Только при наличии билета",
-                "Ключевой антидилюционный механизм",
-              ],
-              ["blindBids", "Слепые ставки", "Пассажиры не видят ставки других участников"],
-            ].map(([k, l, d]) => (
-              <RuleRow key={k} label={l} desc={d}>
-                <Toggle checked={rules[k]} onChange={(v) => set(k, v)} />
+            {timingToggleRows.map((row) => (
+              <RuleRow key={row.key} label={row.label} desc={row.desc}>
+                <Toggle checked={rules[row.key]} onChange={(v) => setRule(row.key, v)} />
               </RuleRow>
             ))}
             <RuleRow label="Макс. апгрейдов на рейс" desc="0 = без ограничений">
               <NumInput
                 value={rules.maxUpgradesPerFlight}
-                onChange={(v) => set("maxUpgradesPerFlight", v)}
+                onChange={(v) => setRule("maxUpgradesPerFlight", v)}
                 min={0}
                 max={50}
                 unit="мест (0=∞)"
@@ -1952,7 +2032,7 @@ function GlobalRules() {
                             type="number"
                             value={rules[row.keys[c.k]]}
                             min={0}
-                            onChange={(e) => set(row.keys[c.k], Number(e.target.value))}
+                            onChange={(e) => setRule(row.keys[c.k], Number(e.target.value))}
                             style={{
                               width: 58,
                               padding: "4px 6px",
@@ -1977,7 +2057,7 @@ function GlobalRules() {
               <RuleRow label="Continuous Pricing (AI)" desc="+12% выручки по A/B-тесту">
                 <Toggle
                   checked={rules.continuousPricing}
-                  onChange={(v) => set("continuousPricing", v)}
+                  onChange={(v) => setRule("continuousPricing", v)}
                 />
               </RuleRow>
             </div>
@@ -1990,24 +2070,26 @@ function GlobalRules() {
               Взвешенная = базовая × (1 + множитель%). При равных ставках побеждает более высокий
               статус.
             </div>
-            {[
-              ["multiplierPlatinum", "Platinum", T.amber, T.amberDim],
-              ["multiplierGold", "Gold", T.accent, T.accentDim],
-              ["multiplierSilver", "Silver", T.textSub, T.neutralSoft],
-            ].map(([k, tier, c, bg]) => (
+            {loyaltyRows.map((row) => (
               <RuleRow
-                key={k}
+                key={row.key}
                 label={
                   <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <Pill color={c} bg={bg}>
-                      {tier}
+                    <Pill color={row.color} bg={row.bg}>
+                      {row.tier}
                     </Pill>
-                    <span style={{ fontSize: 13, fontWeight: 500, color: T.text }}>{tier}</span>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: T.text }}>{row.tier}</span>
                   </span>
                 }
                 desc=""
               >
-                <NumInput value={rules[k]} onChange={(v) => set(k, v)} min={0} max={50} unit="%" />
+                <NumInput
+                  value={rules[row.key]}
+                  onChange={(v) => setRule(row.key, v)}
+                  min={0}
+                  max={50}
+                  unit="%"
+                />
               </RuleRow>
             ))}
             <div
@@ -2026,16 +2108,11 @@ function GlobalRules() {
                 Предпросмотр: базовая $400
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
-                {[
-                  ["Standard", 1],
-                  ["Silver", 1 + rules.multiplierSilver / 100],
-                  ["Gold", 1 + rules.multiplierGold / 100],
-                  ["Platinum", 1 + rules.multiplierPlatinum / 100],
-                ].map(([tier, mult]) => {
-                  const tm = TIER_META[tier];
+                {loyaltyPreview.map((row) => {
+                  const tm = TIER_META[row.tier];
                   return (
                     <div
-                      key={tier}
+                      key={row.tier}
                       style={{
                         background: T.bg,
                         borderRadius: 8,
@@ -2044,7 +2121,7 @@ function GlobalRules() {
                       }}
                     >
                       <Pill color={tm.color} bg={tm.bg} size={10}>
-                        {tier}
+                        {row.tier}
                       </Pill>
                       <div style={{ fontSize: 11, color: T.textMuted, margin: "5px 0 2px" }}>
                         $400
@@ -2057,7 +2134,7 @@ function GlobalRules() {
                           fontFamily: "monospace",
                         }}
                       >
-                        ${Math.round(400 * mult)}
+                        ${Math.round(400 * row.mult)}
                       </div>
                     </div>
                   );
@@ -2069,21 +2146,12 @@ function GlobalRules() {
         {activeSection === "channels" && (
           <div>
             <SectionLabel>Активные каналы охвата</SectionLabel>
-            {[
-              ["email", "ch", "Email (PTE + Chaser + Confirm)", "30%+ всех заявок. Базовый канал"],
-              ["mmb", "ch", "Manage My Booking", "+25% к объёму. Средняя ставка выше на 77%"],
-              ["app", "ch", "Мобильное приложение + Push", "+4% к объёму"],
-              ["web", "ch", "Маркетинговая страница", "41% выручки партнёра"],
-              [
-                "webcheckin",
-                "ch",
-                "Онлайн-регистрация",
-                "+10% к выручке. 55% уникальных посетителей",
-              ],
-              ["pushNotif", "ch", "Push-уведомления", "Уведомляет о статусе ставки"],
-            ].map(([sk, nk, l, d]) => (
-              <RuleRow key={sk} label={l} desc={d}>
-                <Toggle checked={rules[nk][sk]} onChange={(v) => setNested(nk, sk, v)} />
+            {channelRows.map((row) => (
+              <RuleRow key={row.key} label={row.label} desc={row.desc}>
+                <Toggle
+                  checked={rules.channels[row.key]}
+                  onChange={(v) => setNestedRule("channels", row.key, v)}
+                />
               </RuleRow>
             ))}
           </div>
@@ -2091,22 +2159,19 @@ function GlobalRules() {
         {activeSection === "payment" && (
           <div>
             <SectionLabel>Методы оплаты</SectionLabel>
-            {[
-              ["visa", "pm", "Visa", "Поддерживается всеми PSP-партнёрами"],
-              ["mastercard", "pm", "Mastercard", "Поддерживается всеми PSP-партнёрами"],
-              ["amex", "pm", "American Express", "Более высокий средний чек"],
-              ["jcb", "pm", "JCB", "Актуально для маршрутов в Азию"],
-              ["diners", "pm", "Diners Club", "Ограниченная поддержка эквайеров"],
-            ].map(([sk, nk, l, d]) => (
-              <RuleRow key={sk} label={l} desc={d}>
-                <Toggle checked={rules[nk][sk]} onChange={(v) => setNested(nk, sk, v)} />
+            {paymentRows.map((row) => (
+              <RuleRow key={row.key} label={row.label} desc={row.desc}>
+                <Toggle
+                  checked={rules.paymentMethods[row.key]}
+                  onChange={(v) => setNestedRule("paymentMethods", row.key, v)}
+                />
               </RuleRow>
             ))}
             <RuleRow
               label="3DS аутентификация"
               desc="Снижает конверсию. Включайте только при обязательном 3DS в регионе"
             >
-              <Toggle checked={rules.use3ds} onChange={(v) => set("use3ds", v)} />
+              <Toggle checked={rules.use3ds} onChange={(v) => setRule("use3ds", v)} />
             </RuleRow>
             {rules.use3ds && (
               <div
@@ -2131,16 +2196,9 @@ function GlobalRules() {
         {activeSection === "features" && (
           <div>
             <SectionLabel>Дополнительные функции</SectionLabel>
-            {[
-              ["seatBlocker", "Seat Blocker", "+10–20% выручки. Блокировка соседнего места"],
-              ["payWithPoints", "Pay with Points", "Оплата баллами лояльности"],
-              ["crossAirlineUpgrades", "Cross Airline Upgrades", "+21% заявок через альянс/кодшер"],
-              ["continuousPricing", "Continuous Pricing (AI)", "+12% выручки по A/B-тесту"],
-              ["autoFulfillment", "Авто-фулфилмент", "Автовыбор победителей без ручного одобрения"],
-              ["blindBids", "Слепые ставки", "Участники не видят предложения других"],
-            ].map(([k, l, d]) => (
-              <RuleRow key={k} label={l} desc={d}>
-                <Toggle checked={rules[k]} onChange={(v) => set(k, v)} />
+            {featureRows.map((row) => (
+              <RuleRow key={row.key} label={row.label} desc={row.desc}>
+                <Toggle checked={rules[row.key]} onChange={(v) => setRule(row.key, v)} />
               </RuleRow>
             ))}
             <div
@@ -2159,22 +2217,7 @@ function GlobalRules() {
                 Статус функций
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 7 }}>
-                {[
-                  "seatBlocker",
-                  "payWithPoints",
-                  "crossAirlineUpgrades",
-                  "continuousPricing",
-                  "autoFulfillment",
-                  "blindBids",
-                ].map((k) => {
-                  const labels = {
-                    seatBlocker: "Seat Blocker",
-                    payWithPoints: "Pay with Points",
-                    crossAirlineUpgrades: "Cross Airline",
-                    continuousPricing: "Continuous Pricing",
-                    autoFulfillment: "Авто-фулфилмент",
-                    blindBids: "Слепые ставки",
-                  };
+                {(Object.keys(featureStatusLabels) as Array<keyof typeof featureStatusLabels>).map((k) => {
                   return (
                     <div
                       key={k}
@@ -2187,7 +2230,7 @@ function GlobalRules() {
                         padding: "7px 11px",
                       }}
                     >
-                      <span style={{ fontSize: 12, color: T.textSub }}>{labels[k]}</span>
+                      <span style={{ fontSize: 12, color: T.textSub }}>{featureStatusLabels[k]}</span>
                       <Pill
                         color={rules[k] ? T.greenText : T.textMuted}
                         bg={rules[k] ? T.greenDim : T.neutralSoft}
