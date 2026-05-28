@@ -2,13 +2,41 @@ import { useState, useCallback } from "react";
 
 // ─── Design tokens ────────────────────────────────────────────
 const T = {
-  bg:"#0A0C10", bgCard:"#0F1218", bgElevated:"#161B24", bgHover:"#1C2333",
-  border:"#1E2840", borderLight:"#2A3650",
-  accent:"#3B82F6", accentDim:"#1D3461", accentText:"#93C5FD",
-  green:"#10B981", greenDim:"#064E3B", greenText:"#6EE7B7",
-  amber:"#F59E0B", amberDim:"#451A03", amberText:"#FCD34D",
-  red:"#EF4444", redDim:"#450A0A", redText:"#FCA5A5",
-  text:"#F1F5F9", textMuted:"#64748B", textSub:"#94A3B8",
+  // Surface and layout colors
+  bg:"#F4F7FB", bgCard:"#FFFFFF", bgElevated:"#F8FAFC", bgHover:"#EEF3FB",
+  border:"#D7E1EE", borderLight:"#C3D2E5",
+
+  // Brand and primary accents
+  accent:"#1E5AA8", accentDim:"#E7F0FB", accentText:"#1F4E8F",
+  accentSoft:"#4E7FBD", accentMuted:"#89ACD5", accentPale:"#C7D9ED",
+
+  // Semantic status colors
+  green:"#1F9D61", greenDim:"#E7F6EE", greenText:"#1A7A4C",
+  greenSoft:"#63BA90",
+  amber:"#B7791F", amberDim:"#FEF5E7", amberText:"#8A5A13",
+  red:"#C53030", redDim:"#FDECEC", redText:"#9B2C2C",
+
+  // Text colors
+  text:"#10253E", textMuted:"#5B6B80", textSub:"#334E68",
+
+  // Foreground-on-color tokens
+  onAccent:"#FFFFFF", onAccentSoft:"#EFF6FF",
+
+  // Neutral utility shades
+  neutralSoft:"#EAF0F8", neutralPale:"#EEF2F7", neutralMid:"#7B8794",
+
+  // Domain-specific component tokens
+  seatTaken:"#D5E4F7", seatTakenText:"#2B5D97", seatTakenBorder:"#B7CCE8",
+  emailPteBg:"#EEF4FC", emailChaserBg:"#FEF6EA", emailWinBg:"#EAF7F0",
+  windowControlRed:"#FF5F57", windowControlAmber:"#FEBC2E", windowControlGreen:"#28C840",
+
+  // Transparent overlays and dividers
+  overlayAccent:"rgba(30,90,168,.06)", dividerSuccess:"rgba(16,185,129,.15)",
+};
+
+const F = {
+  sans:"Segoe UI, Helvetica Neue, Arial, sans-serif",
+  mono:"ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace",
 };
 
 // ─── Data ─────────────────────────────────────────────────────
@@ -38,13 +66,13 @@ const INITIAL_BIDS = [
 
 const DIST_DATA = [
   { range:"$500–750", count:7,  pct:25, color:T.accent  },
-  { range:"$400–499", count:10, pct:36, color:"#60A5FA" },
-  { range:"$300–399", count:8,  pct:29, color:"#93C5FD" },
-  { range:"$262–299", count:3,  pct:10, color:"#BFDBFE" },
+  { range:"$400–499", count:10, pct:36, color:T.accentSoft },
+  { range:"$300–399", count:8,  pct:29, color:T.accentMuted },
+  { range:"$262–299", count:3,  pct:10, color:T.accentPale },
 ];
 const EXIT_DATA = [
   { range:"$60–85", count:9, pct:64, color:T.green   },
-  { range:"$32–59", count:5, pct:36, color:"#34D399" },
+  { range:"$32–59", count:5, pct:36, color:T.greenSoft },
 ];
 const SEAT_MAP_BC = [
   [{ id:"1A",taken:true  },{ id:"1C",taken:true  },null,{ id:"1D",taken:true  },{ id:"1F",taken:true  }],
@@ -72,11 +100,11 @@ const weighted = b => Math.round(b.bid * b.mult);
 const TIER_META = {
   Platinum:{ color:T.amber,    bg:T.amberDim,  label:"Platinum", mult:"+10%" },
   Gold:    { color:T.accent,   bg:T.accentDim, label:"Gold",     mult:"+5%"  },
-  Silver:  { color:T.textSub,  bg:"#1E293B",   label:"Silver",   mult:"+3%"  },
-  Standard:{ color:T.textMuted,bg:"#111827",   label:"Standard", mult:"—"    },
+  Silver:  { color:T.textSub,  bg:T.neutralSoft, label:"Silver",   mult:"+3%"  },
+  Standard:{ color:T.textMuted,bg:T.neutralPale, label:"Standard", mult:"—"    },
 };
 const STATE_META = {
-  pending: { label:"Ожидает",   color:T.textMuted, bg:"#1E293B"  },
+  pending: { label:"Ожидает",   color:T.textMuted, bg:T.neutralSoft },
   approved:{ label:"Принята",   color:T.greenText, bg:T.greenDim },
   rejected:{ label:"Отклонена", color:T.redText,   bg:T.redDim   },
 };
@@ -93,19 +121,19 @@ const CH_ICONS = { Email:"✉", App:"◉", MMB:"⊞", Web:"◈" };
 
 // ─── UI Primitives ────────────────────────────────────────────
 function Pill({ children, color, bg, size=11 }) {
-  return <span style={{ display:"inline-flex", alignItems:"center", padding:"2px 8px", borderRadius:20, fontSize:size, fontWeight:600, letterSpacing:.3, color, background:bg, whiteSpace:"nowrap" }}>{children}</span>;
+  return <span style={{ display:"inline-flex", alignItems:"center", padding:"3px 8px", borderRadius:20, fontSize:size, fontWeight:600, letterSpacing:.2, color, background:bg, whiteSpace:"nowrap" }}>{children}</span>;
 }
 function MetricCard({ label, value, sub, accent }) {
   return (
     <div style={{ background:T.bgElevated, border:`0.5px solid ${T.border}`, borderRadius:10, padding:"16px 18px" }}>
-      <div style={{ fontSize:10, color:T.textMuted, textTransform:"uppercase", letterSpacing:1, marginBottom:6 }}>{label}</div>
-      <div style={{ fontSize:24, fontWeight:700, color:accent||T.text, fontFamily:"monospace", lineHeight:1 }}>{value}</div>
-      {sub && <div style={{ fontSize:11, color:T.textMuted, marginTop:5 }}>{sub}</div>}
+      <div style={{ fontSize:11, color:T.textMuted, textTransform:"uppercase", letterSpacing:.9, marginBottom:6, fontWeight:600 }}>{label}</div>
+      <div style={{ fontSize:22, fontWeight:700, color:accent||T.text, fontFamily:F.mono, lineHeight:1.1 }}>{value}</div>
+      {sub && <div style={{ fontSize:12, color:T.textMuted, marginTop:6 }}>{sub}</div>}
     </div>
   );
 }
 function SectionLabel({ children }) {
-  return <div style={{ fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:1.5, color:T.textMuted, marginBottom:14 }}>{children}</div>;
+  return <div style={{ fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:1.2, color:T.textMuted, marginBottom:14 }}>{children}</div>;
 }
 function BarChart({ data }) {
   return (
@@ -126,7 +154,7 @@ function SeatMap() {
   return (
     <div>
       <div style={{ display:"flex", gap:12, marginBottom:10, flexWrap:"wrap" }}>
-        {[{c:"#1E3A5F",l:"Занято"},{c:T.accent,l:"Заявка"},{c:T.bgElevated,l:"Свободно",b:T.border}].map(s=>(
+        {[{c:T.seatTaken,l:"Занято"},{c:T.accent,l:"Заявка"},{c:T.bgElevated,l:"Свободно",b:T.border}].map(s=>(
           <div key={s.l} style={{ display:"flex", alignItems:"center", gap:5 }}>
             <div style={{ width:12, height:12, borderRadius:2, background:s.c, border:`0.5px solid ${s.b||s.c}` }} />
             <span style={{ fontSize:11, color:T.textMuted }}>{s.l}</span>
@@ -137,7 +165,7 @@ function SeatMap() {
         {SEAT_MAP_BC.flatMap((row,ri)=>row.map((seat,ci)=>
           seat===null
             ? <div key={`${ri}-a`} style={{ width:4 }} />
-            : <div key={seat.id} style={{ width:28, height:22, borderRadius:3, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:600, background:seat.bid?T.accent:seat.taken?"#1E3A5F":T.bgElevated, color:seat.bid?"#EFF6FF":seat.taken?"#60A5FA":T.border, border:`0.5px solid ${seat.bid?T.accent:seat.taken?"#2D4E7A":T.border}` }}>{seat.id}</div>
+            : <div key={seat.id} style={{ width:28, height:22, borderRadius:3, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:600, background:seat.bid?T.accent:seat.taken?T.seatTaken:T.bgElevated, color:seat.bid?T.onAccent:seat.taken?T.seatTakenText:T.border, border:`0.5px solid ${seat.bid?T.accent:seat.taken?T.seatTakenBorder:T.border}` }}>{seat.id}</div>
         ))}
       </div>
     </div>
@@ -146,7 +174,7 @@ function SeatMap() {
 function Toggle({ checked, onChange }) {
   return (
     <div onClick={()=>onChange(!checked)} style={{ width:36, height:20, borderRadius:10, cursor:"pointer", flexShrink:0, background:checked?T.accent:T.border, position:"relative", transition:"background .2s" }}>
-      <div style={{ position:"absolute", top:3, left:checked?17:3, width:14, height:14, borderRadius:7, background:checked?T.text:"#4B5563", transition:"left .2s" }} />
+      <div style={{ position:"absolute", top:3, left:checked?17:3, width:14, height:14, borderRadius:7, background:checked?T.text:T.neutralMid, transition:"left .2s" }} />
     </div>
   );
 }
@@ -164,9 +192,9 @@ function NumInput({ value, onChange, min=0, max=9999, unit="" }) {
 function PassengerBidUI() {
   const PASSENGER = { name:"Азиз Каримов", tier:"Platinum", initials:"АК" };
   const PRODUCTS = {
-    bc: { label:"Бизнес-класс",         desc:"Раскладное кресло · Лаундж · Питание", icon:"🛋", min:262, max:750, defaultVal:350, color:T.accent,  trackColor:"#3B82F6" },
-    ex: { label:"Ряд у аварийного выхода", desc:"+30 см для ног · Ранняя посадка",   icon:"🦵", min:32,  max:85,  defaultVal:46,  color:T.green,   trackColor:"#10B981" },
-    sb: { label:"Seat Blocker",          desc:"Заблокировать соседнее место",          icon:"🪑", min:8,   max:45,  defaultVal:18,  color:T.accent,  trackColor:"#3B82F6" },
+    bc: { label:"Бизнес-класс",         desc:"Раскладное кресло · Лаундж · Питание", icon:"🛋", min:262, max:750, defaultVal:350, color:T.accent,  trackColor:T.accent },
+    ex: { label:"Ряд у аварийного выхода", desc:"+30 см для ног · Ранняя посадка",   icon:"🦵", min:32,  max:85,  defaultVal:46,  color:T.green,   trackColor:T.green },
+    sb: { label:"Seat Blocker",          desc:"Заблокировать соседнее место",          icon:"🪑", min:8,   max:45,  defaultVal:18,  color:T.accent,  trackColor:T.accent },
   };
   const MULT = 1.10;
 
@@ -198,7 +226,7 @@ function PassengerBidUI() {
       <div style={{ display:"flex", justifyContent:"center", padding:"24px 16px" }}>
         <div style={{ width:390, background:T.bgCard, borderRadius:16, border:`0.5px solid ${T.border}`, overflow:"hidden" }}>
           {/* Status bar */}
-          <div style={{ background:"#080C10", padding:"9px 16px 7px", display:"flex", justifyContent:"space-between" }}>
+          <div style={{ background:T.bgElevated, padding:"9px 16px 7px", display:"flex", justifyContent:"space-between" }}>
             <span style={{ fontSize:11, color:T.textMuted }}>09:41</span>
             <span style={{ fontSize:11, color:T.textMuted }}>uzbekistanairways.uz</span>
             <span style={{ fontSize:11, color:T.textMuted }}>●●●</span>
@@ -233,17 +261,17 @@ function PassengerBidUI() {
     <div style={{ display:"flex", justifyContent:"center", padding:"24px 16px" }}>
       <div style={{ width:390, background:T.bgCard, borderRadius:16, border:`0.5px solid ${T.border}`, overflow:"hidden" }}>
         {/* Status bar */}
-        <div style={{ background:"#080C10", padding:"9px 16px 7px", display:"flex", justifyContent:"space-between" }}>
+        <div style={{ background:T.bgElevated, padding:"9px 16px 7px", display:"flex", justifyContent:"space-between" }}>
           <span style={{ fontSize:11, color:T.textMuted }}>09:41</span>
           <span style={{ fontSize:11, color:T.textMuted }}>uzbekistanairways.uz</span>
           <span style={{ fontSize:11, color:T.textMuted }}>●●●</span>
         </div>
 
         {/* Flight header */}
-        <div style={{ background:"#080C10", padding:"12px 16px 14px", borderBottom:`0.5px solid ${T.border}` }}>
+        <div style={{ background:T.bgElevated, padding:"12px 16px 14px", borderBottom:`0.5px solid ${T.border}` }}>
           <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:10 }}>
             <div style={{ background:T.accent, borderRadius:4, width:28, height:18, display:"flex", alignItems:"center", justifyContent:"center" }}>
-              <span style={{ fontSize:8, fontWeight:800, color:"#EFF6FF", letterSpacing:.5 }}>HY</span>
+              <span style={{ fontSize:8, fontWeight:800, color:T.onAccentSoft, letterSpacing:.5 }}>HY</span>
             </div>
             <span style={{ fontSize:16, fontWeight:700, color:T.text, letterSpacing:-.3 }}>HY 602</span>
             <span style={{ marginLeft:"auto", fontSize:12, color:T.textMuted, fontFamily:"monospace" }}>15 июн · 08:45</span>
@@ -340,14 +368,14 @@ function PassengerBidUI() {
           {/* Info */}
           <div style={{ background:T.accentDim, border:`0.5px solid ${T.accent}`, borderRadius:8, padding:"9px 12px", marginBottom:11, display:"flex", gap:8 }}>
             <span style={{ color:T.accentText, fontSize:13, flexShrink:0, lineHeight:1.5 }}>ℹ</span>
-            <div style={{ fontSize:11, color:T.accentText, lineHeight:1.6 }}>Средства <strong style={{ color:"#EFF6FF" }}>не списываются</strong> сразу. Оплата — только при подтверждении апгрейда авиакомпанией.</div>
+            <div style={{ fontSize:11, color:T.accentText, lineHeight:1.6 }}>Средства <strong style={{ color:T.onAccentSoft }}>не списываются</strong> сразу. Оплата — только при подтверждении апгрейда авиакомпанией.</div>
           </div>
 
           {/* Submit */}
           <button
             disabled={base === 0}
             onClick={() => setSubmitted(true)}
-            style={{ width:"100%", padding:"13px", borderRadius:10, border:"none", fontSize:14, fontWeight:700, cursor:base===0?"not-allowed":"pointer", background:base===0?T.border:T.accent, color:base===0?T.textMuted:"#EFF6FF", letterSpacing:.2, marginBottom:8 }}>
+            style={{ width:"100%", padding:"13px", borderRadius:10, border:"none", fontSize:14, fontWeight:700, cursor:base===0?"not-allowed":"pointer", background:base===0?T.border:T.accent, color:base===0?T.textMuted:T.onAccentSoft, letterSpacing:.2, marginBottom:8 }}>
             {base === 0 ? "Выберите хотя бы один апгрейд" : `Подать заявку · $${base}`}
           </button>
           <div style={{ fontSize:10, color:T.textMuted, textAlign:"center", paddingBottom:4 }}>
@@ -402,11 +430,11 @@ function FlightList({ onSelect }) {
       </div>
       <div style={{ background:T.bgCard, border:`0.5px solid ${T.border}`, borderRadius:12, overflow:"hidden" }}>
         <div style={{ overflowX:"auto" }}>
-          <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13, tableLayout:"fixed" }}>
+          <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12, tableLayout:"fixed" }}>
             <thead>
               <tr style={{ borderBottom:`0.5px solid ${T.border}` }}>
                 {[["dep","Рейс / маршрут","24%"],[null,"Вылет","13%"],[null,"Борт","8%"],["bids","Заявок","9%"],[null,"Мест BC","9%"],["topBid","Топ ставка","10%"],["revenue","Прогноз","10%"],[null,"Статус","9%"],[null,"","8%"]].map(([col,lbl,w])=>(
-                  <th key={lbl} onClick={col?()=>handleSort(col):undefined} style={{ width:w, textAlign:"left", padding:"10px 12px", fontSize:10, fontWeight:600, color:col&&sortCol===col?T.accentText:T.textMuted, textTransform:"uppercase", letterSpacing:.8, cursor:col?"pointer":"default", userSelect:"none", background:T.bgElevated }}>
+                  <th key={lbl} onClick={col?()=>handleSort(col):undefined} style={{ width:w, textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:600, color:col&&sortCol===col?T.accentText:T.textMuted, textTransform:"uppercase", letterSpacing:.7, cursor:col?"pointer":"default", userSelect:"none", background:T.bgElevated }}>
                     {lbl}{col&&sortCol===col?(sortDir==="asc"?" ↑":" ↓"):""}
                   </th>
                 ))}
@@ -419,15 +447,15 @@ function FlightList({ onSelect }) {
                   <tr key={f.id} style={{ borderBottom:`0.5px solid ${T.border}`, cursor:"pointer" }}
                     onMouseEnter={e=>e.currentTarget.style.background=T.bgHover}
                     onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                    <td style={{ padding:"12px 12px" }}><div style={{ fontWeight:700, fontSize:14, color:T.text, letterSpacing:.3 }}>{f.id}</div><div style={{ fontSize:12, color:T.textMuted, marginTop:2 }}><span style={{ color:T.textSub, fontWeight:600 }}>{f.from}</span><span style={{ margin:"0 4px" }}>→</span><span style={{ color:T.textSub, fontWeight:600 }}>{f.to}</span><span style={{ marginLeft:6 }}>{f.duration}</span></div></td>
-                    <td style={{ padding:"12px 12px", color:T.textSub, fontSize:12, fontFamily:"monospace" }}>{f.dep}</td>
-                    <td style={{ padding:"12px 12px" }}><span style={{ fontSize:11, color:T.textMuted, background:T.bgElevated, padding:"2px 6px", borderRadius:4, border:`0.5px solid ${T.border}` }}>{f.aircraft}</span></td>
-                    <td style={{ padding:"12px 12px", fontWeight:700, fontFamily:"monospace", color:f.bids>20?T.accentText:T.text }}>{f.bids}</td>
-                    <td style={{ padding:"12px 12px" }}><span style={{ fontWeight:700, fontFamily:"monospace", color:fc }}>{f.bcFree}</span><span style={{ color:T.textMuted, fontSize:11 }}> / {f.bcTotal}</span></td>
-                    <td style={{ padding:"12px 12px", fontWeight:700, fontFamily:"monospace" }}>${f.topBid}</td>
-                    <td style={{ padding:"12px 12px", fontWeight:700, fontFamily:"monospace", color:T.greenText }}>{f.revenue>0?`$${f.revenue.toLocaleString()}`:"—"}</td>
-                    <td style={{ padding:"12px 12px" }}><Pill color={sm.color} bg={sm.bg}>{sm.label}</Pill></td>
-                    <td style={{ padding:"12px 12px" }}><button onClick={()=>onSelect(f.id)} style={{ padding:"5px 10px", fontSize:11, fontWeight:600, borderRadius:6, cursor:"pointer", background:T.accentDim, border:`0.5px solid ${T.accent}`, color:T.accentText }}>Открыть →</button></td>
+                    <td style={{ padding:"11px 14px" }}><div style={{ fontWeight:700, fontSize:14, color:T.text, letterSpacing:.2 }}>{f.id}</div><div style={{ fontSize:12, color:T.textMuted, marginTop:2 }}><span style={{ color:T.textSub, fontWeight:600 }}>{f.from}</span><span style={{ margin:"0 4px" }}>→</span><span style={{ color:T.textSub, fontWeight:600 }}>{f.to}</span><span style={{ marginLeft:6 }}>{f.duration}</span></div></td>
+                    <td style={{ padding:"11px 14px", color:T.textSub, fontSize:12, fontFamily:F.mono }}>{f.dep}</td>
+                    <td style={{ padding:"11px 14px" }}><span style={{ fontSize:11, color:T.textMuted, background:T.bgElevated, padding:"2px 6px", borderRadius:4, border:`0.5px solid ${T.border}` }}>{f.aircraft}</span></td>
+                    <td style={{ padding:"11px 14px", fontWeight:700, fontFamily:F.mono, color:f.bids>20?T.accentText:T.text }}>{f.bids}</td>
+                    <td style={{ padding:"11px 14px" }}><span style={{ fontWeight:700, fontFamily:F.mono, color:fc }}>{f.bcFree}</span><span style={{ color:T.textMuted, fontSize:11 }}> / {f.bcTotal}</span></td>
+                    <td style={{ padding:"11px 14px", fontWeight:700, fontFamily:F.mono }}>${f.topBid}</td>
+                    <td style={{ padding:"11px 14px", fontWeight:700, fontFamily:F.mono, color:T.greenText }}>{f.revenue>0?`$${f.revenue.toLocaleString()}`:"—"}</td>
+                    <td style={{ padding:"11px 14px" }}><Pill color={sm.color} bg={sm.bg}>{sm.label}</Pill></td>
+                    <td style={{ padding:"11px 14px" }}><button onClick={()=>onSelect(f.id)} style={{ padding:"6px 11px", fontSize:11, fontWeight:600, borderRadius:6, cursor:"pointer", background:T.accentDim, border:`0.5px solid ${T.accent}`, color:T.accentText }}>Открыть →</button></td>
                   </tr>
                 );
               })}
@@ -482,7 +510,7 @@ function GlobalRules() {
           <button key={s.id} onClick={()=>setActiveSection(s.id)} style={{ display:"block", width:"100%", textAlign:"left", padding:"11px 14px", fontSize:13, fontWeight:activeSection===s.id?600:400, color:activeSection===s.id?T.accent:T.textSub, background:activeSection===s.id?T.accentDim:"transparent", border:"none", cursor:"pointer", borderBottom:i<SECTIONS.length-1?`0.5px solid ${T.border}`:"none" }}>{s.l}</button>
         ))}
         <div style={{ padding:"10px 12px", borderTop:`0.5px solid ${T.border}` }}>
-          <button onClick={()=>setSaved(true)} style={{ width:"100%", padding:"8px", borderRadius:8, fontSize:12, fontWeight:700, cursor:"pointer", background:saved?T.greenDim:T.accent, border:`0.5px solid ${saved?T.green:T.accent}`, color:saved?T.greenText:"#EFF6FF", transition:"all .2s" }}>
+          <button onClick={()=>setSaved(true)} style={{ width:"100%", padding:"8px", borderRadius:8, fontSize:12, fontWeight:700, cursor:"pointer", background:saved?T.greenDim:T.accent, border:`0.5px solid ${saved?T.green:T.accent}`, color:saved?T.greenText:T.onAccentSoft, transition:"all .2s" }}>
             {saved?"✓ Сохранено":"Сохранить правила"}
           </button>
           {!saved && <div style={{ fontSize:10, color:T.amber, marginTop:5, textAlign:"center" }}>Есть несохранённые изменения</div>}
@@ -530,7 +558,7 @@ function GlobalRules() {
           <div>
             <SectionLabel>Множители статуса лояльности</SectionLabel>
             <div style={{ fontSize:12, color:T.textMuted, marginBottom:14, lineHeight:1.6 }}>Взвешенная = базовая × (1 + множитель%). При равных ставках побеждает более высокий статус.</div>
-            {[["multiplierPlatinum","Platinum",T.amber,T.amberDim],["multiplierGold","Gold",T.accent,T.accentDim],["multiplierSilver","Silver",T.textSub,"#1E293B"]].map(([k,tier,c,bg])=>(
+            {[["multiplierPlatinum","Platinum",T.amber,T.amberDim],["multiplierGold","Gold",T.accent,T.accentDim],["multiplierSilver","Silver",T.textSub,T.neutralSoft]].map(([k,tier,c,bg])=>(
               <RuleRow key={k} label={<span style={{ display:"flex", alignItems:"center", gap:8 }}><Pill color={c} bg={bg}>{tier}</Pill><span style={{ fontSize:13, fontWeight:500, color:T.text }}>{tier}</span></span>} desc="">
                 <NumInput value={rules[k]} onChange={v=>set(k,v)} min={0} max={50} unit="%" />
               </RuleRow>
@@ -575,7 +603,7 @@ function GlobalRules() {
               <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:7 }}>
                 {["seatBlocker","payWithPoints","crossAirlineUpgrades","continuousPricing","autoFulfillment","blindBids"].map(k=>{
                   const labels={seatBlocker:"Seat Blocker",payWithPoints:"Pay with Points",crossAirlineUpgrades:"Cross Airline",continuousPricing:"Continuous Pricing",autoFulfillment:"Авто-фулфилмент",blindBids:"Слепые ставки"};
-                  return <div key={k} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background:T.bg, borderRadius:7, padding:"7px 11px" }}><span style={{ fontSize:12, color:T.textSub }}>{labels[k]}</span><Pill color={rules[k]?T.greenText:T.textMuted} bg={rules[k]?T.greenDim:"#1E293B"} size={10}>{rules[k]?"вкл":"выкл"}</Pill></div>;
+                      return <div key={k} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background:T.bg, borderRadius:7, padding:"7px 11px" }}><span style={{ fontSize:12, color:T.textSub }}>{labels[k]}</span><Pill color={rules[k]?T.greenText:T.textMuted} bg={rules[k]?T.greenDim:T.neutralSoft} size={10}>{rules[k]?"вкл":"выкл"}</Pill></div>;
                 })}
               </div>
             </div>
@@ -620,7 +648,7 @@ function FlightDetail({ flightId, onBack }) {
           <Pill color={T.greenText} bg={T.greenDim}>Аукцион открыт</Pill>
         </div>
         <div style={{ marginLeft:"auto", display:"flex", gap:8 }}>
-          {!autoRan ? <button onClick={autoSelect} style={{ background:T.accent, border:"none", borderRadius:8, padding:"9px 16px", fontSize:13, fontWeight:600, color:"#EFF6FF", cursor:"pointer" }}>⚡ Авто-отбор</button> : <Pill color={T.greenText} bg={T.greenDim}>✓ Amadeus RES обновлён</Pill>}
+          {!autoRan ? <button onClick={autoSelect} style={{ background:T.accent, border:"none", borderRadius:8, padding:"9px 16px", fontSize:13, fontWeight:600, color:T.onAccentSoft, cursor:"pointer" }}>⚡ Авто-отбор</button> : <Pill color={T.greenText} bg={T.greenDim}>✓ Amadeus RES обновлён</Pill>}
         </div>
       </div>
       <div style={{ fontSize:12, color:T.textMuted, marginBottom:18 }}>{flight.dep} — {flight.arr} · {flight.aircraft} · {flight.duration} · {HAUL_LABELS[flight.haul]}</div>
@@ -644,10 +672,10 @@ function FlightDetail({ flightId, onBack }) {
           </div>
         </div>
         <div style={{ overflowX:"auto" }}>
-          <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13, tableLayout:"fixed" }}>
+          <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12, tableLayout:"fixed" }}>
             <thead><tr>
               {[["name","Пассажир","22%"],["tier","Статус","11%"],["bid","Ставка","10%"],["weighted","Взвешенная","11%"],["channel","Канал","9%"],["time","Время","9%"],[null,"Статус","11%"],[null,"Действие","17%"]].map(([col,lbl,w])=>(
-                <th key={lbl} onClick={col?()=>{if(sortCol===col)setSortDir(d=>d==="desc"?"asc":"desc");else{setSortCol(col);setSortDir("desc");}}:undefined} style={{ width:w, textAlign:"left", padding:"7px 8px", fontSize:10, fontWeight:600, color:col&&sortCol===col?T.accentText:T.textMuted, textTransform:"uppercase", letterSpacing:.8, borderBottom:`0.5px solid ${T.border}`, cursor:col?"pointer":"default", userSelect:"none" }}>
+                <th key={lbl} onClick={col?()=>{if(sortCol===col)setSortDir(d=>d==="desc"?"asc":"desc");else{setSortCol(col);setSortDir("desc");}}:undefined} style={{ width:w, textAlign:"left", padding:"9px 10px", fontSize:11, fontWeight:600, color:col&&sortCol===col?T.accentText:T.textMuted, textTransform:"uppercase", letterSpacing:.7, borderBottom:`0.5px solid ${T.border}`, cursor:col?"pointer":"default", userSelect:"none" }}>
                   {lbl}{col&&sortCol===col?(sortDir==="desc"?" ↓":" ↑"):""}
                 </th>
               ))}
@@ -657,15 +685,15 @@ function FlightDetail({ flightId, onBack }) {
                 const w=weighted(b); const isTop=b.state==="pending"&&i<flight.bcFree&&filter==="all";
                 const tm=TIER_META[b.tier]; const sm=STATE_META[b.state];
                 return (
-                  <tr key={b.id} style={{ background:isTop?"rgba(59,130,246,.06)":"transparent" }}>
-                    <td style={{ padding:"9px 8px", borderBottom:`0.5px solid ${T.border}` }}><div style={{ display:"flex", alignItems:"center", gap:7 }}>{isTop&&<div style={{ width:3, height:28, background:T.accent, borderRadius:2, flexShrink:0 }} />}<div><div style={{ fontWeight:600, color:T.text }}>{b.name}</div>{isTop&&<div style={{ fontSize:10, color:T.accentText }}>→ кандидат</div>}</div></div></td>
-                    <td style={{ padding:"9px 8px", borderBottom:`0.5px solid ${T.border}` }}><Pill color={tm.color} bg={tm.bg} size={10}>{tm.label}</Pill><div style={{ fontSize:10, color:T.textMuted, marginTop:2 }}>{tm.mult}</div></td>
-                    <td style={{ padding:"9px 8px", borderBottom:`0.5px solid ${T.border}`, fontWeight:700, fontFamily:"monospace" }}>${b.bid}</td>
-                    <td style={{ padding:"9px 8px", borderBottom:`0.5px solid ${T.border}`, fontWeight:700, color:T.accentText, fontFamily:"monospace" }}>${w}</td>
-                    <td style={{ padding:"9px 8px", borderBottom:`0.5px solid ${T.border}`, color:T.textMuted, fontSize:12 }}>{CH_ICONS[b.channel]} {b.channel}</td>
-                    <td style={{ padding:"9px 8px", borderBottom:`0.5px solid ${T.border}`, color:T.textMuted, fontFamily:"monospace", fontSize:12 }}>{b.time}</td>
-                    <td style={{ padding:"9px 8px", borderBottom:`0.5px solid ${T.border}` }}><Pill color={sm.color} bg={sm.bg} size={10}>{sm.label}</Pill></td>
-                    <td style={{ padding:"9px 8px", borderBottom:`0.5px solid ${T.border}` }}>
+                  <tr key={b.id} style={{ background:isTop?T.overlayAccent:"transparent" }}>
+                    <td style={{ padding:"10px 10px", borderBottom:`0.5px solid ${T.border}` }}><div style={{ display:"flex", alignItems:"center", gap:7 }}>{isTop&&<div style={{ width:3, height:28, background:T.accent, borderRadius:2, flexShrink:0 }} />}<div><div style={{ fontWeight:600, color:T.text }}>{b.name}</div>{isTop&&<div style={{ fontSize:10, color:T.accentText }}>→ кандидат</div>}</div></div></td>
+                    <td style={{ padding:"10px 10px", borderBottom:`0.5px solid ${T.border}` }}><Pill color={tm.color} bg={tm.bg} size={10}>{tm.label}</Pill><div style={{ fontSize:10, color:T.textMuted, marginTop:2 }}>{tm.mult}</div></td>
+                    <td style={{ padding:"10px 10px", borderBottom:`0.5px solid ${T.border}`, fontWeight:700, fontFamily:F.mono }}>${b.bid}</td>
+                    <td style={{ padding:"10px 10px", borderBottom:`0.5px solid ${T.border}`, fontWeight:700, color:T.accentText, fontFamily:F.mono }}>${w}</td>
+                    <td style={{ padding:"10px 10px", borderBottom:`0.5px solid ${T.border}`, color:T.textMuted, fontSize:12 }}>{CH_ICONS[b.channel]} {b.channel}</td>
+                    <td style={{ padding:"10px 10px", borderBottom:`0.5px solid ${T.border}`, color:T.textMuted, fontFamily:F.mono, fontSize:12 }}>{b.time}</td>
+                    <td style={{ padding:"10px 10px", borderBottom:`0.5px solid ${T.border}` }}><Pill color={sm.color} bg={sm.bg} size={10}>{sm.label}</Pill></td>
+                    <td style={{ padding:"10px 10px", borderBottom:`0.5px solid ${T.border}` }}>
                       {b.state==="pending"&&<div style={{ display:"flex", gap:5 }}><button onClick={()=>approve(b.id)} style={{ padding:"4px 9px", fontSize:11, fontWeight:600, borderRadius:5, cursor:"pointer", background:T.greenDim, border:`0.5px solid ${T.green}`, color:T.greenText }}>✓ Принять</button><button onClick={()=>reject(b.id)} style={{ padding:"4px 8px", fontSize:11, fontWeight:600, borderRadius:5, cursor:"pointer", background:T.redDim, border:`0.5px solid ${T.red}`, color:T.redText }}>✕</button></div>}
                     </td>
                   </tr>
@@ -683,9 +711,9 @@ function FlightDetail({ flightId, onBack }) {
 // ─── EmailPreview ─────────────────────────────────────────────
 function EmailPreview({ type }) {
   const cfgs={
-    pte:{subject:"Азиз, предложите свою цену на бизнес-класс",to:"aziz.karimov@mail.uz",tag:"PTE · за 7–14 дней",tagC:T.accent,tagBg:T.accentDim,hBg:"#0F1F3D",hLine:T.accent,title:"Улучшите перелёт до бизнес-класса",body:"Ваш рейс HY 602 квалифицирован для участия в аукционе. Предложите цену — средства спишутся только при подтверждении.",ctaLabel:"Предложить цену →",ctaBg:T.accent,offers:[{name:"Бизнес-класс",desc:"Раскладное кресло · Лаундж",from:"$262"},{name:"Ряд у выхода",desc:"+30 см для ног",from:"$32"}],footer:"Ставка не гарантирует апгрейд. Оплата только при подтверждении."},
-    chaser:{subject:"Последний шанс: мест в бизнес-классе почти нет",to:"j.smith@company.com",tag:"Chaser · за 48–72 часа",tagC:T.amber,tagBg:T.amberDim,hBg:"#1C1200",hLine:T.amber,title:"Аукцион закрывается через 14 часов",body:"Вы не подавали заявку. Осталось ограниченное число мест. Деньги не списываются без подтверждённого апгрейда.",ctaLabel:"Участвовать — осталось мало мест →",ctaBg:T.amber,urgency:true,footer:"Ставка не гарантирует апгрейд. Оплата только при подтверждении."},
-    win:{subject:"Поздравляем — вы летите бизнес-классом!",to:"aziz.karimov@mail.uz",tag:"Confirm · за 4–8 часов",tagC:T.green,tagBg:T.greenDim,hBg:"#031C13",hLine:T.green,title:"Ваш апгрейд подтверждён!",body:"Добро пожаловать в бизнес-класс, Азиз! Место 4A забронировано, $580 списано. Приоритетная посадка и лаундж уже доступны.",ctaLabel:"Посмотреть посадочный →",ctaBg:T.green,booking:{Рейс:"HY 602",Маршрут:"Ташкент → Стамбул",Место:"4A · Бизнес-класс",Вылет:"15 июня · 08:45",Списано:"$580"},footer:"Uzbekistan Airways · hy-support@uzbekistanairways.com"},
+    pte:{subject:"Азиз, предложите свою цену на бизнес-класс",to:"aziz.karimov@mail.uz",tag:"PTE · за 7–14 дней",tagC:T.accent,tagBg:T.accentDim,hBg:T.emailPteBg,hLine:T.accent,title:"Улучшите перелёт до бизнес-класса",body:"Ваш рейс HY 602 квалифицирован для участия в аукционе. Предложите цену — средства спишутся только при подтверждении.",ctaLabel:"Предложить цену →",ctaBg:T.accent,offers:[{name:"Бизнес-класс",desc:"Раскладное кресло · Лаундж",from:"$262"},{name:"Ряд у выхода",desc:"+30 см для ног",from:"$32"}],footer:"Ставка не гарантирует апгрейд. Оплата только при подтверждении."},
+    chaser:{subject:"Последний шанс: мест в бизнес-классе почти нет",to:"j.smith@company.com",tag:"Chaser · за 48–72 часа",tagC:T.amber,tagBg:T.amberDim,hBg:T.emailChaserBg,hLine:T.amber,title:"Аукцион закрывается через 14 часов",body:"Вы не подавали заявку. Осталось ограниченное число мест. Деньги не списываются без подтверждённого апгрейда.",ctaLabel:"Участвовать — осталось мало мест →",ctaBg:T.amber,urgency:true,footer:"Ставка не гарантирует апгрейд. Оплата только при подтверждении."},
+    win:{subject:"Поздравляем — вы летите бизнес-классом!",to:"aziz.karimov@mail.uz",tag:"Confirm · за 4–8 часов",tagC:T.green,tagBg:T.greenDim,hBg:T.emailWinBg,hLine:T.green,title:"Ваш апгрейд подтверждён!",body:"Добро пожаловать в бизнес-класс, Азиз! Место 4A забронировано, $580 списано. Приоритетная посадка и лаундж уже доступны.",ctaLabel:"Посмотреть посадочный →",ctaBg:T.green,booking:{Рейс:"HY 602",Маршрут:"Ташкент → Стамбул",Место:"4A · Бизнес-класс",Вылет:"15 июня · 08:45",Списано:"$580"},footer:"Uzbekistan Airways · hy-support@uzbekistanairways.com"},
   };
   const c=cfgs[type];
   const metaRows=type==="pte"?[["Открываемость","~35%"],["Конверсия","18.4%"],["Доля заявок","30%+"],["Отписок","0.4%"]]:type==="chaser"?[["Открываемость","~42%"],["Конверсия","11.2%"],["Срочность","высокая"],["A/B тест","2 варианта"]]:[["Доставлено","100%"],["Открыто","~88%"],["Жалоб","0"],["NPS impact","+12"]];
@@ -701,22 +729,22 @@ function EmailPreview({ type }) {
         <div style={{ background:T.bgCard, border:`0.5px solid ${T.border}`, borderRadius:10, padding:"14px 16px" }}>
           <SectionLabel>Метрики канала</SectionLabel>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-            {metaRows.map(([k,v])=><div key={k} style={{ background:T.bg, borderRadius:7, padding:"9px 11px" }}><div style={{ fontSize:10, color:T.textMuted, textTransform:"uppercase", letterSpacing:.8 }}>{k}</div><div style={{ fontSize:17, fontWeight:700, color:T.text, marginTop:3, fontFamily:"monospace" }}>{v}</div></div>)}
+            {metaRows.map(([k,v])=><div key={k} style={{ background:T.bg, borderRadius:7, padding:"9px 11px" }}><div style={{ fontSize:10, color:T.textMuted, textTransform:"uppercase", letterSpacing:.8 }}>{k}</div><div style={{ fontSize:17, fontWeight:700, color:T.text, marginTop:3, fontFamily:F.mono }}>{v}</div></div>)}
           </div>
         </div>
       </div>
-      <div style={{ background:"#080A0E", border:`0.5px solid ${T.border}`, borderRadius:12, overflow:"hidden" }}>
-        <div style={{ background:"#0D1117", borderBottom:`0.5px solid ${T.border}`, padding:"7px 12px", display:"flex", alignItems:"center", gap:6 }}>
-          {["#FF5F57","#FEBC2E","#28C840"].map(col=><div key={col} style={{ width:9, height:9, borderRadius:"50%", background:col }} />)}
+      <div style={{ background:T.bgCard, border:`0.5px solid ${T.border}`, borderRadius:12, overflow:"hidden" }}>
+        <div style={{ background:T.bgElevated, borderBottom:`0.5px solid ${T.border}`, padding:"7px 12px", display:"flex", alignItems:"center", gap:6 }}>
+          {[T.windowControlRed,T.windowControlAmber,T.windowControlGreen].map(col=><div key={col} style={{ width:9, height:9, borderRadius:"50%", background:col }} />)}
           <div style={{ flex:1, background:T.bg, borderRadius:4, height:17, marginLeft:8, display:"flex", alignItems:"center", paddingLeft:8 }}><span style={{ fontSize:10, color:T.textMuted }}>mail.uzbekistanairways.uz</span></div>
         </div>
         <div style={{ padding:12 }}>
           <div style={{ borderRadius:7, overflow:"hidden", border:`0.5px solid ${T.border}` }}>
             <div style={{ background:c.hBg, borderBottom:`2px solid ${c.hLine}`, padding:"11px 14px", display:"flex", alignItems:"center", gap:8 }}>
-              <div style={{ background:c.hLine, borderRadius:4, width:24, height:16, display:"flex", alignItems:"center", justifyContent:"center" }}><span style={{ fontSize:8, fontWeight:800, color:"#fff" }}>HY</span></div>
-              <span style={{ color:"#E2E8F0", fontWeight:600, fontSize:12 }}>Uzbekistan Airways</span>
+              <div style={{ background:c.hLine, borderRadius:4, width:24, height:16, display:"flex", alignItems:"center", justifyContent:"center" }}><span style={{ fontSize:8, fontWeight:800, color:T.onAccent }}>HY</span></div>
+              <span style={{ color:T.text, fontWeight:600, fontSize:12 }}>Uzbekistan Airways</span>
             </div>
-            <div style={{ background:"#0D1117", padding:14 }}>
+            <div style={{ background:T.bgCard, padding:14 }}>
               <div style={{ background:T.bgElevated, border:`0.5px solid ${T.border}`, borderRadius:6, padding:"8px 10px", marginBottom:10, display:"flex", alignItems:"center", gap:10 }}>
                 <div style={{ textAlign:"center" }}><div style={{ fontSize:15, fontWeight:700, color:T.text }}>TAS</div><div style={{ fontSize:9, color:T.textMuted }}>Ташкент</div></div>
                 <div style={{ flex:1, display:"flex", alignItems:"center", gap:3 }}><div style={{ flex:1, height:1, background:T.border }} /><span style={{ fontSize:10, color:T.textMuted }}>✈</span><div style={{ flex:1, height:1, background:T.border }} /></div>
@@ -726,8 +754,8 @@ function EmailPreview({ type }) {
               <div style={{ fontSize:13, fontWeight:600, color:T.text, marginBottom:4 }}>{c.title}</div>
               <div style={{ fontSize:11, color:T.textSub, lineHeight:1.6, marginBottom:9 }}>{c.body}</div>
               {c.offers&&c.offers.map(o=><div key={o.name} style={{ border:`0.5px solid ${T.border}`, borderRadius:5, padding:"6px 9px", marginBottom:5, display:"flex", justifyContent:"space-between", alignItems:"center" }}><div><div style={{ fontSize:11, fontWeight:600, color:T.text }}>{o.name}</div><div style={{ fontSize:10, color:T.textMuted }}>{o.desc}</div></div><div style={{ textAlign:"right" }}><div style={{ fontSize:9, color:T.textMuted }}>от</div><div style={{ fontSize:14, fontWeight:700, color:c.tagC }}>{o.from}</div></div></div>)}
-              {c.booking&&<div style={{ background:T.greenDim, border:`0.5px solid ${T.green}`, borderRadius:5, padding:"8px 9px", marginBottom:9 }}>{Object.entries(c.booking).map(([k,v])=><div key={k} style={{ display:"flex", justifyContent:"space-between", fontSize:11, padding:"2px 0", borderBottom:`0.5px solid rgba(16,185,129,.15)` }}><span style={{ color:T.greenText }}>{k}</span><span style={{ fontWeight:600, color:T.greenText }}>{v}</span></div>)}</div>}
-              <div style={{ background:c.ctaBg, borderRadius:5, padding:"8px", textAlign:"center", fontSize:11, fontWeight:700, color:"#fff", marginBottom:7, cursor:"pointer" }}>{c.ctaLabel}</div>
+              {c.booking&&<div style={{ background:T.greenDim, border:`0.5px solid ${T.green}`, borderRadius:5, padding:"8px 9px", marginBottom:9 }}>{Object.entries(c.booking).map(([k,v])=><div key={k} style={{ display:"flex", justifyContent:"space-between", fontSize:11, padding:"2px 0", borderBottom:`0.5px solid ${T.dividerSuccess}` }}><span style={{ color:T.greenText }}>{k}</span><span style={{ fontWeight:600, color:T.greenText }}>{v}</span></div>)}</div>}
+              <div style={{ background:c.ctaBg, borderRadius:5, padding:"8px", textAlign:"center", fontSize:11, fontWeight:700, color:T.onAccent, marginBottom:7, cursor:"pointer" }}>{c.ctaLabel}</div>
               <div style={{ fontSize:10, color:T.textMuted, borderTop:`0.5px solid ${T.border}`, paddingTop:7, lineHeight:1.6 }}>{c.footer}</div>
             </div>
           </div>
@@ -758,11 +786,11 @@ export default function UpgradeAuctionAdmin() {
   ].filter(t=>!t.hide);
 
   return (
-    <div style={{ background:T.bg, minHeight:"600px", fontFamily:"system-ui,sans-serif", color:T.text }}>
+    <div style={{ background:T.bg, minHeight:"600px", fontFamily:F.sans, color:T.text, lineHeight:1.4 }}>
       <div style={{ borderBottom:`0.5px solid ${T.border}`, padding:"0 24px", display:"flex", alignItems:"center", gap:0, flexWrap:"wrap" }}>
         <div style={{ display:"flex", alignItems:"center", gap:9, padding:"13px 0", marginRight:24 }}>
           <div style={{ width:26, height:17, background:T.accent, borderRadius:3, display:"flex", alignItems:"center", justifyContent:"center" }}>
-            <span style={{ fontSize:8, fontWeight:800, color:"#EFF6FF", letterSpacing:.5 }}>HY</span>
+            <span style={{ fontSize:8, fontWeight:800, color:T.onAccentSoft, letterSpacing:.5 }}>HY</span>
           </div>
           <span style={{ fontSize:12, fontWeight:700, color:T.text, letterSpacing:.5 }}>Auction Admin</span>
         </div>
