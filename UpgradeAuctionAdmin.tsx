@@ -136,6 +136,30 @@ type PricingRow = {
   keys: Record<PricingHaulKey, RulesNumberKey>;
 };
 
+type EmailOffer = {
+  name: string;
+  desc: string;
+  from: string;
+};
+
+type EmailTemplateConfig = {
+  subject: string;
+  to: string;
+  tag: string;
+  tagC: string;
+  tagBg: string;
+  hBg: string;
+  hLine: string;
+  title: string;
+  body: string;
+  ctaLabel: string;
+  ctaBg: string;
+  footer: string;
+  urgency?: boolean;
+  offers?: EmailOffer[];
+  booking?: Record<string, string>;
+};
+
 // ─── Design tokens ────────────────────────────────────────────
 const T = {
   // Surface and layout colors
@@ -2687,7 +2711,7 @@ function FlightDetail({
 
 // ─── EmailPreview ─────────────────────────────────────────────
 function EmailPreview({ type }: { type: EmailTemplateType }) {
-  const cfgs = {
+  const cfgs: Record<EmailTemplateType, EmailTemplateConfig> = {
     pte: {
       subject: "Азиз, предложите свою цену на бизнес-класс",
       to: "aziz.karimov@mail.uz",
@@ -2744,7 +2768,7 @@ function EmailPreview({ type }: { type: EmailTemplateType }) {
     },
   };
   const c = cfgs[type];
-  const metaRows =
+  const metaRows: Array<[string, string]> =
     type === "pte"
       ? [
           ["Открываемость", "~35%"],
@@ -2765,6 +2789,23 @@ function EmailPreview({ type }: { type: EmailTemplateType }) {
             ["Жалоб", "0"],
             ["NPS impact", "+12"],
           ];
+  const metadataRows: Array<{ key: string; label: string; value: ReactNode }> = [
+    {
+      key: "type",
+      label: "Тип",
+      value: <Pill color={c.tagC} bg={c.tagBg}>{c.tag}</Pill>,
+    },
+    {
+      key: "to",
+      label: "Кому",
+      value: <span style={{ fontSize: 12, color: T.textSub }}>{c.to}</span>,
+    },
+    {
+      key: "subject",
+      label: "Тема",
+      value: <span style={{ fontSize: 12, color: T.text }}>{c.subject}</span>,
+    },
+  ];
   return (
     <div
       style={{ display: "grid", gridTemplateColumns: "1fr 330px", gap: 20, alignItems: "start" }}
@@ -2779,18 +2820,9 @@ function EmailPreview({ type }: { type: EmailTemplateType }) {
           }}
         >
           <SectionLabel>Метаданные</SectionLabel>
-          {[
-            [
-              "Тип",
-              <Pill color={c.tagC} bg={c.tagBg}>
-                {c.tag}
-              </Pill>,
-            ],
-            ["Кому", <span style={{ fontSize: 12, color: T.textSub }}>{c.to}</span>],
-            ["Тема", <span style={{ fontSize: 12, color: T.text }}>{c.subject}</span>],
-          ].map(([k, v]) => (
+          {metadataRows.map((row) => (
             <div
-              key={k}
+              key={row.key}
               style={{
                 display: "flex",
                 alignItems: "flex-start",
@@ -2808,9 +2840,9 @@ function EmailPreview({ type }: { type: EmailTemplateType }) {
                   paddingTop: 2,
                 }}
               >
-                {k}
+                {row.label}
               </div>
-              <div>{v}</div>
+              <div>{row.value}</div>
             </div>
           ))}
         </div>
