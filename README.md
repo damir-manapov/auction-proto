@@ -59,3 +59,22 @@ npm run preview  # preview production build locally
 
 - Theme is currently light corporate and tokenized for easy color management.
 - Styling is inline and concentrated in `UpgradeAuctionAdmin.jsx` for rapid prototyping.
+
+## AI-Assisted shadcn Workflow
+
+This repository includes project-level shadcn skills for agent-driven development.
+
+Installed artifacts:
+- `.agents/skills/shadcn`
+- `skills-lock.json`
+
+Install command used:
+
+```bash
+npm exec skills add shadcn/ui
+```
+
+Recommended next steps:
+1. Initialize shadcn for this app (`npx shadcn@latest init`) so `components.json` is created.
+2. Add required components with `npx shadcn@latest add <component>`.
+3. Keep generated UI primitives in `src/components/ui` and compose app-specific components separately.
