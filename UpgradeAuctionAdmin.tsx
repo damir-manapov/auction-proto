@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 
 type Tier = "Platinum" | "Gold" | "Silver" | "Standard";
@@ -357,6 +356,23 @@ const FLIGHTS_DATA: Flight[] = [
   },
 ];
 
+const FALLBACK_FLIGHT: Flight = {
+  id: "HY 000",
+  from: "TAS",
+  to: "TAS",
+  dep: "—",
+  arr: "—",
+  duration: "—",
+  aircraft: "—",
+  bcFree: 0,
+  bcTotal: 0,
+  bids: 0,
+  topBid: 0,
+  revenue: 0,
+  status: "upcoming",
+  haul: "ultra-short",
+};
+
 const INITIAL_BIDS: Bid[] = [
   {
     id: 1,
@@ -713,10 +729,14 @@ function SeatMap() {
         ))}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 28px)", gap: 4 }}>
-        {SEAT_MAP_BC.flatMap((row, ri) =>
-          row.map((seat, ci) =>
+        {SEAT_MAP_BC.flatMap((row) => {
+          const rowKey = row
+            .filter((seat): seat is SeatCell => seat !== null)
+            .map((seat) => seat.id)
+            .join("-");
+          return row.map((seat) =>
             seat === null ? (
-              <div key={`${ri}-a`} style={{ width: 4 }} />
+              <div key={`${rowKey}-aisle`} style={{ width: 4 }} />
             ) : (
               <div
                 key={seat.id}
@@ -737,26 +757,24 @@ function SeatMap() {
                 {seat.id}
               </div>
             ),
-          ),
-        )}
+          );
+        })}
       </div>
     </div>
   );
 }
-function Toggle({
-  checked,
-  onChange,
-}: {
-  checked: boolean;
-  onChange: (next: boolean) => void;
-}) {
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (next: boolean) => void }) {
   return (
-    <div
+    <button
+      type="button"
+      aria-pressed={checked}
       onClick={() => onChange(!checked)}
       style={{
         width: 36,
         height: 20,
         borderRadius: 10,
+        border: "none",
+        padding: 0,
         cursor: "pointer",
         flexShrink: 0,
         background: checked ? T.accent : T.border,
@@ -776,7 +794,7 @@ function Toggle({
           transition: "left .2s",
         }}
       />
-    </div>
+    </button>
   );
 }
 function NumInput({
@@ -988,6 +1006,7 @@ function PassengerBidUI() {
               аукциона.
             </div>
             <button
+              type="button"
               onClick={() => setSubmitted(false)}
               style={{
                 background: "transparent",
@@ -1390,6 +1409,7 @@ function PassengerBidUI() {
 
           {/* Submit */}
           <button
+            type="button"
             disabled={base === 0}
             onClick={() => setSubmitted(true)}
             style={{
@@ -1519,6 +1539,7 @@ function FlightList({ onSelect }: { onSelect: (flightId: Flight["id"]) => void }
         <div style={{ display: "flex", gap: 5 }}>
           {statusFilters.map(([k, l]) => (
             <button
+              type="button"
               key={k}
               onClick={() => setStatusF(k)}
               style={{
@@ -1667,6 +1688,7 @@ function FlightList({ onSelect }: { onSelect: (flightId: Flight["id"]) => void }
                     </td>
                     <td style={{ padding: "11px 14px" }}>
                       <button
+                        type="button"
                         onClick={() => onSelect(f.id)}
                         style={{
                           padding: "6px 11px",
@@ -1849,11 +1871,19 @@ function GlobalRules() {
     { tier: "Platinum", mult: 1 + rules.multiplierPlatinum / 100 },
   ];
   const channelRows: Array<{ key: ChannelRuleKey; label: string; desc: string }> = [
-    { key: "email", label: "Email (PTE + Chaser + Confirm)", desc: "30%+ всех заявок. Базовый канал" },
+    {
+      key: "email",
+      label: "Email (PTE + Chaser + Confirm)",
+      desc: "30%+ всех заявок. Базовый канал",
+    },
     { key: "mmb", label: "Manage My Booking", desc: "+25% к объёму. Средняя ставка выше на 77%" },
     { key: "app", label: "Мобильное приложение + Push", desc: "+4% к объёму" },
     { key: "web", label: "Маркетинговая страница", desc: "41% выручки партнёра" },
-    { key: "webcheckin", label: "Онлайн-регистрация", desc: "+10% к выручке. 55% уникальных посетителей" },
+    {
+      key: "webcheckin",
+      label: "Онлайн-регистрация",
+      desc: "+10% к выручке. 55% уникальных посетителей",
+    },
     { key: "pushNotif", label: "Push-уведомления", desc: "Уведомляет о статусе ставки" },
   ];
   const paymentRows: Array<{ key: PaymentMethodKey; label: string; desc: string }> = [
@@ -1864,15 +1894,36 @@ function GlobalRules() {
     { key: "diners", label: "Diners Club", desc: "Ограниченная поддержка эквайеров" },
   ];
   const featureRows: Array<{ key: RulesBooleanKey; label: string; desc: string }> = [
-    { key: "seatBlocker", label: "Seat Blocker", desc: "+10–20% выручки. Блокировка соседнего места" },
+    {
+      key: "seatBlocker",
+      label: "Seat Blocker",
+      desc: "+10–20% выручки. Блокировка соседнего места",
+    },
     { key: "payWithPoints", label: "Pay with Points", desc: "Оплата баллами лояльности" },
-    { key: "crossAirlineUpgrades", label: "Cross Airline Upgrades", desc: "+21% заявок через альянс/кодшер" },
-    { key: "continuousPricing", label: "Continuous Pricing (AI)", desc: "+12% выручки по A/B-тесту" },
-    { key: "autoFulfillment", label: "Авто-фулфилмент", desc: "Автовыбор победителей без ручного одобрения" },
+    {
+      key: "crossAirlineUpgrades",
+      label: "Cross Airline Upgrades",
+      desc: "+21% заявок через альянс/кодшер",
+    },
+    {
+      key: "continuousPricing",
+      label: "Continuous Pricing (AI)",
+      desc: "+12% выручки по A/B-тесту",
+    },
+    {
+      key: "autoFulfillment",
+      label: "Авто-фулфилмент",
+      desc: "Автовыбор победителей без ручного одобрения",
+    },
     { key: "blindBids", label: "Слепые ставки", desc: "Участники не видят предложения других" },
   ];
   const featureStatusLabels: Record<
-    "seatBlocker" | "payWithPoints" | "crossAirlineUpgrades" | "continuousPricing" | "autoFulfillment" | "blindBids",
+    | "seatBlocker"
+    | "payWithPoints"
+    | "crossAirlineUpgrades"
+    | "continuousPricing"
+    | "autoFulfillment"
+    | "blindBids",
     string
   > = {
     seatBlocker: "Seat Blocker",
@@ -1913,6 +1964,7 @@ function GlobalRules() {
         </div>
         {SECTIONS.map((s, i) => (
           <button
+            type="button"
             key={s.id}
             onClick={() => setActiveSection(s.id)}
             style={{
@@ -1934,6 +1986,7 @@ function GlobalRules() {
         ))}
         <div style={{ padding: "10px 12px", borderTop: `0.5px solid ${T.border}` }}>
           <button
+            type="button"
             onClick={() => setSaved(true)}
             style={{
               width: "100%",
@@ -2241,30 +2294,34 @@ function GlobalRules() {
                 Статус функций
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 7 }}>
-                {(Object.keys(featureStatusLabels) as Array<keyof typeof featureStatusLabels>).map((k) => {
-                  return (
-                    <div
-                      key={k}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        background: T.bg,
-                        borderRadius: 7,
-                        padding: "7px 11px",
-                      }}
-                    >
-                      <span style={{ fontSize: 12, color: T.textSub }}>{featureStatusLabels[k]}</span>
-                      <Pill
-                        color={rules[k] ? T.greenText : T.textMuted}
-                        bg={rules[k] ? T.greenDim : T.neutralSoft}
-                        size={10}
+                {(Object.keys(featureStatusLabels) as Array<keyof typeof featureStatusLabels>).map(
+                  (k) => {
+                    return (
+                      <div
+                        key={k}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          background: T.bg,
+                          borderRadius: 7,
+                          padding: "7px 11px",
+                        }}
                       >
-                        {rules[k] ? "вкл" : "выкл"}
-                      </Pill>
-                    </div>
-                  );
-                })}
+                        <span style={{ fontSize: 12, color: T.textSub }}>
+                          {featureStatusLabels[k]}
+                        </span>
+                        <Pill
+                          color={rules[k] ? T.greenText : T.textMuted}
+                          bg={rules[k] ? T.greenDim : T.neutralSoft}
+                          size={10}
+                        >
+                          {rules[k] ? "вкл" : "выкл"}
+                        </Pill>
+                      </div>
+                    );
+                  },
+                )}
               </div>
             </div>
           </div>
@@ -2275,14 +2332,8 @@ function GlobalRules() {
 }
 
 // ─── FlightDetail ─────────────────────────────────────────────
-function FlightDetail({
-  flightId,
-  onBack,
-}: {
-  flightId: Flight["id"];
-  onBack: () => void;
-}) {
-  const flight = FLIGHTS_DATA.find((f) => f.id === flightId) ?? FLIGHTS_DATA[0]!;
+function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onBack: () => void }) {
+  const flight = FLIGHTS_DATA.find((f) => f.id === flightId) ?? FLIGHTS_DATA[0] ?? FALLBACK_FLIGHT;
   const [bids, setBids] = useState(INITIAL_BIDS);
   const [filter, setFilter] = useState<FlightDetailFilter>("all");
   const [autoRan, setAutoRan] = useState(false);
@@ -2359,6 +2410,7 @@ function FlightDetail({
         }}
       >
         <button
+          type="button"
           onClick={onBack}
           style={{
             padding: "6px 12px",
@@ -2385,6 +2437,7 @@ function FlightDetail({
         <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
           {!autoRan ? (
             <button
+              type="button"
               onClick={autoSelect}
               style={{
                 background: T.accent,
@@ -2512,6 +2565,7 @@ function FlightDetail({
           <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
             {detailFilters.map(([k, lbl]) => (
               <button
+                type="button"
                 key={k}
                 onClick={() => setFilter(k)}
                 style={{
@@ -2663,6 +2717,7 @@ function FlightDetail({
                       {b.state === "pending" && (
                         <div style={{ display: "flex", gap: 5 }}>
                           <button
+                            type="button"
                             onClick={() => approve(b.id)}
                             style={{
                               padding: "4px 9px",
@@ -2678,6 +2733,7 @@ function FlightDetail({
                             ✓ Принять
                           </button>
                           <button
+                            type="button"
                             onClick={() => reject(b.id)}
                             style={{
                               padding: "4px 8px",
@@ -2793,7 +2849,11 @@ function EmailPreview({ type }: { type: EmailTemplateType }) {
     {
       key: "type",
       label: "Тип",
-      value: <Pill color={c.tagC} bg={c.tagBg}>{c.tag}</Pill>,
+      value: (
+        <Pill color={c.tagC} bg={c.tagBg}>
+          {c.tag}
+        </Pill>
+      ),
     },
     {
       key: "to",
@@ -3004,30 +3064,29 @@ function EmailPreview({ type }: { type: EmailTemplateType }) {
               <div style={{ fontSize: 11, color: T.textSub, lineHeight: 1.6, marginBottom: 9 }}>
                 {c.body}
               </div>
-              {c.offers &&
-                c.offers.map((o) => (
-                  <div
-                    key={o.name}
-                    style={{
-                      border: `0.5px solid ${T.border}`,
-                      borderRadius: 5,
-                      padding: "6px 9px",
-                      marginBottom: 5,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: T.text }}>{o.name}</div>
-                      <div style={{ fontSize: 10, color: T.textMuted }}>{o.desc}</div>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 9, color: T.textMuted }}>от</div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: c.tagC }}>{o.from}</div>
-                    </div>
+              {c.offers?.map((o) => (
+                <div
+                  key={o.name}
+                  style={{
+                    border: `0.5px solid ${T.border}`,
+                    borderRadius: 5,
+                    padding: "6px 9px",
+                    marginBottom: 5,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: T.text }}>{o.name}</div>
+                    <div style={{ fontSize: 10, color: T.textMuted }}>{o.desc}</div>
                   </div>
-                ))}
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 9, color: T.textMuted }}>от</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: c.tagC }}>{o.from}</div>
+                  </div>
+                </div>
+              ))}
               {c.booking && (
                 <div
                   style={{
@@ -3107,13 +3166,14 @@ export default function UpgradeAuctionAdmin() {
   const totalActive = FLIGHTS_DATA.filter((f) => f.status === "active").length;
   const totalBids = FLIGHTS_DATA.reduce((s, f) => s + f.bids, 0);
 
-  const NAV: Array<{ id: MainTab; label: string; hide?: boolean }> = [
+  const navItems = [
     { id: "flights", label: "Рейсы" },
     { id: "flight", label: "Детали рейса", hide: !selectedFlight },
     { id: "rules", label: "Глобальные правила" },
     { id: "email", label: "Email-шаблоны" },
     { id: "passenger", label: "Интерфейс пассажира" },
-  ].filter((t) => !t.hide);
+  ] satisfies Array<{ id: MainTab; label: string; hide?: boolean }>;
+  const NAV = navItems.filter((t) => !t.hide);
 
   return (
     <div
@@ -3167,6 +3227,7 @@ export default function UpgradeAuctionAdmin() {
         </div>
         {NAV.map((t) => (
           <button
+            type="button"
             key={t.id}
             onClick={() => {
               setTab(t.id);
@@ -3237,12 +3298,15 @@ export default function UpgradeAuctionAdmin() {
                 borderBottom: `0.5px solid ${T.border}`,
               }}
             >
-              {([
-                ["pte", "Приглашение (PTE)"],
-                ["chaser", "Напоминание"],
-                ["win", "Подтверждение"],
-              ] as Array<[EmailTemplateType, string]>).map(([id, lbl]) => (
+              {(
+                [
+                  ["pte", "Приглашение (PTE)"],
+                  ["chaser", "Напоминание"],
+                  ["win", "Подтверждение"],
+                ] as Array<[EmailTemplateType, string]>
+              ).map(([id, lbl]) => (
                 <button
+                  type="button"
                   key={id}
                   onClick={() => setEmailTab(id)}
                   style={{
