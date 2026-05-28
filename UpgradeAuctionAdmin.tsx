@@ -1,5 +1,123 @@
 // @ts-nocheck
 import { useState, useCallback } from "react";
+import type { ReactNode } from "react";
+
+type Tier = "Platinum" | "Gold" | "Silver" | "Standard";
+type BidState = "pending" | "approved" | "rejected";
+type FlightStatus = "active" | "sold" | "upcoming";
+type FlightHaul = "ultra-short" | "short" | "medium" | "long" | "ultra";
+type Channel = "Email" | "App" | "MMB" | "Web";
+
+type Flight = {
+  id: string;
+  from: string;
+  to: string;
+  dep: string;
+  arr: string;
+  duration: string;
+  aircraft: string;
+  bcFree: number;
+  bcTotal: number;
+  bids: number;
+  topBid: number;
+  revenue: number;
+  status: FlightStatus;
+  haul: FlightHaul;
+};
+
+type Bid = {
+  id: number;
+  name: string;
+  tier: Tier;
+  bid: number;
+  mult: number;
+  channel: Channel;
+  time: string;
+  state: BidState;
+};
+
+type ProductKey = "bc" | "ex" | "sb";
+type ProductConfig = {
+  label: string;
+  desc: string;
+  icon: string;
+  min: number;
+  max: number;
+  defaultVal: number;
+  color: string;
+  trackColor: string;
+};
+
+type ProductBidMap = Record<ProductKey, number>;
+type ProductActiveMap = Record<ProductKey, boolean>;
+
+type SeatCell = {
+  id: string;
+  taken: boolean;
+  bid?: boolean;
+};
+
+type RuleSectionId = "timing" | "pricing" | "loyalty" | "channels" | "payment" | "features";
+type EmailTemplateType = "pte" | "chaser" | "win";
+type MainTab = "flights" | "flight" | "rules" | "email" | "passenger";
+
+type FlightListFilter = "all" | FlightStatus;
+type FlightListSortCol = "dep" | "bids" | "revenue" | "topBid";
+type SortDir = "asc" | "desc";
+
+type FlightDetailFilter = "all" | BidState;
+type FlightDetailSortCol = "name" | "tier" | "bid" | "weighted" | "channel" | "time";
+
+type Rules = {
+  inviteDaysBefore: number;
+  chaserHoursBefore: number;
+  closureHoursBefore: number;
+  autoFulfillment: boolean;
+  requirePurchased: boolean;
+  blindBids: boolean;
+  maxUpgradesPerFlight: number;
+  multiplierPlatinum: number;
+  multiplierGold: number;
+  multiplierSilver: number;
+  minBcUltraShort: number;
+  minBcShort: number;
+  minBcMedium: number;
+  minBcLong: number;
+  minBcUltraLong: number;
+  minExitShort: number;
+  minExitMedium: number;
+  minExitLong: number;
+  minSeatBlockShort: number;
+  minSeatBlockMedium: number;
+  minSeatBlockLong: number;
+  channels: {
+    email: boolean;
+    mmb: boolean;
+    app: boolean;
+    web: boolean;
+    webcheckin: boolean;
+    pushNotif: boolean;
+  };
+  paymentMethods: {
+    visa: boolean;
+    mastercard: boolean;
+    amex: boolean;
+    jcb: boolean;
+    diners: boolean;
+  };
+  use3ds: boolean;
+  continuousPricing: boolean;
+  crossAirlineUpgrades: boolean;
+  payWithPoints: boolean;
+  seatBlocker: boolean;
+};
+
+type RulesBooleanKey = {
+  [K in keyof Rules]: Rules[K] extends boolean ? K : never;
+}[keyof Rules];
+type RulesNumberKey = {
+  [K in keyof Rules]: Rules[K] extends number ? K : never;
+}[keyof Rules];
 
 // ─── Design tokens ────────────────────────────────────────────
 const T = {
@@ -67,7 +185,7 @@ const F = {
 };
 
 // ─── Data ─────────────────────────────────────────────────────
-const FLIGHTS_DATA = [
+const FLIGHTS_DATA: Flight[] = [
   {
     id: "HY 602",
     from: "TAS",
@@ -198,7 +316,7 @@ const FLIGHTS_DATA = [
   },
 ];
 
-const INITIAL_BIDS = [
+const INITIAL_BIDS: Bid[] = [
   {
     id: 1,
     name: "Иванов А.П.",
@@ -301,17 +419,17 @@ const INITIAL_BIDS = [
   },
 ];
 
-const DIST_DATA = [
+const DIST_DATA: Array<{ range: string; count: number; pct: number; color: string }> = [
   { range: "$500–750", count: 7, pct: 25, color: T.accent },
   { range: "$400–499", count: 10, pct: 36, color: T.accentSoft },
   { range: "$300–399", count: 8, pct: 29, color: T.accentMuted },
   { range: "$262–299", count: 3, pct: 10, color: T.accentPale },
 ];
-const EXIT_DATA = [
+const EXIT_DATA: Array<{ range: string; count: number; pct: number; color: string }> = [
   { range: "$60–85", count: 9, pct: 64, color: T.green },
   { range: "$32–59", count: 5, pct: 36, color: T.greenSoft },
 ];
-const SEAT_MAP_BC = [
+const SEAT_MAP_BC: Array<Array<SeatCell | null>> = [
   [
     { id: "1A", taken: true },
     { id: "1C", taken: true },
@@ -342,7 +460,7 @@ const SEAT_MAP_BC = [
   ],
 ];
 
-const DEFAULT_RULES = {
+const DEFAULT_RULES: Rules = {
   inviteDaysBefore: 14,
   chaserHoursBefore: 48,
   closureHoursBefore: 4,
@@ -374,35 +492,45 @@ const DEFAULT_RULES = {
 };
 
 // ─── Helpers ──────────────────────────────────────────────────
-const weighted = (b) => Math.round(b.bid * b.mult);
+const weighted = (b: Bid) => Math.round(b.bid * b.mult);
 
-const TIER_META = {
+const TIER_META: Record<Tier, { color: string; bg: string; label: string; mult: string }> = {
   Platinum: { color: T.amber, bg: T.amberDim, label: "Platinum", mult: "+10%" },
   Gold: { color: T.accent, bg: T.accentDim, label: "Gold", mult: "+5%" },
   Silver: { color: T.textSub, bg: T.neutralSoft, label: "Silver", mult: "+3%" },
   Standard: { color: T.textMuted, bg: T.neutralPale, label: "Standard", mult: "—" },
 };
-const STATE_META = {
+const STATE_META: Record<BidState, { label: string; color: string; bg: string }> = {
   pending: { label: "Ожидает", color: T.textMuted, bg: T.neutralSoft },
   approved: { label: "Принята", color: T.greenText, bg: T.greenDim },
   rejected: { label: "Отклонена", color: T.redText, bg: T.redDim },
 };
-const STATUS_META = {
+const STATUS_META: Record<FlightStatus, { label: string; color: string; bg: string }> = {
   active: { label: "Активен", color: T.greenText, bg: T.greenDim },
   sold: { label: "Нет мест", color: T.redText, bg: T.redDim },
   upcoming: { label: "Скоро", color: T.amberText, bg: T.amberDim },
 };
-const HAUL_LABELS = {
+const HAUL_LABELS: Record<FlightHaul, string> = {
   "ultra-short": "Ультракороткий (<1.5ч)",
   short: "Короткий (1.5–3ч)",
   medium: "Средний (3–5ч)",
   long: "Длинный (5–8ч)",
   ultra: "Ультрадальний (8ч+)",
 };
-const CH_ICONS = { Email: "✉", App: "◉", MMB: "⊞", Web: "◈" };
+const CH_ICONS: Record<Channel, string> = { Email: "✉", App: "◉", MMB: "⊞", Web: "◈" };
 
 // ─── UI Primitives ────────────────────────────────────────────
-function Pill({ children, color, bg, size = 11 }) {
+function Pill({
+  children,
+  color,
+  bg,
+  size = 11,
+}: {
+  children: ReactNode;
+  color: string;
+  bg: string;
+  size?: number;
+}) {
   return (
     <span
       style={{
@@ -422,7 +550,17 @@ function Pill({ children, color, bg, size = 11 }) {
     </span>
   );
 }
-function MetricCard({ label, value, sub, accent }) {
+function MetricCard({
+  label,
+  value,
+  sub,
+  accent,
+}: {
+  label: ReactNode;
+  value: ReactNode;
+  sub?: ReactNode;
+  accent?: string;
+}) {
   return (
     <div
       style={{
@@ -459,7 +597,7 @@ function MetricCard({ label, value, sub, accent }) {
     </div>
   );
 }
-function SectionLabel({ children }) {
+function SectionLabel({ children }: { children: ReactNode }) {
   return (
     <div
       style={{
@@ -475,7 +613,11 @@ function SectionLabel({ children }) {
     </div>
   );
 }
-function BarChart({ data }) {
+function BarChart({
+  data,
+}: {
+  data: Array<{ range: string; count: number; pct: number; color: string }>;
+}) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
       {data.map((d) => (
@@ -560,7 +702,13 @@ function SeatMap() {
     </div>
   );
 }
-function Toggle({ checked, onChange }) {
+function Toggle({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+}) {
   return (
     <div
       onClick={() => onChange(!checked)}
@@ -590,7 +738,19 @@ function Toggle({ checked, onChange }) {
     </div>
   );
 }
-function NumInput({ value, onChange, min = 0, max = 9999, unit = "" }) {
+function NumInput({
+  value,
+  onChange,
+  min = 0,
+  max = 9999,
+  unit = "",
+}: {
+  value: number;
+  onChange: (next: number) => void;
+  min?: number;
+  max?: number;
+  unit?: string;
+}) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <input
@@ -618,8 +778,12 @@ function NumInput({ value, onChange, min = 0, max = 9999, unit = "" }) {
 
 // ─── PassengerBidUI ───────────────────────────────────────────
 function PassengerBidUI() {
-  const PASSENGER = { name: "Азиз Каримов", tier: "Platinum", initials: "АК" };
-  const PRODUCTS = {
+  const PASSENGER: { name: string; tier: Tier; initials: string } = {
+    name: "Азиз Каримов",
+    tier: "Platinum",
+    initials: "АК",
+  };
+  const PRODUCTS: Record<ProductKey, ProductConfig> = {
     bc: {
       label: "Бизнес-класс",
       desc: "Раскладное кресло · Лаундж · Питание",
@@ -653,21 +817,25 @@ function PassengerBidUI() {
   };
   const MULT = 1.1;
 
-  const [bids, setBids] = useState({ bc: 350, ex: 46, sb: 18 });
-  const [active, setActive] = useState({ bc: true, ex: true, sb: false });
+  const [bids, setBids] = useState<ProductBidMap>({ bc: 350, ex: 46, sb: 18 });
+  const [active, setActive] = useState<ProductActiveMap>({ bc: true, ex: true, sb: false });
   const [submitted, setSubmitted] = useState(false);
+  const productEntries = Object.entries(PRODUCTS) as Array<[ProductKey, ProductConfig]>;
 
-  const calcChance = (prod, val) => {
+  const calcChance = (prod: ProductKey, val: number) => {
     const p = PRODUCTS[prod];
     const pct = (val - p.min) / (p.max - p.min);
     return Math.min(Math.max(Math.round(pct * 72 + 8), 5), 90);
   };
-  const chanceColor = (p) => (p >= 65 ? T.green : p >= 40 ? T.amber : T.red);
+  const chanceColor = (p: number) => (p >= 65 ? T.green : p >= 40 ? T.amber : T.red);
 
-  const base = Object.entries(active).reduce((s, [k, on]) => s + (on ? bids[k] : 0), 0);
+  const base = (Object.keys(active) as ProductKey[]).reduce(
+    (sum, key) => sum + (active[key] ? bids[key] : 0),
+    0,
+  );
   const wt = Math.round(base * MULT);
 
-  const sliderBg = (prod) => {
+  const sliderBg = (prod: ProductKey) => {
     const p = PRODUCTS[prod];
     const v = bids[prod];
     const pct = Math.round(((v - p.min) / (p.max - p.min)) * 100);
@@ -677,9 +845,9 @@ function PassengerBidUI() {
   const tierMeta = TIER_META[PASSENGER.tier];
 
   if (submitted) {
-    const prods = Object.entries(active)
-      .filter(([, on]) => on)
-      .map(([k]) => PRODUCTS[k].label);
+    const prods = (Object.keys(active) as ProductKey[])
+      .filter((key) => active[key])
+      .map((key) => PRODUCTS[key].label);
     return (
       <div style={{ display: "flex", justifyContent: "center", padding: "24px 16px" }}>
         <div
@@ -937,7 +1105,7 @@ function PassengerBidUI() {
           </div>
 
           {/* Product cards */}
-          {Object.entries(PRODUCTS).map(([key, prod]) => {
+          {productEntries.map(([key, prod]) => {
             const on = active[key];
             const val = bids[key];
             const chance = on ? calcChance(key, val) : 0;
@@ -1111,7 +1279,7 @@ function PassengerBidUI() {
               marginBottom: 11,
             }}
           >
-            {Object.entries(PRODUCTS).map(
+            {productEntries.map(
               ([key, prod]) =>
                 active[key] && (
                   <div
@@ -1209,13 +1377,30 @@ function PassengerBidUI() {
 }
 
 // ─── FlightList ───────────────────────────────────────────────
-function FlightList({ onSelect }) {
+function FlightList({ onSelect }: { onSelect: (flightId: Flight["id"]) => void }) {
   const [search, setSearch] = useState("");
-  const [statusF, setStatusF] = useState("all");
-  const [sortCol, setSortCol] = useState("dep");
-  const [sortDir, setSortDir] = useState("asc");
+  const [statusF, setStatusF] = useState<FlightListFilter>("all");
+  const [sortCol, setSortCol] = useState<FlightListSortCol>("dep");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const statusFilters: Array<[FlightListFilter, string]> = [
+    ["all", "Все"],
+    ["active", "Активные"],
+    ["upcoming", "Скоро"],
+    ["sold", "Нет мест"],
+  ];
+  const headerCols: Array<[FlightListSortCol | null, string, string]> = [
+    ["dep", "Рейс / маршрут", "24%"],
+    [null, "Вылет", "13%"],
+    [null, "Борт", "8%"],
+    ["bids", "Заявок", "9%"],
+    [null, "Мест BC", "9%"],
+    ["topBid", "Топ ставка", "10%"],
+    ["revenue", "Прогноз", "10%"],
+    [null, "Статус", "9%"],
+    [null, "", "8%"],
+  ];
 
-  const handleSort = (col) => {
+  const handleSort = (col: FlightListSortCol) => {
     if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else {
       setSortCol(col);
@@ -1231,13 +1416,13 @@ function FlightList({ onSelect }) {
         f.to.includes(search.toUpperCase()),
     )
     .sort((a, b) => {
-      const vals = {
+      const vals: Record<FlightListSortCol, [string | number, string | number]> = {
         dep: [a.dep, b.dep],
         bids: [a.bids, b.bids],
         revenue: [a.revenue, b.revenue],
         topBid: [a.topBid, b.topBid],
       };
-      const [va, vb] = vals[sortCol] || [a.dep, b.dep];
+      const [va, vb] = vals[sortCol];
       return sortDir === "asc" ? (va > vb ? 1 : -1) : vb > va ? 1 : -1;
     });
 
@@ -1291,12 +1476,7 @@ function FlightList({ onSelect }) {
           }}
         />
         <div style={{ display: "flex", gap: 5 }}>
-          {[
-            ["all", "Все"],
-            ["active", "Активные"],
-            ["upcoming", "Скоро"],
-            ["sold", "Нет мест"],
-          ].map(([k, l]) => (
+          {statusFilters.map(([k, l]) => (
             <button
               key={k}
               onClick={() => setStatusF(k)}
@@ -1338,17 +1518,7 @@ function FlightList({ onSelect }) {
           >
             <thead>
               <tr style={{ borderBottom: `0.5px solid ${T.border}` }}>
-                {[
-                  ["dep", "Рейс / маршрут", "24%"],
-                  [null, "Вылет", "13%"],
-                  [null, "Борт", "8%"],
-                  ["bids", "Заявок", "9%"],
-                  [null, "Мест BC", "9%"],
-                  ["topBid", "Топ ставка", "10%"],
-                  ["revenue", "Прогноз", "10%"],
-                  [null, "Статус", "9%"],
-                  [null, "", "8%"],
-                ].map(([col, lbl, w]) => (
+                {headerCols.map(([col, lbl, w]) => (
                   <th
                     key={lbl}
                     onClick={col ? () => handleSort(col) : undefined}
@@ -2038,13 +2208,35 @@ function GlobalRules() {
 }
 
 // ─── FlightDetail ─────────────────────────────────────────────
-function FlightDetail({ flightId, onBack }) {
-  const flight = FLIGHTS_DATA.find((f) => f.id === flightId) || FLIGHTS_DATA[0];
+function FlightDetail({
+  flightId,
+  onBack,
+}: {
+  flightId: Flight["id"];
+  onBack: () => void;
+}) {
+  const flight = FLIGHTS_DATA.find((f) => f.id === flightId) ?? FLIGHTS_DATA[0]!;
   const [bids, setBids] = useState(INITIAL_BIDS);
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState<FlightDetailFilter>("all");
   const [autoRan, setAutoRan] = useState(false);
-  const [sortCol, setSortCol] = useState("weighted");
-  const [sortDir, setSortDir] = useState("desc");
+  const [sortCol, setSortCol] = useState<FlightDetailSortCol>("weighted");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const detailFilters: Array<[FlightDetailFilter, string]> = [
+    ["all", "Все"],
+    ["pending", "Ожидают"],
+    ["approved", "Принятые"],
+    ["rejected", "Отклонённые"],
+  ];
+  const detailHeaderCols: Array<[FlightDetailSortCol | null, string, string]> = [
+    ["name", "Пассажир", "22%"],
+    ["tier", "Статус", "11%"],
+    ["bid", "Ставка", "10%"],
+    ["weighted", "Взвешенная", "11%"],
+    ["channel", "Канал", "9%"],
+    ["time", "Время", "9%"],
+    [null, "Статус", "11%"],
+    [null, "Действие", "17%"],
+  ];
 
   const sorted = [...bids]
     .filter((b) => (filter === "all" ? true : b.state === filter))
@@ -2068,9 +2260,9 @@ function FlightDetail({ flightId, onBack }) {
       return sortDir === "desc" ? (vb > va ? 1 : -1) : va > vb ? 1 : -1;
     });
 
-  const approve = (id) =>
+  const approve = (id: Bid["id"]) =>
     setBids((bs) => bs.map((b) => (b.id === id ? { ...b, state: "approved" } : b)));
-  const reject = (id) =>
+  const reject = (id: Bid["id"]) =>
     setBids((bs) => bs.map((b) => (b.id === id ? { ...b, state: "rejected" } : b)));
   const autoSelect = () => {
     const top = [...bids]
@@ -2081,7 +2273,7 @@ function FlightDetail({ flightId, onBack }) {
     setBids((bs) => bs.map((b) => (top.includes(b.id) ? { ...b, state: "approved" } : b)));
     setAutoRan(true);
   };
-  const counts = {
+  const counts: Record<FlightDetailFilter, number> = {
     all: bids.length,
     pending: bids.filter((b) => b.state === "pending").length,
     approved: bids.filter((b) => b.state === "approved").length,
@@ -2251,12 +2443,7 @@ function FlightDetail({ flightId, onBack }) {
         >
           <SectionLabel>Заявки на бизнес-класс</SectionLabel>
           <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-            {[
-              ["all", "Все"],
-              ["pending", "Ожидают"],
-              ["approved", "Принятые"],
-              ["rejected", "Отклонённые"],
-            ].map(([k, lbl]) => (
+            {detailFilters.map(([k, lbl]) => (
               <button
                 key={k}
                 onClick={() => setFilter(k)}
@@ -2287,16 +2474,7 @@ function FlightDetail({ flightId, onBack }) {
           >
             <thead>
               <tr>
-                {[
-                  ["name", "Пассажир", "22%"],
-                  ["tier", "Статус", "11%"],
-                  ["bid", "Ставка", "10%"],
-                  ["weighted", "Взвешенная", "11%"],
-                  ["channel", "Канал", "9%"],
-                  ["time", "Время", "9%"],
-                  [null, "Статус", "11%"],
-                  [null, "Действие", "17%"],
-                ].map(([col, lbl, w]) => (
+                {detailHeaderCols.map(([col, lbl, w]) => (
                   <th
                     key={lbl}
                     onClick={
@@ -2465,7 +2643,7 @@ function FlightDetail({ flightId, onBack }) {
 }
 
 // ─── EmailPreview ─────────────────────────────────────────────
-function EmailPreview({ type }) {
+function EmailPreview({ type }: { type: EmailTemplateType }) {
   const cfgs = {
     pte: {
       subject: "Азиз, предложите свою цену на бизнес-класс",
@@ -2838,11 +3016,11 @@ function EmailPreview({ type }) {
 
 // ─── Root App ─────────────────────────────────────────────────
 export default function UpgradeAuctionAdmin() {
-  const [tab, setTab] = useState("flights");
-  const [emailTab, setEmailTab] = useState("pte");
-  const [selectedFlight, setSelectedFlight] = useState(null);
+  const [tab, setTab] = useState<MainTab>("flights");
+  const [emailTab, setEmailTab] = useState<EmailTemplateType>("pte");
+  const [selectedFlight, setSelectedFlight] = useState<Flight["id"] | null>(null);
 
-  const handleSelectFlight = (id) => {
+  const handleSelectFlight = (id: Flight["id"]) => {
     setSelectedFlight(id);
     setTab("flight");
   };
@@ -2854,7 +3032,7 @@ export default function UpgradeAuctionAdmin() {
   const totalActive = FLIGHTS_DATA.filter((f) => f.status === "active").length;
   const totalBids = FLIGHTS_DATA.reduce((s, f) => s + f.bids, 0);
 
-  const NAV = [
+  const NAV: Array<{ id: MainTab; label: string; hide?: boolean }> = [
     { id: "flights", label: "Рейсы" },
     { id: "flight", label: "Детали рейса", hide: !selectedFlight },
     { id: "rules", label: "Глобальные правила" },
@@ -2984,11 +3162,11 @@ export default function UpgradeAuctionAdmin() {
                 borderBottom: `0.5px solid ${T.border}`,
               }}
             >
-              {[
+              {([
                 ["pte", "Приглашение (PTE)"],
                 ["chaser", "Напоминание"],
                 ["win", "Подтверждение"],
-              ].map(([id, lbl]) => (
+              ] as Array<[EmailTemplateType, string]>).map(([id, lbl]) => (
                 <button
                   key={id}
                   onClick={() => setEmailTab(id)}
