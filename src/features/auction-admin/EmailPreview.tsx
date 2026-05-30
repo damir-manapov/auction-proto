@@ -1,10 +1,64 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { EmailTemplateConfig, EmailTemplateType } from "./types";
 import { F, T } from "./theme";
 import { Pill, SectionLabel } from "./primitives";
 
 type MetaRow = [string, string];
 type MetadataRow = { key: string; label: string; value: ReactNode };
+
+const SIDE_PANEL_CARD_STYLE: CSSProperties = {
+  background: T.bgCard,
+  border: `0.5px solid ${T.border}`,
+  borderRadius: 10,
+  padding: "14px 16px",
+};
+
+const META_ROW_STYLE: CSSProperties = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: 12,
+  padding: "7px 0",
+  borderBottom: `0.5px solid ${T.border}`,
+};
+
+const METRIC_TILE_STYLE: CSSProperties = { background: T.bg, borderRadius: 7, padding: "9px 11px" };
+
+const PREVIEW_FRAME_STYLE: CSSProperties = {
+  background: T.bgCard,
+  border: `0.5px solid ${T.border}`,
+  borderRadius: 12,
+  overflow: "hidden",
+};
+
+const PREVIEW_TOPBAR_STYLE: CSSProperties = {
+  background: T.bgElevated,
+  borderBottom: `0.5px solid ${T.border}`,
+  padding: "7px 12px",
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+};
+
+const FLIGHT_STRIP_STYLE: CSSProperties = {
+  background: T.bgElevated,
+  border: `0.5px solid ${T.border}`,
+  borderRadius: 6,
+  padding: "8px 10px",
+  marginBottom: 10,
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+};
+
+const OFFER_ROW_STYLE: CSSProperties = {
+  border: `0.5px solid ${T.border}`,
+  borderRadius: 5,
+  padding: "6px 9px",
+  marginBottom: 5,
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+};
 
 const TEMPLATE_CONFIGS: Record<EmailTemplateType, EmailTemplateConfig> = {
   pte: {
@@ -113,26 +167,10 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
       style={{ display: "grid", gridTemplateColumns: "1fr 330px", gap: 20, alignItems: "start" }}
     >
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div
-          style={{
-            background: T.bgCard,
-            border: `0.5px solid ${T.border}`,
-            borderRadius: 10,
-            padding: "14px 16px",
-          }}
-        >
+        <div style={SIDE_PANEL_CARD_STYLE}>
           <SectionLabel>Метаданные</SectionLabel>
           {metadataRows.map((row) => (
-            <div
-              key={row.key}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 12,
-                padding: "7px 0",
-                borderBottom: `0.5px solid ${T.border}`,
-              }}
-            >
+            <div key={row.key} style={META_ROW_STYLE}>
               <div
                 style={{
                   width: 44,
@@ -148,18 +186,11 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
             </div>
           ))}
         </div>
-        <div
-          style={{
-            background: T.bgCard,
-            border: `0.5px solid ${T.border}`,
-            borderRadius: 10,
-            padding: "14px 16px",
-          }}
-        >
+        <div style={SIDE_PANEL_CARD_STYLE}>
           <SectionLabel>Метрики канала</SectionLabel>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             {metaRows.map(([k, v]) => (
-              <div key={k} style={{ background: T.bg, borderRadius: 7, padding: "9px 11px" }}>
+              <div key={k} style={METRIC_TILE_STYLE}>
                 <div
                   style={{
                     fontSize: 10,
@@ -186,24 +217,8 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
           </div>
         </div>
       </div>
-      <div
-        style={{
-          background: T.bgCard,
-          border: `0.5px solid ${T.border}`,
-          borderRadius: 12,
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            background: T.bgElevated,
-            borderBottom: `0.5px solid ${T.border}`,
-            padding: "7px 12px",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
+      <div style={PREVIEW_FRAME_STYLE}>
+        <div style={PREVIEW_TOPBAR_STYLE}>
           {[T.windowControlRed, T.windowControlAmber, T.windowControlGreen].map((col) => (
             <div key={col} style={{ width: 9, height: 9, borderRadius: "50%", background: col }} />
           ))}
@@ -252,18 +267,7 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
               </span>
             </div>
             <div style={{ background: T.bgCard, padding: 14 }}>
-              <div
-                style={{
-                  background: T.bgElevated,
-                  border: `0.5px solid ${T.border}`,
-                  borderRadius: 6,
-                  padding: "8px 10px",
-                  marginBottom: 10,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                }}
-              >
+              <div style={FLIGHT_STRIP_STYLE}>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontSize: 15, fontWeight: 700, color: T.text }}>TAS</div>
                   <div style={{ fontSize: 9, color: T.textMuted }}>Ташкент</div>
@@ -307,18 +311,7 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
                 {c.body}
               </div>
               {c.offers?.map((o) => (
-                <div
-                  key={o.name}
-                  style={{
-                    border: `0.5px solid ${T.border}`,
-                    borderRadius: 5,
-                    padding: "6px 9px",
-                    marginBottom: 5,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
+                <div key={o.name} style={OFFER_ROW_STYLE}>
                   <div>
                     <div style={{ fontSize: 11, fontWeight: 600, color: T.text }}>{o.name}</div>
                     <div style={{ fontSize: 10, color: T.textMuted }}>{o.desc}</div>
