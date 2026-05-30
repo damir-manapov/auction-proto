@@ -1,6 +1,12 @@
 import { FLIGHTS_DATA } from "../data";
 import type { BackendClient } from "./contracts";
-import { createJitterSleeper, getMockLatencyRange, withLatency } from "./latency";
+import {
+  composeBeforeCall,
+  createJitterSleeper,
+  createMockFailureInjector,
+  getMockLatencyRange,
+  withLatency,
+} from "./latency";
 
 export const createMockBackendClient = (): BackendClient => {
   const baseClient: BackendClient = {
@@ -17,5 +23,7 @@ export const createMockBackendClient = (): BackendClient => {
   };
 
   const sleep = createJitterSleeper(getMockLatencyRange);
-  return withLatency(baseClient, sleep);
+  const maybeFail = createMockFailureInjector();
+  const beforeCall = composeBeforeCall(async () => sleep(), maybeFail);
+  return withLatency(baseClient, beforeCall);
 };

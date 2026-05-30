@@ -25,6 +25,21 @@ Environment variables:
 - `VITE_MOCK_LATENCY_MIN_MS` (number)
 - `VITE_MOCK_LATENCY_MAX_MS` (number)
 
+## Mock Backend Failures
+
+The mock backend can also emulate server errors to test error states and retries.
+
+Default behavior:
+- Enabled in development
+- Global random failure rate is `0` (off unless configured)
+- Disabled in test mode (`vitest`)
+
+Environment variables:
+- `VITE_MOCK_FAILURE_ENABLED` (`true`/`false`)
+- `VITE_MOCK_FAILURE_RATE` (number between `0` and `1`)
+- `VITE_MOCK_FAILURE_LIST_FLIGHTS` (`true`/`false`) force-fail list endpoint
+- `VITE_MOCK_FAILURE_GET_FLIGHT_BY_ID` (`true`/`false`) force-fail detail endpoint
+
 ## Tech Stack
 
 - React 19
