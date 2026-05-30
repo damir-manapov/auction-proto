@@ -1,0 +1,160 @@
+export type Tier = "Platinum" | "Gold" | "Silver" | "Standard";
+export type BidState = "pending" | "approved" | "rejected";
+export type FlightStatus = "active" | "sold" | "upcoming";
+export type FlightHaul = "ultra-short" | "short" | "medium" | "long" | "ultra";
+export type Channel = "Email" | "App" | "MMB" | "Web";
+
+export type Flight = {
+  id: string;
+  from: string;
+  to: string;
+  dep: string;
+  arr: string;
+  duration: string;
+  aircraft: string;
+  bcFree: number;
+  bcTotal: number;
+  bids: number;
+  topBid: number;
+  revenue: number;
+  status: FlightStatus;
+  haul: FlightHaul;
+};
+
+export type Bid = {
+  id: number;
+  name: string;
+  tier: Tier;
+  bid: number;
+  mult: number;
+  channel: Channel;
+  time: string;
+  state: BidState;
+};
+
+export type ProductKey = "bc" | "ex" | "sb";
+
+export type ProductConfig = {
+  label: string;
+  desc: string;
+  icon: string;
+  min: number;
+  max: number;
+  defaultVal: number;
+  color: string;
+  trackColor: string;
+};
+
+export type ProductBidMap = Record<ProductKey, number>;
+export type ProductActiveMap = Record<ProductKey, boolean>;
+
+export type SeatCell = {
+  id: string;
+  taken: boolean;
+  bid?: boolean;
+};
+
+export type RuleSectionId = "timing" | "pricing" | "loyalty" | "channels" | "payment" | "features";
+export type EmailTemplateType = "pte" | "chaser" | "win";
+export type MainTab = "flights" | "flight" | "rules" | "email" | "passenger";
+
+export type FlightListFilter = "all" | FlightStatus;
+export type FlightListSortCol = "dep" | "bids" | "revenue" | "topBid";
+export type SortDir = "asc" | "desc";
+
+export type FlightDetailFilter = "all" | BidState;
+export type FlightDetailSortCol = "name" | "tier" | "bid" | "weighted" | "channel" | "time";
+
+export type Rules = {
+  inviteDaysBefore: number;
+  chaserHoursBefore: number;
+  closureHoursBefore: number;
+  autoFulfillment: boolean;
+  requirePurchased: boolean;
+  blindBids: boolean;
+  maxUpgradesPerFlight: number;
+  multiplierPlatinum: number;
+  multiplierGold: number;
+  multiplierSilver: number;
+  minBcUltraShort: number;
+  minBcShort: number;
+  minBcMedium: number;
+  minBcLong: number;
+  minBcUltraLong: number;
+  minExitShort: number;
+  minExitMedium: number;
+  minExitLong: number;
+  minSeatBlockShort: number;
+  minSeatBlockMedium: number;
+  minSeatBlockLong: number;
+  channels: {
+    email: boolean;
+    mmb: boolean;
+    app: boolean;
+    web: boolean;
+    webcheckin: boolean;
+    pushNotif: boolean;
+  };
+  paymentMethods: {
+    visa: boolean;
+    mastercard: boolean;
+    amex: boolean;
+    jcb: boolean;
+    diners: boolean;
+  };
+  use3ds: boolean;
+  continuousPricing: boolean;
+  crossAirlineUpgrades: boolean;
+  payWithPoints: boolean;
+  seatBlocker: boolean;
+};
+
+export type RulesBooleanKey = {
+  [K in keyof Rules]: Rules[K] extends boolean ? K : never;
+}[keyof Rules];
+
+export type RulesNumberKey = {
+  [K in keyof Rules]: Rules[K] extends number ? K : never;
+}[keyof Rules];
+
+export type ChannelRuleKey = keyof Rules["channels"];
+export type PaymentMethodKey = keyof Rules["paymentMethods"];
+export type PricingHaulKey = "UltraShort" | "Short" | "Medium" | "Long" | "UltraLong";
+
+export type TimingRow = {
+  key: RulesNumberKey;
+  label: string;
+  desc: string;
+  min: number;
+  max: number;
+  unit: string;
+};
+
+export type PricingRow = {
+  product: string;
+  keys: Record<PricingHaulKey, RulesNumberKey>;
+};
+
+export type EmailOffer = {
+  name: string;
+  desc: string;
+  from: string;
+};
+
+export type EmailTemplateConfig = {
+  subject: string;
+  to: string;
+  tag: string;
+  tagC: string;
+  tagBg: string;
+  hBg: string;
+  hLine: string;
+  title: string;
+  body: string;
+  ctaLabel: string;
+  ctaBg: string;
+  footer: string;
+  urgency?: boolean;
+  offers?: EmailOffer[];
+  booking?: Record<string, string>;
+};

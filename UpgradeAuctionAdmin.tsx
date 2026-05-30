@@ -1,580 +1,51 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
-
-type Tier = "Platinum" | "Gold" | "Silver" | "Standard";
-type BidState = "pending" | "approved" | "rejected";
-type FlightStatus = "active" | "sold" | "upcoming";
-type FlightHaul = "ultra-short" | "short" | "medium" | "long" | "ultra";
-type Channel = "Email" | "App" | "MMB" | "Web";
-
-type Flight = {
-  id: string;
-  from: string;
-  to: string;
-  dep: string;
-  arr: string;
-  duration: string;
-  aircraft: string;
-  bcFree: number;
-  bcTotal: number;
-  bids: number;
-  topBid: number;
-  revenue: number;
-  status: FlightStatus;
-  haul: FlightHaul;
-};
-
-type Bid = {
-  id: number;
-  name: string;
-  tier: Tier;
-  bid: number;
-  mult: number;
-  channel: Channel;
-  time: string;
-  state: BidState;
-};
-
-type ProductKey = "bc" | "ex" | "sb";
-type ProductConfig = {
-  label: string;
-  desc: string;
-  icon: string;
-  min: number;
-  max: number;
-  defaultVal: number;
-  color: string;
-  trackColor: string;
-};
-
-type ProductBidMap = Record<ProductKey, number>;
-type ProductActiveMap = Record<ProductKey, boolean>;
-
-type SeatCell = {
-  id: string;
-  taken: boolean;
-  bid?: boolean;
-};
-
-type RuleSectionId = "timing" | "pricing" | "loyalty" | "channels" | "payment" | "features";
-type EmailTemplateType = "pte" | "chaser" | "win";
-type MainTab = "flights" | "flight" | "rules" | "email" | "passenger";
-
-type FlightListFilter = "all" | FlightStatus;
-type FlightListSortCol = "dep" | "bids" | "revenue" | "topBid";
-type SortDir = "asc" | "desc";
-
-type FlightDetailFilter = "all" | BidState;
-type FlightDetailSortCol = "name" | "tier" | "bid" | "weighted" | "channel" | "time";
-
-type Rules = {
-  inviteDaysBefore: number;
-  chaserHoursBefore: number;
-  closureHoursBefore: number;
-  autoFulfillment: boolean;
-  requirePurchased: boolean;
-  blindBids: boolean;
-  maxUpgradesPerFlight: number;
-  multiplierPlatinum: number;
-  multiplierGold: number;
-  multiplierSilver: number;
-  minBcUltraShort: number;
-  minBcShort: number;
-  minBcMedium: number;
-  minBcLong: number;
-  minBcUltraLong: number;
-  minExitShort: number;
-  minExitMedium: number;
-  minExitLong: number;
-  minSeatBlockShort: number;
-  minSeatBlockMedium: number;
-  minSeatBlockLong: number;
-  channels: {
-    email: boolean;
-    mmb: boolean;
-    app: boolean;
-    web: boolean;
-    webcheckin: boolean;
-    pushNotif: boolean;
-  };
-  paymentMethods: {
-    visa: boolean;
-    mastercard: boolean;
-    amex: boolean;
-    jcb: boolean;
-    diners: boolean;
-  };
-  use3ds: boolean;
-  continuousPricing: boolean;
-  crossAirlineUpgrades: boolean;
-  payWithPoints: boolean;
-  seatBlocker: boolean;
-};
-
-type RulesBooleanKey = {
-  [K in keyof Rules]: Rules[K] extends boolean ? K : never;
-}[keyof Rules];
-type RulesNumberKey = {
-  [K in keyof Rules]: Rules[K] extends number ? K : never;
-}[keyof Rules];
-type ChannelRuleKey = keyof Rules["channels"];
-type PaymentMethodKey = keyof Rules["paymentMethods"];
-type PricingHaulKey = "UltraShort" | "Short" | "Medium" | "Long" | "UltraLong";
-
-type TimingRow = {
-  key: RulesNumberKey;
-  label: string;
-  desc: string;
-  min: number;
-  max: number;
-  unit: string;
-};
-
-type PricingRow = {
-  product: string;
-  keys: Record<PricingHaulKey, RulesNumberKey>;
-};
-
-type EmailOffer = {
-  name: string;
-  desc: string;
-  from: string;
-};
-
-type EmailTemplateConfig = {
-  subject: string;
-  to: string;
-  tag: string;
-  tagC: string;
-  tagBg: string;
-  hBg: string;
-  hLine: string;
-  title: string;
-  body: string;
-  ctaLabel: string;
-  ctaBg: string;
-  footer: string;
-  urgency?: boolean;
-  offers?: EmailOffer[];
-  booking?: Record<string, string>;
-};
-
-// ─── Design tokens ────────────────────────────────────────────
-const T = {
-  // Surface and layout colors
-  bg: "#F4F7FB",
-  bgCard: "#FFFFFF",
-  bgElevated: "#F8FAFC",
-  bgHover: "#EEF3FB",
-  border: "#D7E1EE",
-  borderLight: "#C3D2E5",
-
-  // Brand and primary accents
-  accent: "#1E5AA8",
-  accentDim: "#E7F0FB",
-  accentText: "#1F4E8F",
-  accentSoft: "#4E7FBD",
-  accentMuted: "#89ACD5",
-  accentPale: "#C7D9ED",
-
-  // Semantic status colors
-  green: "#1F9D61",
-  greenDim: "#E7F6EE",
-  greenText: "#1A7A4C",
-  greenSoft: "#63BA90",
-  amber: "#B7791F",
-  amberDim: "#FEF5E7",
-  amberText: "#8A5A13",
-  red: "#C53030",
-  redDim: "#FDECEC",
-  redText: "#9B2C2C",
-
-  // Text colors
-  text: "#10253E",
-  textMuted: "#5B6B80",
-  textSub: "#334E68",
-
-  // Foreground-on-color tokens
-  onAccent: "#FFFFFF",
-  onAccentSoft: "#EFF6FF",
-
-  // Neutral utility shades
-  neutralSoft: "#EAF0F8",
-  neutralPale: "#EEF2F7",
-  neutralMid: "#7B8794",
-
-  // Domain-specific component tokens
-  seatTaken: "#D5E4F7",
-  seatTakenText: "#2B5D97",
-  seatTakenBorder: "#B7CCE8",
-  emailPteBg: "#EEF4FC",
-  emailChaserBg: "#FEF6EA",
-  emailWinBg: "#EAF7F0",
-  windowControlRed: "#FF5F57",
-  windowControlAmber: "#FEBC2E",
-  windowControlGreen: "#28C840",
-
-  // Transparent overlays and dividers
-  overlayAccent: "rgba(30,90,168,.06)",
-  dividerSuccess: "rgba(16,185,129,.15)",
-};
-
-const F = {
-  sans: "Segoe UI, Helvetica Neue, Arial, sans-serif",
-  mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace",
-};
+import type {
+  Bid,
+  ChannelRuleKey,
+  EmailTemplateConfig,
+  EmailTemplateType,
+  Flight,
+  FlightDetailFilter,
+  FlightDetailSortCol,
+  FlightListFilter,
+  FlightListSortCol,
+  MainTab,
+  PaymentMethodKey,
+  PricingHaulKey,
+  PricingRow,
+  ProductActiveMap,
+  ProductBidMap,
+  ProductConfig,
+  ProductKey,
+  Rules,
+  RulesBooleanKey,
+  RulesNumberKey,
+  RuleSectionId,
+  SeatCell,
+  SortDir,
+  Tier,
+  TimingRow,
+} from "./src/features/auction-admin/types";
+import { F, T } from "./src/features/auction-admin/theme";
+import {
+  CH_ICONS,
+  DEFAULT_RULES,
+  DIST_DATA,
+  EXIT_DATA,
+  FALLBACK_FLIGHT,
+  FLIGHTS_DATA,
+  HAUL_LABELS,
+  INITIAL_BIDS,
+  SEAT_MAP_BC,
+  STATE_META,
+  STATUS_META,
+  TIER_META,
+  weighted,
+} from "./src/features/auction-admin/data";
 
 // ─── Data ─────────────────────────────────────────────────────
-const FLIGHTS_DATA: Flight[] = [
-  {
-    id: "HY 602",
-    from: "TAS",
-    to: "IST",
-    dep: "15 июн 08:45",
-    arr: "11:20",
-    duration: "5ч 35м",
-    aircraft: "A321",
-    bcFree: 2,
-    bcTotal: 16,
-    bids: 28,
-    topBid: 620,
-    revenue: 1180,
-    status: "active",
-    haul: "medium",
-  },
-  {
-    id: "HY 814",
-    from: "TAS",
-    to: "DXB",
-    dep: "15 июн 14:30",
-    arr: "17:15",
-    duration: "4ч 45м",
-    aircraft: "B787",
-    bcFree: 8,
-    bcTotal: 24,
-    bids: 11,
-    topBid: 480,
-    revenue: 3840,
-    status: "active",
-    haul: "medium",
-  },
-  {
-    id: "HY 233",
-    from: "TAS",
-    to: "MOW",
-    dep: "15 июн 11:15",
-    arr: "13:30",
-    duration: "3ч 15м",
-    aircraft: "A320",
-    bcFree: 0,
-    bcTotal: 8,
-    bids: 43,
-    topBid: 390,
-    revenue: 0,
-    status: "sold",
-    haul: "short",
-  },
-  {
-    id: "HY 177",
-    from: "TAS",
-    to: "FRA",
-    dep: "16 июн 06:00",
-    arr: "09:45",
-    duration: "7ч 45м",
-    aircraft: "B767",
-    bcFree: 14,
-    bcTotal: 20,
-    bids: 5,
-    topBid: 550,
-    revenue: 7700,
-    status: "upcoming",
-    haul: "long",
-  },
-  {
-    id: "HY 409",
-    from: "TAS",
-    to: "PEK",
-    dep: "16 июн 09:20",
-    arr: "15:50",
-    duration: "5ч 30м",
-    aircraft: "A330",
-    bcFree: 6,
-    bcTotal: 18,
-    bids: 19,
-    topBid: 510,
-    revenue: 3060,
-    status: "active",
-    haul: "medium",
-  },
-  {
-    id: "HY 551",
-    from: "TAS",
-    to: "ICN",
-    dep: "16 июн 13:00",
-    arr: "22:15",
-    duration: "6ч 15м",
-    aircraft: "B787",
-    bcFree: 3,
-    bcTotal: 20,
-    bids: 31,
-    topBid: 540,
-    revenue: 1620,
-    status: "active",
-    haul: "long",
-  },
-  {
-    id: "HY 088",
-    from: "TAS",
-    to: "LHR",
-    dep: "17 июн 00:30",
-    arr: "05:20",
-    duration: "8ч 50м",
-    aircraft: "B767",
-    bcFree: 10,
-    bcTotal: 16,
-    bids: 2,
-    topBid: 600,
-    revenue: 6000,
-    status: "upcoming",
-    haul: "ultra",
-  },
-  {
-    id: "HY 312",
-    from: "TAS",
-    to: "ALA",
-    dep: "15 июн 16:45",
-    arr: "17:35",
-    duration: "1ч 05м",
-    aircraft: "A319",
-    bcFree: 4,
-    bcTotal: 8,
-    bids: 7,
-    topBid: 95,
-    revenue: 380,
-    status: "active",
-    haul: "ultra-short",
-  },
-];
-
-const FALLBACK_FLIGHT: Flight = {
-  id: "HY 000",
-  from: "TAS",
-  to: "TAS",
-  dep: "—",
-  arr: "—",
-  duration: "—",
-  aircraft: "—",
-  bcFree: 0,
-  bcTotal: 0,
-  bids: 0,
-  topBid: 0,
-  revenue: 0,
-  status: "upcoming",
-  haul: "ultra-short",
-};
-
-const INITIAL_BIDS: Bid[] = [
-  {
-    id: 1,
-    name: "Иванов А.П.",
-    tier: "Platinum",
-    bid: 620,
-    mult: 1.1,
-    channel: "Email",
-    time: "09:14",
-    state: "pending",
-  },
-  {
-    id: 2,
-    name: "Ли Вэй",
-    tier: "Gold",
-    bid: 520,
-    mult: 1.05,
-    channel: "App",
-    time: "13:07",
-    state: "pending",
-  },
-  {
-    id: 3,
-    name: "Петрова М.С.",
-    tier: "Silver",
-    bid: 490,
-    mult: 1.03,
-    channel: "Email",
-    time: "10:21",
-    state: "pending",
-  },
-  {
-    id: 4,
-    name: "Smith J.",
-    tier: "Standard",
-    bid: 580,
-    mult: 1.0,
-    channel: "MMB",
-    time: "11:32",
-    state: "pending",
-  },
-  {
-    id: 5,
-    name: "Karimov B.",
-    tier: "Platinum",
-    bid: 400,
-    mult: 1.1,
-    channel: "Web",
-    time: "08:55",
-    state: "pending",
-  },
-  {
-    id: 6,
-    name: "Ahmadov F.",
-    tier: "Standard",
-    bid: 470,
-    mult: 1.0,
-    channel: "Email",
-    time: "14:45",
-    state: "pending",
-  },
-  {
-    id: 7,
-    name: "Brown T.",
-    tier: "Gold",
-    bid: 380,
-    mult: 1.05,
-    channel: "MMB",
-    time: "07:30",
-    state: "pending",
-  },
-  {
-    id: 8,
-    name: "Назаров О.",
-    tier: "Standard",
-    bid: 310,
-    mult: 1.0,
-    channel: "Web",
-    time: "16:02",
-    state: "pending",
-  },
-  {
-    id: 9,
-    name: "Юсупова Д.",
-    tier: "Silver",
-    bid: 345,
-    mult: 1.03,
-    channel: "Email",
-    time: "15:18",
-    state: "pending",
-  },
-  {
-    id: 10,
-    name: "Kim S.",
-    tier: "Gold",
-    bid: 430,
-    mult: 1.05,
-    channel: "App",
-    time: "12:00",
-    state: "pending",
-  },
-];
-
-const DIST_DATA: Array<{ range: string; count: number; pct: number; color: string }> = [
-  { range: "$500–750", count: 7, pct: 25, color: T.accent },
-  { range: "$400–499", count: 10, pct: 36, color: T.accentSoft },
-  { range: "$300–399", count: 8, pct: 29, color: T.accentMuted },
-  { range: "$262–299", count: 3, pct: 10, color: T.accentPale },
-];
-const EXIT_DATA: Array<{ range: string; count: number; pct: number; color: string }> = [
-  { range: "$60–85", count: 9, pct: 64, color: T.green },
-  { range: "$32–59", count: 5, pct: 36, color: T.greenSoft },
-];
-const SEAT_MAP_BC: Array<Array<SeatCell | null>> = [
-  [
-    { id: "1A", taken: true },
-    { id: "1C", taken: true },
-    null,
-    { id: "1D", taken: true },
-    { id: "1F", taken: true },
-  ],
-  [
-    { id: "2A", taken: true },
-    { id: "2C", taken: true },
-    null,
-    { id: "2D", taken: true },
-    { id: "2F", taken: true },
-  ],
-  [
-    { id: "3A", taken: true },
-    { id: "3C", taken: true },
-    null,
-    { id: "3D", taken: true },
-    { id: "3F", taken: true },
-  ],
-  [
-    { id: "4A", taken: false, bid: true },
-    { id: "4C", taken: true },
-    null,
-    { id: "4D", taken: true },
-    { id: "4F", taken: false, bid: true },
-  ],
-];
-
-const DEFAULT_RULES: Rules = {
-  inviteDaysBefore: 14,
-  chaserHoursBefore: 48,
-  closureHoursBefore: 4,
-  autoFulfillment: true,
-  requirePurchased: true,
-  blindBids: true,
-  maxUpgradesPerFlight: 0,
-  multiplierPlatinum: 10,
-  multiplierGold: 5,
-  multiplierSilver: 3,
-  minBcUltraShort: 93,
-  minBcShort: 118,
-  minBcMedium: 262,
-  minBcLong: 500,
-  minBcUltraLong: 569,
-  minExitShort: 8,
-  minExitMedium: 32,
-  minExitLong: 35,
-  minSeatBlockShort: 8,
-  minSeatBlockMedium: 32,
-  minSeatBlockLong: 35,
-  channels: { email: true, mmb: true, app: true, web: true, webcheckin: true, pushNotif: true },
-  paymentMethods: { visa: true, mastercard: true, amex: true, jcb: false, diners: false },
-  use3ds: false,
-  continuousPricing: true,
-  crossAirlineUpgrades: false,
-  payWithPoints: false,
-  seatBlocker: true,
-};
-
-// ─── Helpers ──────────────────────────────────────────────────
-const weighted = (b: Bid) => Math.round(b.bid * b.mult);
-
-const TIER_META: Record<Tier, { color: string; bg: string; label: string; mult: string }> = {
-  Platinum: { color: T.amber, bg: T.amberDim, label: "Platinum", mult: "+10%" },
-  Gold: { color: T.accent, bg: T.accentDim, label: "Gold", mult: "+5%" },
-  Silver: { color: T.textSub, bg: T.neutralSoft, label: "Silver", mult: "+3%" },
-  Standard: { color: T.textMuted, bg: T.neutralPale, label: "Standard", mult: "—" },
-};
-const STATE_META: Record<BidState, { label: string; color: string; bg: string }> = {
-  pending: { label: "Ожидает", color: T.textMuted, bg: T.neutralSoft },
-  approved: { label: "Принята", color: T.greenText, bg: T.greenDim },
-  rejected: { label: "Отклонена", color: T.redText, bg: T.redDim },
-};
-const STATUS_META: Record<FlightStatus, { label: string; color: string; bg: string }> = {
-  active: { label: "Активен", color: T.greenText, bg: T.greenDim },
-  sold: { label: "Нет мест", color: T.redText, bg: T.redDim },
-  upcoming: { label: "Скоро", color: T.amberText, bg: T.amberDim },
-};
-const HAUL_LABELS: Record<FlightHaul, string> = {
-  "ultra-short": "Ультракороткий (<1.5ч)",
-  short: "Короткий (1.5–3ч)",
-  medium: "Средний (3–5ч)",
-  long: "Длинный (5–8ч)",
-  ultra: "Ультрадальний (8ч+)",
-};
-const CH_ICONS: Record<Channel, string> = { Email: "✉", App: "◉", MMB: "⊞", Web: "◈" };
+// ─── Data ─────────────────────────────────────────────────────
 
 // ─── UI Primitives ────────────────────────────────────────────
 function Pill({
@@ -1606,7 +1077,7 @@ function FlightList({ onSelect }: { onSelect: (flightId: Flight["id"]) => void }
             </thead>
             <tbody>
               {filtered.map((f) => {
-                const sm = STATUS_META[f.status];
+                const sm = STATUS_META[f.status] ?? STATUS_META.upcoming;
                 const fc = f.bcFree === 0 ? T.red : f.bcFree < 4 ? T.amber : T.green;
                 return (
                   <tr
@@ -2634,7 +2105,7 @@ function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onBack: ()
                 const w = weighted(b);
                 const isTop = b.state === "pending" && i < flight.bcFree && filter === "all";
                 const tm = TIER_META[b.tier];
-                const sm = STATE_META[b.state];
+                const sm = STATE_META[b.state] ?? STATE_META.pending;
                 return (
                   <tr key={b.id} style={{ background: isTop ? T.overlayAccent : "transparent" }}>
                     <td style={{ padding: "10px 10px", borderBottom: `0.5px solid ${T.border}` }}>
