@@ -75,21 +75,49 @@ bash all-checks.sh # runs both scripts
 
 ```text
 .
-├── src/features/auction-admin/UpgradeAuctionAdmin.tsx   # main prototype UI
-├── src/main.tsx              # React entry point
-├── index.html                # app shell
-├── vite.config.ts            # Vite config
-├── tsconfig.json             # strict TS config
-├── biome.json                # Biome config
-├── check.sh                  # quality checks
-├── health.sh                 # security/dependency checks
-└── package.json              # scripts and dependencies
+├── src/
+│   ├── features/auction-admin/
+│   │   ├── UpgradeAuctionAdmin.tsx    # main app orchestration
+│   │   ├── AdminShell.tsx             # shell header + tab layout
+│   │   ├── FlightList.tsx             # flight table view
+│   │   ├── FlightDetail.tsx           # flight detail panel
+│   │   ├── GlobalRules.tsx            # rules configuration
+│   │   ├── EmailPreview.tsx           # email template previews
+│   │   ├── PassengerBidUI.tsx         # passenger bid mockup
+│   │   ├── theme.ts                   # palette + semantic design tokens
+│   │   ├── data.ts                    # domain data + UI mappings
+│   │   ├── types.ts                   # feature type definitions
+│   │   └── primitives.tsx             # reusable UI primitives
+│   ├── main.tsx                       # React entry point
+│   └── index.css                      # global styles
+├── index.html                         # app shell
+├── vite.config.ts                     # Vite config
+├── tsconfig.json                      # strict TS config
+├── biome.json                         # Biome config (format + lint)
+├── check.sh                           # quality checks
+├── health.sh                          # security/dependency checks
+└── package.json                       # scripts and dependencies
 ```
 
-## Notes
+## Architecture Notes
 
-- Theme is currently light corporate and tokenized for easy color management.
-- Styling is inline and concentrated in `src/features/auction-admin/UpgradeAuctionAdmin.tsx` for rapid prototyping.
+### Modular Features
+The codebase is organized by feature under `src/features/auction-admin/`:  
+- Each major UI panel is a self-contained module (FlightList, FlightDetail, GlobalRules, etc.)
+- Shared UI primitives are isolated in `primitives.tsx`
+- Type definitions are centralized in `types.ts`
+
+### Design Tokens
+Theme uses a palette + semantic token architecture:
+- `PALETTE` in `theme.ts` defines the concrete color values
+- `SEMANTIC` tokens layer on top for role-based naming (e.g., `bgWarning`, `textPrimary`)
+- `data.ts` uses semantic token IDs for maintainable UI-to-color mappings
+
+### Data & Mappings
+`data.ts` contains:
+- Domain data (flight statuses, tiers, distributions)
+- UI mapping records (state metadata, color IDs, icons)
+- `colorToken()` resolver for semantic token lookup
 
 ## AI-Assisted shadcn Workflow
 
