@@ -64,6 +64,8 @@ export const I18N = {
         loading: "Загрузка данных рейса...",
         loadError: "Не удалось загрузить данные рейса.",
         notFound: "Рейс не найден.",
+        bidsLoading: "Загрузка заявок...",
+        bidsLoadError: "Не удалось загрузить заявки.",
       },
       filters: {
         all: "Все",

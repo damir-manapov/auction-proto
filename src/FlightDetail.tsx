@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Bid, Flight, FlightDetailFilter, FlightDetailSortCol, SortDir } from "./types";
 import { F, T } from "./theme";
 import {
@@ -6,7 +7,6 @@ import {
   DIST_DATA,
   EXIT_DATA,
   HAUL_LABELS,
-  INITIAL_BIDS,
   STATE_META,
   TIER_META,
   colorToken,
@@ -15,14 +15,40 @@ import {
 import { BarChart, MetricCard, Pill, SeatMap, SectionLabel } from "./primitives";
 import { TXT } from "./i18n";
 import { useFlightById } from "./queries/useFlightById";
+import { useFlightBids } from "./queries/useFlightBids";
+import { queryKeys } from "./queries/keys";
+import { backendClient } from "./backend/client";
 
 export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onBack: () => void }) {
+  const queryClient = useQueryClient();
   const { data: flight, isLoading, isError } = useFlightById(flightId);
-  const [bids, setBids] = useState(INITIAL_BIDS);
+  const {
+    data: bids = [],
+    isLoading: isBidsLoading,
+    isError: isBidsError,
+  } = useFlightBids(flightId);
   const [filter, setFilter] = useState<FlightDetailFilter>("all");
   const [autoRan, setAutoRan] = useState(false);
   const [sortCol, setSortCol] = useState<FlightDetailSortCol>("weighted");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  const refreshBids = () =>
+    queryClient.invalidateQueries({ queryKey: queryKeys.flightBids(flightId) });
+  const approveMutation = useMutation({
+    mutationFn: (bidId: Bid["id"]) => backendClient.bids.approveBid(flightId, bidId),
+    onSuccess: refreshBids,
+  });
+  const rejectMutation = useMutation({
+    mutationFn: (bidId: Bid["id"]) => backendClient.bids.rejectBid(flightId, bidId),
+    onSuccess: refreshBids,
+  });
+  const autoSelectMutation = useMutation({
+    mutationFn: () => backendClient.bids.autoSelect(flightId),
+    onSuccess: async () => {
+      await refreshBids();
+      setAutoRan(true);
+    },
+  });
   const detailFilters: Array<[FlightDetailFilter, string]> = [
     ["all", TXT.flightDetail.filters.all],
     ["pending", TXT.flightDetail.filters.pending],
@@ -62,20 +88,9 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
       return sortDir === "desc" ? (vb > va ? 1 : -1) : va > vb ? 1 : -1;
     });
 
-  const approve = (id: Bid["id"]) =>
-    setBids((bs) => bs.map((b) => (b.id === id ? { ...b, state: "approved" } : b)));
-  const reject = (id: Bid["id"]) =>
-    setBids((bs) => bs.map((b) => (b.id === id ? { ...b, state: "rejected" } : b)));
-  const autoSelect = () => {
-    const availableSeats = flight?.bcFree ?? 0;
-    const top = [...bids]
-      .filter((b) => b.state === "pending")
-      .sort((a, b) => weighted(b) - weighted(a))
-      .slice(0, availableSeats)
-      .map((b) => b.id);
-    setBids((bs) => bs.map((b) => (top.includes(b.id) ? { ...b, state: "approved" } : b)));
-    setAutoRan(true);
-  };
+  const approve = (id: Bid["id"]) => approveMutation.mutate(id);
+  const reject = (id: Bid["id"]) => rejectMutation.mutate(id);
+  const autoSelect = () => autoSelectMutation.mutate();
   const counts: Record<FlightDetailFilter, number> = {
     all: bids.length,
     pending: bids.filter((b) => b.state === "pending").length,
@@ -160,6 +175,60 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
     );
   }
 
+  if (isBidsLoading) {
+    return (
+      <div>
+        <button
+          type="button"
+          onClick={onBack}
+          style={{
+            padding: "6px 12px",
+            borderRadius: 7,
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: "pointer",
+            background: "transparent",
+            border: `0.5px solid ${T.borderDefault}`,
+            color: T.textMuted,
+            marginBottom: 12,
+          }}
+        >
+          {TXT.flightDetail.backButton}
+        </button>
+        <div style={{ fontSize: 13, color: T.textMuted }}>
+          {TXT.flightDetail.states.bidsLoading}
+        </div>
+      </div>
+    );
+  }
+
+  if (isBidsError) {
+    return (
+      <div>
+        <button
+          type="button"
+          onClick={onBack}
+          style={{
+            padding: "6px 12px",
+            borderRadius: 7,
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: "pointer",
+            background: "transparent",
+            border: `0.5px solid ${T.borderDefault}`,
+            color: T.textMuted,
+            marginBottom: 12,
+          }}
+        >
+          {TXT.flightDetail.backButton}
+        </button>
+        <div style={{ fontSize: 13, color: T.statusDangerFg }}>
+          {TXT.flightDetail.states.bidsLoadError}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div
@@ -201,6 +270,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
             <button
               type="button"
               onClick={autoSelect}
+              disabled={autoSelectMutation.isPending}
               style={{
                 background: T.brandPrimary,
                 border: "none",
@@ -209,7 +279,8 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                 fontSize: 13,
                 fontWeight: 600,
                 color: T.onBrandPrimarySoft,
-                cursor: "pointer",
+                cursor: autoSelectMutation.isPending ? "not-allowed" : "pointer",
+                opacity: autoSelectMutation.isPending ? 0.7 : 1,
               }}
             >
               {TXT.flightDetail.autoSelect}
@@ -503,15 +574,21 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                           <button
                             type="button"
                             onClick={() => approve(b.id)}
+                            disabled={approveMutation.isPending || rejectMutation.isPending}
                             style={{
                               padding: "4px 9px",
                               fontSize: 11,
                               fontWeight: 600,
                               borderRadius: 5,
-                              cursor: "pointer",
+                              cursor:
+                                approveMutation.isPending || rejectMutation.isPending
+                                  ? "not-allowed"
+                                  : "pointer",
                               background: T.statusSuccessBg,
                               border: `0.5px solid ${T.statusSuccess}`,
                               color: T.statusSuccessFg,
+                              opacity:
+                                approveMutation.isPending || rejectMutation.isPending ? 0.7 : 1,
                             }}
                           >
                             {TXT.flightDetail.acceptButton}
@@ -519,15 +596,21 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                           <button
                             type="button"
                             onClick={() => reject(b.id)}
+                            disabled={approveMutation.isPending || rejectMutation.isPending}
                             style={{
                               padding: "4px 8px",
                               fontSize: 11,
                               fontWeight: 600,
                               borderRadius: 5,
-                              cursor: "pointer",
+                              cursor:
+                                approveMutation.isPending || rejectMutation.isPending
+                                  ? "not-allowed"
+                                  : "pointer",
                               background: T.statusDangerBg,
                               border: `0.5px solid ${T.statusDanger}`,
                               color: T.statusDangerFg,
+                              opacity:
+                                approveMutation.isPending || rejectMutation.isPending ? 0.7 : 1,
                             }}
                           >
                             ✕
