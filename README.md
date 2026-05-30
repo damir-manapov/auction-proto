@@ -75,7 +75,7 @@ bash all-checks.sh # runs both scripts
 
 ```text
 .
-├── UpgradeAuctionAdmin.jsx   # main prototype UI
+├── src/features/auction-admin/UpgradeAuctionAdmin.tsx   # main prototype UI
 ├── src/main.tsx              # React entry point
 ├── index.html                # app shell
 ├── vite.config.ts            # Vite config
@@ -89,7 +89,7 @@ bash all-checks.sh # runs both scripts
 ## Notes
 
 - Theme is currently light corporate and tokenized for easy color management.
-- Styling is inline and concentrated in `UpgradeAuctionAdmin.jsx` for rapid prototyping.
+- Styling is inline and concentrated in `src/features/auction-admin/UpgradeAuctionAdmin.tsx` for rapid prototyping.
 
 ## AI-Assisted shadcn Workflow
 

@@ -1,17 +1,13 @@
 import { useState } from "react";
-import type { EmailTemplateType, Flight, MainTab } from "./src/features/auction-admin/types";
-import { F, T } from "./src/features/auction-admin/theme";
-import { FLIGHTS_DATA } from "./src/features/auction-admin/data";
-import { FlightList } from "./src/features/auction-admin/FlightList";
-import { FlightDetail } from "./src/features/auction-admin/FlightDetail";
-import { GlobalRules } from "./src/features/auction-admin/GlobalRules";
-import { EmailPreview } from "./src/features/auction-admin/EmailPreview";
-import { PassengerBidUI } from "./src/features/auction-admin/PassengerBidUI";
-import {
-  AdminHeader,
-  EmailTemplateTabs,
-  EmptyFlightState,
-} from "./src/features/auction-admin/AdminShell";
+import type { EmailTemplateType, Flight, MainTab } from "./types";
+import { F, T } from "./theme";
+import { FLIGHTS_DATA } from "./data";
+import { FlightList } from "./FlightList";
+import { FlightDetail } from "./FlightDetail";
+import { GlobalRules } from "./GlobalRules";
+import { EmailPreview } from "./EmailPreview";
+import { PassengerBidUI } from "./PassengerBidUI";
+import { AdminHeader, EmailTemplateTabs, EmptyFlightState } from "./AdminShell";
 
 // ─── Root App ─────────────────────────────────────────────────
 export default function UpgradeAuctionAdmin() {

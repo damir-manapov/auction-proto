@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import UpgradeAuctionAdmin from "../UpgradeAuctionAdmin";
+import UpgradeAuctionAdmin from "./features/auction-admin/UpgradeAuctionAdmin";
 import "./index.css";
 
 const rootElement = document.getElementById("root");
