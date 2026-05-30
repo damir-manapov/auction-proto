@@ -7,6 +7,7 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
+import { EMAIL_TEMPLATE_TYPE, MAIN_TAB } from "./types";
 import type { EmailTemplateType, MainTab } from "./types";
 import { F, T } from "./theme";
 import { FlightList } from "./FlightList";
@@ -19,11 +20,11 @@ import { TXT } from "./i18n";
 import { useFlights } from "./queries/useFlights";
 
 function routeToTab(pathname: string): MainTab {
-  if (pathname === "/rules") return "rules";
-  if (pathname === "/email") return "email";
-  if (pathname === "/passenger") return "passenger";
-  if (pathname.startsWith("/flights/")) return "flight";
-  return "flights";
+  if (pathname === "/rules") return MAIN_TAB.rules;
+  if (pathname === "/email") return MAIN_TAB.email;
+  if (pathname === "/passenger") return MAIN_TAB.passenger;
+  if (pathname.startsWith("/flights/")) return MAIN_TAB.flight;
+  return MAIN_TAB.flights;
 }
 
 function FlightsRoute() {
@@ -61,7 +62,11 @@ function EmailRoute() {
   const [searchParams, setSearchParams] = useSearchParams();
   const template = searchParams.get("template");
   const emailTab: EmailTemplateType =
-    template === "pte" || template === "chaser" || template === "win" ? template : "pte";
+    template === EMAIL_TEMPLATE_TYPE.pte ||
+    template === EMAIL_TEMPLATE_TYPE.chaser ||
+    template === EMAIL_TEMPLATE_TYPE.win
+      ? template
+      : EMAIL_TEMPLATE_TYPE.pte;
 
   return (
     <>
@@ -102,11 +107,11 @@ export default function App() {
       : `${totalBids} ${TXT.admin.bidsSuffix}`;
 
   const navItems = [
-    { id: "flights", label: TXT.nav.flights },
-    { id: "flight", label: TXT.nav.flight, hide: !selectedFlight },
-    { id: "rules", label: TXT.nav.rules },
-    { id: "email", label: TXT.nav.email },
-    { id: "passenger", label: TXT.nav.passenger },
+    { id: MAIN_TAB.flights, label: TXT.nav.flights },
+    { id: MAIN_TAB.flight, label: TXT.nav.flight, hide: !selectedFlight },
+    { id: MAIN_TAB.rules, label: TXT.nav.rules },
+    { id: MAIN_TAB.email, label: TXT.nav.email },
+    { id: MAIN_TAB.passenger, label: TXT.nav.passenger },
   ] satisfies Array<{ id: MainTab; label: string; hide?: boolean }>;
   const NAV = navItems.filter((t) => !t.hide);
 
@@ -126,12 +131,12 @@ export default function App() {
         activeFlightsText={activeFlightsText}
         bidsText={bidsText}
         onSelectTab={(nextTab) => {
-          if (nextTab === "flights") navigate("/flights");
-          if (nextTab === "flight")
+          if (nextTab === MAIN_TAB.flights) navigate("/flights");
+          if (nextTab === MAIN_TAB.flight)
             navigate(selectedFlight ? `/flights/${selectedFlight}` : "/flights");
-          if (nextTab === "rules") navigate("/rules");
-          if (nextTab === "email") navigate("/email");
-          if (nextTab === "passenger") navigate("/passenger");
+          if (nextTab === MAIN_TAB.rules) navigate("/rules");
+          if (nextTab === MAIN_TAB.email) navigate("/email");
+          if (nextTab === MAIN_TAB.passenger) navigate("/passenger");
         }}
       />
 

@@ -1,3 +1,4 @@
+import { EMAIL_TEMPLATE_TYPE } from "./types";
 import type { EmailTemplateType, MainTab } from "./types";
 import { T } from "./theme";
 import { Pill } from "./primitives";
@@ -125,9 +126,9 @@ type EmailTemplateTabsProps = {
 };
 
 const EMAIL_TABS: Array<[EmailTemplateType, string]> = [
-  ["pte", TXT.emailTemplates.pte],
-  ["chaser", TXT.emailTemplates.chaser],
-  ["win", TXT.emailTemplates.win],
+  [EMAIL_TEMPLATE_TYPE.pte, TXT.emailTemplates.pte],
+  [EMAIL_TEMPLATE_TYPE.chaser, TXT.emailTemplates.chaser],
+  [EMAIL_TEMPLATE_TYPE.win, TXT.emailTemplates.win],
 ];
 
 export function EmailTemplateTabs({ activeTab, onChange }: EmailTemplateTabsProps) {

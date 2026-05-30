@@ -55,8 +55,22 @@ export type SeatCell = {
 };
 
 export type RuleSectionId = "timing" | "pricing" | "loyalty" | "channels" | "payment" | "features";
-export type EmailTemplateType = "pte" | "chaser" | "win";
-export type MainTab = "flights" | "flight" | "rules" | "email" | "passenger";
+
+export const EMAIL_TEMPLATE_TYPE = {
+  pte: "pte",
+  chaser: "chaser",
+  win: "win",
+} as const;
+export type EmailTemplateType = (typeof EMAIL_TEMPLATE_TYPE)[keyof typeof EMAIL_TEMPLATE_TYPE];
+
+export const MAIN_TAB = {
+  flights: "flights",
+  flight: "flight",
+  rules: "rules",
+  email: "email",
+  passenger: "passenger",
+} as const;
+export type MainTab = (typeof MAIN_TAB)[keyof typeof MAIN_TAB];
 
 export type FlightListFilter = "all" | FlightStatus;
 export type FlightListSortCol = "dep" | "bids" | "revenue" | "topBid";
