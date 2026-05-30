@@ -13,9 +13,8 @@ import type {
   TimingRow,
 } from "./types";
 import { T } from "./theme";
-import { DEFAULT_RULES } from "./data";
+import { DEFAULT_RULES, TIER_META, colorToken } from "./data";
 import { NumInput, Pill, SectionLabel, Toggle } from "./primitives";
-import { TIER_META } from "./ui-mappings";
 
 type RuleSection = { id: RuleSectionId; l: string };
 type LabelDescRow<K extends string> = { key: K; label: string; desc: string };
@@ -508,7 +507,7 @@ export function GlobalRules() {
                         textAlign: "center",
                       }}
                     >
-                      <Pill color={tm.color} bg={tm.bg} size={10}>
+                      <Pill color={colorToken(tm.colorId)} bg={colorToken(tm.bgId)} size={10}>
                         {row.tier}
                       </Pill>
                       <div style={{ fontSize: 11, color: T.textMuted, margin: "5px 0 2px" }}>

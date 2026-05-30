@@ -1,4 +1,15 @@
-import type { Bid, Flight, Rules, SeatCell } from "./types";
+import { T } from "./theme";
+import type {
+  Bid,
+  BidState,
+  Channel,
+  Flight,
+  FlightHaul,
+  FlightStatus,
+  Rules,
+  SeatCell,
+  Tier,
+} from "./types";
 
 export const FLIGHTS_DATA: Flight[] = [
   {
@@ -314,3 +325,72 @@ export const DEFAULT_RULES: Rules = {
 };
 
 export const weighted = (b: Bid) => Math.round(b.bid * b.mult);
+
+export type ColorTokenId = keyof typeof T;
+
+export const colorToken = (id: ColorTokenId): string => T[id];
+
+export const DIST_DATA: Array<{
+  range: string;
+  count: number;
+  pct: number;
+  colorId: ColorTokenId;
+}> = [
+  { range: "$500–750", count: 7, pct: 25, colorId: "accent" },
+  { range: "$400–499", count: 10, pct: 36, colorId: "accentSoft" },
+  { range: "$300–399", count: 8, pct: 29, colorId: "accentMuted" },
+  { range: "$262–299", count: 3, pct: 10, colorId: "accentPale" },
+];
+
+export const EXIT_DATA: Array<{
+  range: string;
+  count: number;
+  pct: number;
+  colorId: ColorTokenId;
+}> = [
+  { range: "$60–85", count: 9, pct: 64, colorId: "green" },
+  { range: "$32–59", count: 5, pct: 36, colorId: "greenSoft" },
+];
+
+export const TIER_META: Record<
+  Tier,
+  { colorId: ColorTokenId; bgId: ColorTokenId; label: string; mult: string }
+> = {
+  Platinum: { colorId: "amber", bgId: "amberDim", label: "Platinum", mult: "+10%" },
+  Gold: { colorId: "accent", bgId: "accentDim", label: "Gold", mult: "+5%" },
+  Silver: { colorId: "textSub", bgId: "neutralSoft", label: "Silver", mult: "+3%" },
+  Standard: { colorId: "textMuted", bgId: "neutralPale", label: "Standard", mult: "—" },
+};
+
+export const STATE_META: Record<
+  BidState,
+  { label: string; colorId: ColorTokenId; bgId: ColorTokenId }
+> = {
+  pending: { label: "Ожидает", colorId: "textMuted", bgId: "neutralSoft" },
+  approved: { label: "Принята", colorId: "greenText", bgId: "greenDim" },
+  rejected: { label: "Отклонена", colorId: "redText", bgId: "redDim" },
+};
+
+export const STATUS_META: Record<
+  FlightStatus,
+  { label: string; colorId: ColorTokenId; bgId: ColorTokenId }
+> = {
+  active: { label: "Активен", colorId: "greenText", bgId: "greenDim" },
+  sold: { label: "Нет мест", colorId: "redText", bgId: "redDim" },
+  upcoming: { label: "Скоро", colorId: "amberText", bgId: "amberDim" },
+};
+
+export const HAUL_LABELS: Record<FlightHaul, string> = {
+  "ultra-short": "Ультракороткий (<1.5ч)",
+  short: "Короткий (1.5–3ч)",
+  medium: "Средний (3–5ч)",
+  long: "Длинный (5–8ч)",
+  ultra: "Ультрадальний (8ч+)",
+};
+
+export const CH_ICONS: Record<Channel, string> = {
+  Email: "✉",
+  App: "◉",
+  MMB: "⊞",
+  Web: "◈",
+};

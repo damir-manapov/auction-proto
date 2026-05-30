@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TIER_META } from "./ui-mappings";
+import { TIER_META, colorToken } from "./data";
 import { Pill, Toggle } from "./primitives";
 import { T } from "./theme";
 import type { ProductActiveMap, ProductBidMap, ProductConfig, ProductKey, Tier } from "./types";
@@ -314,7 +314,7 @@ export function PassengerBidUI() {
               <div style={{ fontSize: 13, fontWeight: 600, color: T.text }}>{PASSENGER.name}</div>
               <div style={{ fontSize: 10, color: T.textMuted }}>Программа лояльности</div>
             </div>
-            <Pill color={tierMeta.color} bg={tierMeta.bg} size={10}>
+            <Pill color={colorToken(tierMeta.colorId)} bg={colorToken(tierMeta.bgId)} size={10}>
               {PASSENGER.tier}
             </Pill>
           </div>

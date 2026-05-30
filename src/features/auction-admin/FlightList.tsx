@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { FLIGHTS_DATA } from "./data";
+import { FLIGHTS_DATA, STATUS_META, colorToken } from "./data";
 import { MetricCard, Pill } from "./primitives";
 import { F, T } from "./theme";
-import { STATUS_META } from "./ui-mappings";
 import type { Flight, FlightListFilter, FlightListSortCol, SortDir } from "./types";
 
 type FlightListProps = {
@@ -253,7 +252,7 @@ export function FlightList({ onSelect }: FlightListProps) {
                       {f.revenue > 0 ? `$${f.revenue.toLocaleString()}` : "—"}
                     </td>
                     <td style={{ padding: "11px 14px" }}>
-                      <Pill color={sm.color} bg={sm.bg}>
+                      <Pill color={colorToken(sm.colorId)} bg={colorToken(sm.bgId)}>
                         {sm.label}
                       </Pill>
                     </td>

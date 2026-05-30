@@ -1,8 +1,19 @@
 import { useState } from "react";
 import type { Bid, Flight, FlightDetailFilter, FlightDetailSortCol, SortDir } from "./types";
 import { F, T } from "./theme";
-import { CH_ICONS, DIST_DATA, EXIT_DATA, HAUL_LABELS, STATE_META, TIER_META } from "./ui-mappings";
-import { FALLBACK_FLIGHT, FLIGHTS_DATA, INITIAL_BIDS, weighted } from "./data";
+import {
+  CH_ICONS,
+  DIST_DATA,
+  EXIT_DATA,
+  FALLBACK_FLIGHT,
+  FLIGHTS_DATA,
+  HAUL_LABELS,
+  INITIAL_BIDS,
+  STATE_META,
+  TIER_META,
+  colorToken,
+  weighted,
+} from "./data";
 import { BarChart, MetricCard, Pill, SeatMap, SectionLabel } from "./primitives";
 
 export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onBack: () => void }) {
@@ -199,7 +210,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
           >
             Бизнес-класс
           </div>
-          <BarChart data={DIST_DATA} />
+          <BarChart data={DIST_DATA.map((row) => ({ ...row, color: colorToken(row.colorId) }))} />
           <div style={{ height: 1, background: T.border, margin: "12px 0" }} />
           <div
             style={{
@@ -213,7 +224,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
           >
             Ряды у выхода
           </div>
-          <BarChart data={EXIT_DATA} />
+          <BarChart data={EXIT_DATA.map((row) => ({ ...row, color: colorToken(row.colorId) }))} />
         </div>
       </div>
       <div
@@ -332,7 +343,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                       </div>
                     </td>
                     <td style={{ padding: "10px 10px", borderBottom: `0.5px solid ${T.border}` }}>
-                      <Pill color={tm.color} bg={tm.bg} size={10}>
+                      <Pill color={colorToken(tm.colorId)} bg={colorToken(tm.bgId)} size={10}>
                         {tm.label}
                       </Pill>
                       <div style={{ fontSize: 10, color: T.textMuted, marginTop: 2 }}>
@@ -382,7 +393,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                       {b.time}
                     </td>
                     <td style={{ padding: "10px 10px", borderBottom: `0.5px solid ${T.border}` }}>
-                      <Pill color={sm.color} bg={sm.bg} size={10}>
+                      <Pill color={colorToken(sm.colorId)} bg={colorToken(sm.bgId)} size={10}>
                         {sm.label}
                       </Pill>
                     </td>
