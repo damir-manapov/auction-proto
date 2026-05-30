@@ -17,7 +17,7 @@ import { EmailPreview } from "./EmailPreview";
 import { PassengerBidUI } from "./PassengerBidUI";
 import { AdminHeader, EmailTemplateTabs, EmptyFlightState } from "./AdminShell";
 import { TXT } from "./i18n";
-import { useFlights } from "./queries/useFlights";
+import { useFlightsSummary } from "./queries/useFlightsSummary";
 
 function routeToTab(pathname: string): MainTab {
   if (pathname === "/rules") return MAIN_TAB.rules;
@@ -87,14 +87,18 @@ function EmailRoute() {
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: flights = [], isLoading: isFlightsLoading, isError: isFlightsError } = useFlights();
+  const {
+    data: flightsSummary,
+    isLoading: isFlightsLoading,
+    isError: isFlightsError,
+  } = useFlightsSummary();
   const tab = routeToTab(location.pathname);
   const selectedFlight = location.pathname.startsWith("/flights/")
     ? decodeURIComponent(location.pathname.replace("/flights/", ""))
     : null;
 
-  const totalActive = flights.filter((f) => f.status === "active").length;
-  const totalBids = flights.reduce((s, f) => s + f.bids, 0);
+  const totalActive = flightsSummary?.active ?? 0;
+  const totalBids = flightsSummary?.bids ?? 0;
   const activeFlightsText = isFlightsLoading
     ? TXT.admin.states.loading
     : isFlightsError

@@ -1,7 +1,7 @@
 import { FLIGHTS_DATA } from "../data";
 import { INITIAL_BIDS, weighted } from "../data";
 import type { Bid, Flight } from "../types";
-import type { BackendClient, FlightQuery, FlightsPage } from "./contracts";
+import type { BackendClient, FlightQuery, FlightsPage, FlightsSummary } from "./contracts";
 import {
   composeBeforeCall,
   createJitterSleeper,
@@ -17,6 +17,15 @@ function cloneBids(bids: Bid[]): Bid[] {
 function createInitialBidsByFlightId(flights: Flight[]): Map<Flight["id"], Bid[]> {
   const entries = flights.map((flight) => [flight.id, cloneBids(INITIAL_BIDS)] as const);
   return new Map(entries);
+}
+
+function summarizeFlights(flights: Flight[]): FlightsSummary {
+  return {
+    active: flights.filter((f) => f.status === "active").length,
+    bids: flights.reduce((sum, f) => sum + f.bids, 0),
+    revenue: flights.reduce((sum, f) => sum + f.revenue, 0),
+    freeSeats: flights.reduce((sum, f) => sum + f.bcFree, 0),
+  };
 }
 
 function queryFlightsData(query: FlightQuery): FlightsPage {
@@ -54,12 +63,7 @@ function queryFlightsData(query: FlightQuery): FlightsPage {
     total,
     page,
     pageSize,
-    summary: {
-      active: filtered.filter((f) => f.status === "active").length,
-      bids: filtered.reduce((sum, f) => sum + f.bids, 0),
-      revenue: filtered.reduce((sum, f) => sum + f.revenue, 0),
-      freeSeats: filtered.reduce((sum, f) => sum + f.bcFree, 0),
-    },
+    summary: summarizeFlights(filtered),
   };
 }
 
@@ -83,6 +87,10 @@ export const createMockBackendClient = (): BackendClient => {
 
       async queryFlights(query) {
         return queryFlightsData(query);
+      },
+
+      async getFlightsSummary() {
+        return summarizeFlights(FLIGHTS_DATA);
       },
 
       async getFlightById(flightId) {

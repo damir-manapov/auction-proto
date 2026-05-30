@@ -14,17 +14,20 @@ export type FlightsPage = {
   total: number;
   page: number;
   pageSize: number;
-  summary: {
-    active: number;
-    bids: number;
-    revenue: number;
-    freeSeats: number;
-  };
+  summary: FlightsSummary;
+};
+
+export type FlightsSummary = {
+  active: number;
+  bids: number;
+  revenue: number;
+  freeSeats: number;
 };
 
 export type FlightsService = {
   listFlights: () => Promise<Flight[]>;
   queryFlights: (query: FlightQuery) => Promise<FlightsPage>;
+  getFlightsSummary: () => Promise<FlightsSummary>;
   getFlightById: (flightId: Flight["id"]) => Promise<Flight | undefined>;
 };
 
