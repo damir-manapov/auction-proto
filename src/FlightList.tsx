@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { STATUS_META, colorToken } from "./data";
 import { useFlights } from "./queries/useFlights";
 import { MetricCard, Pill } from "./primitives";
@@ -12,10 +12,28 @@ type FlightListProps = {
 
 export function FlightList({ onSelect }: FlightListProps) {
   const { data: flights = [] } = useFlights();
-  const [search, setSearch] = useState("");
-  const [statusF, setStatusF] = useState<FlightListFilter>("all");
-  const [sortCol, setSortCol] = useState<FlightListSortCol>("dep");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const search = searchParams.get("q") ?? "";
+  const rawStatus = searchParams.get("status");
+  const rawSortCol = searchParams.get("sort");
+  const rawSortDir = searchParams.get("dir");
+
+  const statusF: FlightListFilter =
+    rawStatus === "all" ||
+    rawStatus === "active" ||
+    rawStatus === "upcoming" ||
+    rawStatus === "sold"
+      ? rawStatus
+      : "all";
+  const sortCol: FlightListSortCol =
+    rawSortCol === "dep" ||
+    rawSortCol === "bids" ||
+    rawSortCol === "revenue" ||
+    rawSortCol === "topBid"
+      ? rawSortCol
+      : "dep";
+  const sortDir: SortDir = rawSortDir === "desc" ? "desc" : "asc";
 
   const statusFilters: Array<[FlightListFilter, string]> = [
     ["all", TXT.flightList.statusFilters.all],
@@ -36,11 +54,14 @@ export function FlightList({ onSelect }: FlightListProps) {
   ];
 
   const handleSort = (col: FlightListSortCol) => {
-    if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    else {
-      setSortCol(col);
-      setSortDir("asc");
+    const next = new URLSearchParams(searchParams);
+    if (sortCol === col) {
+      next.set("dir", sortDir === "asc" ? "desc" : "asc");
+    } else {
+      next.set("sort", col);
+      next.set("dir", "asc");
     }
+    setSearchParams(next, { replace: true });
   };
 
   const filtered = flights
@@ -107,7 +128,12 @@ export function FlightList({ onSelect }: FlightListProps) {
         <input
           placeholder={TXT.flightList.searchPlaceholder}
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            const next = new URLSearchParams(searchParams);
+            if (e.target.value) next.set("q", e.target.value);
+            else next.delete("q");
+            setSearchParams(next, { replace: true });
+          }}
           style={{
             padding: "7px 12px",
             borderRadius: 8,
@@ -124,7 +150,12 @@ export function FlightList({ onSelect }: FlightListProps) {
             <button
               type="button"
               key={k}
-              onClick={() => setStatusF(k)}
+              onClick={() => {
+                const next = new URLSearchParams(searchParams);
+                if (k === "all") next.delete("status");
+                else next.set("status", k);
+                setSearchParams(next, { replace: true });
+              }}
               style={{
                 padding: "6px 12px",
                 borderRadius: 20,

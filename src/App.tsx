@@ -1,5 +1,12 @@
-import { useState } from "react";
-import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import type { EmailTemplateType, MainTab } from "./types";
 import { F, T } from "./theme";
 import { FlightList } from "./FlightList";
@@ -21,25 +28,51 @@ function routeToTab(pathname: string): MainTab {
 
 function FlightsRoute() {
   const navigate = useNavigate();
-  return <FlightList onSelect={(id) => navigate(`/flights/${id}`)} />;
+  const location = useLocation();
+
+  return (
+    <FlightList
+      onSelect={(id) =>
+        navigate(`/flights/${id}`, {
+          state: { from: `${location.pathname}${location.search}` },
+        })
+      }
+    />
+  );
 }
 
 function FlightDetailRoute() {
   const navigate = useNavigate();
+  const location = useLocation();
   const params = useParams<{ flightId: string }>();
+  const from =
+    location.state && typeof location.state === "object" && "from" in location.state
+      ? String(location.state.from)
+      : "/flights";
 
   if (!params.flightId) {
     return <EmptyFlightState />;
   }
 
-  return <FlightDetail flightId={params.flightId} onBack={() => navigate("/flights")} />;
+  return <FlightDetail flightId={params.flightId} onBack={() => navigate(from)} />;
 }
 
 function EmailRoute() {
-  const [emailTab, setEmailTab] = useState<EmailTemplateType>("pte");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const template = searchParams.get("template");
+  const emailTab: EmailTemplateType =
+    template === "pte" || template === "chaser" || template === "win" ? template : "pte";
+
   return (
     <>
-      <EmailTemplateTabs activeTab={emailTab} onChange={setEmailTab} />
+      <EmailTemplateTabs
+        activeTab={emailTab}
+        onChange={(tab) => {
+          const next = new URLSearchParams(searchParams);
+          next.set("template", tab);
+          setSearchParams(next, { replace: true });
+        }}
+      />
       <EmailPreview type={emailTab} />
     </>
   );
