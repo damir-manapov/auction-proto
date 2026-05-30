@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import type { EmailTemplateConfig, EmailTemplateType } from "./types";
 import { F, T } from "./theme";
 import { Pill, SectionLabel } from "./primitives";
+import { TXT } from "./i18n";
 
 type MetaRow = [string, string];
 type MetadataRow = { key: string; label: string; value: ReactNode };
@@ -66,79 +67,87 @@ const OFFER_ROW_STYLE: CSSProperties = {
 
 const TEMPLATE_CONFIGS: Record<EmailTemplateType, EmailTemplateConfig> = {
   pte: {
-    subject: "Азиз, предложите свою цену на бизнес-класс",
-    to: "aziz.karimov@mail.uz",
-    tag: "PTE · за 7–14 дней",
+    subject: TXT.emailPreview.templates.pte.subject,
+    to: TXT.emailPreview.templates.pte.to,
+    tag: TXT.emailPreview.templates.pte.tag,
     tagC: T.brandPrimary,
     tagBg: T.brandPrimaryBg,
     hBg: T.emailPteHeaderBg,
     hLine: T.brandPrimary,
-    title: "Улучшите перелёт до бизнес-класса",
-    body: "Ваш рейс HY 602 квалифицирован для участия в аукционе. Предложите цену — средства спишутся только при подтверждении.",
-    ctaLabel: "Предложить цену →",
+    title: TXT.emailPreview.templates.pte.title,
+    body: TXT.emailPreview.templates.pte.body,
+    ctaLabel: TXT.emailPreview.templates.pte.ctaLabel,
     ctaBg: T.brandPrimary,
     offers: [
-      { name: "Бизнес-класс", desc: "Раскладное кресло · Лаундж", from: "$262" },
-      { name: "Ряд у выхода", desc: "+30 см для ног", from: "$32" },
+      {
+        name: TXT.emailPreview.templates.pte.offers.bc.name,
+        desc: TXT.emailPreview.templates.pte.offers.bc.desc,
+        from: TXT.emailPreview.templates.pte.offers.bc.from,
+      },
+      {
+        name: TXT.emailPreview.templates.pte.offers.ex.name,
+        desc: TXT.emailPreview.templates.pte.offers.ex.desc,
+        from: TXT.emailPreview.templates.pte.offers.ex.from,
+      },
     ],
-    footer: "Ставка не гарантирует апгрейд. Оплата только при подтверждении.",
+    footer: TXT.emailPreview.templates.pte.footer,
   },
   chaser: {
-    subject: "Последний шанс: мест в бизнес-классе почти нет",
-    to: "j.smith@company.com",
-    tag: "Chaser · за 48–72 часа",
+    subject: TXT.emailPreview.templates.chaser.subject,
+    to: TXT.emailPreview.templates.chaser.to,
+    tag: TXT.emailPreview.templates.chaser.tag,
     tagC: T.statusWarning,
     tagBg: T.statusWarningBg,
     hBg: T.emailChaserHeaderBg,
     hLine: T.statusWarning,
-    title: "Аукцион закрывается через 14 часов",
-    body: "Вы не подавали заявку. Осталось ограниченное число мест. Деньги не списываются без подтверждённого апгрейда.",
-    ctaLabel: "Участвовать — осталось мало мест →",
+    title: TXT.emailPreview.templates.chaser.title,
+    body: TXT.emailPreview.templates.chaser.body,
+    ctaLabel: TXT.emailPreview.templates.chaser.ctaLabel,
     ctaBg: T.statusWarning,
     urgency: true,
-    footer: "Ставка не гарантирует апгрейд. Оплата только при подтверждении.",
+    footer: TXT.emailPreview.templates.chaser.footer,
   },
   win: {
-    subject: "Поздравляем — вы летите бизнес-классом!",
-    to: "aziz.karimov@mail.uz",
-    tag: "Confirm · за 4–8 часов",
+    subject: TXT.emailPreview.templates.win.subject,
+    to: TXT.emailPreview.templates.win.to,
+    tag: TXT.emailPreview.templates.win.tag,
     tagC: T.statusSuccess,
     tagBg: T.statusSuccessBg,
     hBg: T.emailWinHeaderBg,
     hLine: T.statusSuccess,
-    title: "Ваш апгрейд подтверждён!",
-    body: "Добро пожаловать в бизнес-класс, Азиз! Место 4A забронировано, $580 списано. Приоритетная посадка и лаундж уже доступны.",
-    ctaLabel: "Посмотреть посадочный →",
+    title: TXT.emailPreview.templates.win.title,
+    body: TXT.emailPreview.templates.win.body,
+    ctaLabel: TXT.emailPreview.templates.win.ctaLabel,
     ctaBg: T.statusSuccess,
     booking: {
-      Рейс: "HY 602",
-      Маршрут: "Ташкент → Стамбул",
-      Место: "4A · Бизнес-класс",
-      Вылет: "15 июня · 08:45",
-      Списано: "$580",
+      [TXT.emailPreview.templates.win.booking.flight]: "HY 602",
+      [TXT.emailPreview.templates.win.booking.route]: TXT.emailPreview.templates.win.routeValue,
+      [TXT.emailPreview.templates.win.booking.seat]: "4A · Бизнес-класс",
+      [TXT.emailPreview.templates.win.booking.departure]: "15 июня · 08:45",
+      [TXT.emailPreview.templates.win.booking.charged]: "$580",
     },
-    footer: "Uzbekistan Airways · hy-support@uzbekistanairways.com",
+    footer: TXT.emailPreview.templates.win.footer,
   },
 };
 
 const META_ROWS_BY_TYPE: Record<EmailTemplateType, MetaRow[]> = {
   pte: [
-    ["Открываемость", "~35%"],
-    ["Конверсия", "18.4%"],
-    ["Доля заявок", "30%+"],
-    ["Отписок", "0.4%"],
+    [TXT.emailPreview.metaRows.pte.openRate, "~35%"],
+    [TXT.emailPreview.metaRows.pte.conversion, "18.4%"],
+    [TXT.emailPreview.metaRows.pte.share, "30%+"],
+    [TXT.emailPreview.metaRows.pte.unsub, "0.4%"],
   ],
   chaser: [
-    ["Открываемость", "~42%"],
-    ["Конверсия", "11.2%"],
-    ["Срочность", "высокая"],
-    ["A/B тест", "2 варианта"],
+    [TXT.emailPreview.metaRows.chaser.openRate, "~42%"],
+    [TXT.emailPreview.metaRows.chaser.conversion, "11.2%"],
+    [TXT.emailPreview.metaRows.chaser.urgency, TXT.emailPreview.templates.chaser.urgencyValue],
+    [TXT.emailPreview.metaRows.chaser.abTest, "2 варианта"],
   ],
   win: [
-    ["Доставлено", "100%"],
-    ["Открыто", "~88%"],
-    ["Жалоб", "0"],
-    ["NPS impact", "+12"],
+    [TXT.emailPreview.metaRows.win.delivered, "100%"],
+    [TXT.emailPreview.metaRows.win.opened, "~88%"],
+    [TXT.emailPreview.metaRows.win.complaints, "0"],
+    [TXT.emailPreview.metaRows.win.npsImpact, "+12"],
   ],
 };
 
@@ -148,7 +157,7 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
   const metadataRows: MetadataRow[] = [
     {
       key: "type",
-      label: "Тип",
+      label: TXT.emailPreview.metadata.type,
       value: (
         <Pill color={c.tagC} bg={c.tagBg}>
           {c.tag}
@@ -157,12 +166,12 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
     },
     {
       key: "to",
-      label: "Кому",
+      label: TXT.emailPreview.metadata.to,
       value: <span style={{ fontSize: 12, color: T.textSecondary }}>{c.to}</span>,
     },
     {
       key: "subject",
-      label: "Тема",
+      label: TXT.emailPreview.metadata.subject,
       value: <span style={{ fontSize: 12, color: T.textPrimary }}>{c.subject}</span>,
     },
   ];
@@ -172,7 +181,7 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
     >
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <div style={SIDE_PANEL_CARD_STYLE}>
-          <SectionLabel>Метаданные</SectionLabel>
+          <SectionLabel>{TXT.emailPreview.metadata.title}</SectionLabel>
           {metadataRows.map((row) => (
             <div key={row.key} style={META_ROW_STYLE}>
               <div
@@ -191,7 +200,7 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
           ))}
         </div>
         <div style={SIDE_PANEL_CARD_STYLE}>
-          <SectionLabel>Метрики канала</SectionLabel>
+          <SectionLabel>{TXT.emailPreview.channelMetrics.title}</SectionLabel>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             {metaRows.map(([k, v]) => (
               <div key={k} style={METRIC_TILE_STYLE}>
@@ -238,7 +247,7 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
               paddingLeft: 8,
             }}
           >
-            <span style={{ fontSize: 10, color: T.textMuted }}>mail.uzbekistanairways.uz</span>
+            <span style={{ fontSize: 10, color: T.textMuted }}>{TXT.emailPreview.browserHost}</span>
           </div>
         </div>
         <div style={{ padding: 12 }}>
@@ -273,14 +282,16 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
                 <span style={{ fontSize: 8, fontWeight: 800, color: T.onBrandPrimary }}>HY</span>
               </div>
               <span style={{ color: T.textPrimary, fontWeight: 600, fontSize: 12 }}>
-                Uzbekistan Airways
+                {TXT.emailPreview.airlineBrand}
               </span>
             </div>
             <div style={{ background: T.surfaceCard, padding: 14 }}>
               <div style={FLIGHT_STRIP_STYLE}>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary }}>TAS</div>
-                  <div style={{ fontSize: 9, color: T.textMuted }}>Ташкент</div>
+                  <div style={{ fontSize: 9, color: T.textMuted }}>
+                    {TXT.emailPreview.routeCities.tashkent}
+                  </div>
                 </div>
                 <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 3 }}>
                   <div style={{ flex: 1, height: 1, background: T.borderDefault }} />
@@ -289,7 +300,9 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
                 </div>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary }}>IST</div>
-                  <div style={{ fontSize: 9, color: T.textMuted }}>Стамбул</div>
+                  <div style={{ fontSize: 9, color: T.textMuted }}>
+                    {TXT.emailPreview.routeCities.istanbul}
+                  </div>
                 </div>
               </div>
               {c.urgency && (
@@ -308,10 +321,10 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
                   <span style={{ fontSize: 12 }}>⏳</span>
                   <div>
                     <div style={{ fontSize: 11, fontWeight: 600, color: T.statusWarningFg }}>
-                      Аукцион закрывается через 14 часов
+                      {TXT.emailPreview.urgencyTitle}
                     </div>
                     <div style={{ fontSize: 10, color: T.statusWarning }}>
-                      HY 602 · 15 июня · 08:45
+                      {TXT.emailPreview.urgencyMeta}
                     </div>
                   </div>
                 </div>
@@ -333,7 +346,9 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
                     <div style={{ fontSize: 10, color: T.textMuted }}>{o.desc}</div>
                   </div>
                   <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 9, color: T.textMuted }}>от</div>
+                    <div style={{ fontSize: 9, color: T.textMuted }}>
+                      {TXT.emailPreview.fromLabel}
+                    </div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: c.tagC }}>{o.from}</div>
                   </div>
                 </div>

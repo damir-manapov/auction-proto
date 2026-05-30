@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TIER_META, colorToken } from "./data";
 import { Pill, Toggle } from "./primitives";
 import { T } from "./theme";
+import { TXT } from "./i18n";
 import type { ProductActiveMap, ProductBidMap, ProductConfig, ProductKey, Tier } from "./types";
 
 export function PassengerBidUI() {
@@ -12,8 +13,8 @@ export function PassengerBidUI() {
   };
   const PRODUCTS: Record<ProductKey, ProductConfig> = {
     bc: {
-      label: "Бизнес-класс",
-      desc: "Раскладное кресло · Лаундж · Питание",
+      label: TXT.passenger.products.bc.label,
+      desc: TXT.passenger.products.bc.desc,
       icon: "🛋",
       min: 262,
       max: 750,
@@ -22,8 +23,8 @@ export function PassengerBidUI() {
       trackColor: T.brandPrimary,
     },
     ex: {
-      label: "Ряд у аварийного выхода",
-      desc: "+30 см для ног · Ранняя посадка",
+      label: TXT.passenger.products.ex.label,
+      desc: TXT.passenger.products.ex.desc,
       icon: "🦵",
       min: 32,
       max: 85,
@@ -32,8 +33,8 @@ export function PassengerBidUI() {
       trackColor: T.statusSuccess,
     },
     sb: {
-      label: "Seat Blocker",
-      desc: "Заблокировать соседнее место",
+      label: TXT.passenger.products.sb.label,
+      desc: TXT.passenger.products.sb.desc,
       icon: "🪑",
       min: 8,
       max: 45,
@@ -118,12 +119,12 @@ export function PassengerBidUI() {
               ✓
             </div>
             <div style={{ fontSize: 18, fontWeight: 700, color: T.textPrimary, marginBottom: 4 }}>
-              Заявка принята!
+              {TXT.passenger.submitted.title}
             </div>
             <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 22, lineHeight: 1.7 }}>
-              Результат будет известен за 4–8 часов до вылета.
+              {TXT.passenger.submitted.desc1}
               <br />
-              Средства спишутся только при подтверждении.
+              {TXT.passenger.submitted.desc2}
             </div>
             <div
               style={{
@@ -136,11 +137,14 @@ export function PassengerBidUI() {
               }}
             >
               {[
-                ["Рейс", "HY 602 · TAS → IST"],
-                ["Апгрейды", prods.join(" + ") || "—"],
-                ["Статус оплаты", "Не списано ✓"],
-                ["Взвешенная ставка", `$${wt}`],
-                ["Уведомление", "Email · App"],
+                [TXT.passenger.submitted.rows.flight, "HY 602 · TAS → IST"],
+                [TXT.passenger.submitted.rows.upgrades, prods.join(" + ") || "—"],
+                [TXT.passenger.submitted.rows.paymentStatus, TXT.passenger.submitted.paymentValue],
+                [TXT.passenger.submitted.rows.weightedBid, `$${wt}`],
+                [
+                  TXT.passenger.submitted.rows.notification,
+                  TXT.passenger.submitted.notificationValue,
+                ],
               ].map(([k, v], i, arr) => (
                 <div
                   key={k}
@@ -157,9 +161,9 @@ export function PassengerBidUI() {
                       fontSize: 13,
                       fontWeight: 600,
                       color:
-                        k === "Статус оплаты"
+                        k === TXT.passenger.submitted.rows.paymentStatus
                           ? T.statusSuccessFg
-                          : k === "Взвешенная ставка"
+                          : k === TXT.passenger.submitted.rows.weightedBid
                             ? T.brandPrimaryFg
                             : T.textPrimary,
                       fontFamily: "monospace",
@@ -171,8 +175,7 @@ export function PassengerBidUI() {
               ))}
             </div>
             <div style={{ fontSize: 11, color: T.textMuted, marginBottom: 16, lineHeight: 1.6 }}>
-              Изменить или отозвать заявку можно в разделе «Управление бронированием» до закрытия
-              аукциона.
+              {TXT.passenger.submitted.editHint}
             </div>
             <button
               type="button"
@@ -187,7 +190,7 @@ export function PassengerBidUI() {
                 cursor: "pointer",
               }}
             >
-              ← Изменить заявку
+              {TXT.passenger.submitted.editButton}
             </button>
           </div>
         </div>
@@ -270,7 +273,9 @@ export function PassengerBidUI() {
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: T.textPrimary }}>TAS</div>
-              <div style={{ fontSize: 10, color: T.textMuted }}>Ташкент</div>
+              <div style={{ fontSize: 10, color: T.textMuted }}>
+                {TXT.passenger.flightHeader.tashkent}
+              </div>
             </div>
             <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 4 }}>
               <div style={{ flex: 1, height: 1, background: T.borderDefault }} />
@@ -279,11 +284,13 @@ export function PassengerBidUI() {
             </div>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: T.textPrimary }}>IST</div>
-              <div style={{ fontSize: 10, color: T.textMuted }}>Стамбул</div>
+              <div style={{ fontSize: 10, color: T.textMuted }}>
+                {TXT.passenger.flightHeader.istanbul}
+              </div>
             </div>
           </div>
           <div style={{ fontSize: 11, color: T.textMuted, marginTop: 7 }}>
-            Airbus A321 · 5ч 35м · Эконом → Бизнес
+            {TXT.passenger.flightHeader.planeLine}
           </div>
         </div>
 
@@ -322,7 +329,7 @@ export function PassengerBidUI() {
               <div style={{ fontSize: 13, fontWeight: 600, color: T.textPrimary }}>
                 {PASSENGER.name}
               </div>
-              <div style={{ fontSize: 10, color: T.textMuted }}>Программа лояльности</div>
+              <div style={{ fontSize: 10, color: T.textMuted }}>{TXT.passenger.loyaltyProgram}</div>
             </div>
             <Pill color={colorToken(tierMeta.colorId)} bg={colorToken(tierMeta.bgId)} size={10}>
               {PASSENGER.tier}
@@ -339,7 +346,7 @@ export function PassengerBidUI() {
               marginBottom: 10,
             }}
           >
-            Выберите апгрейды
+            {TXT.passenger.chooseUpgrades}
           </div>
 
           {/* Product cards */}
@@ -456,7 +463,9 @@ export function PassengerBidUI() {
                         marginBottom: 4,
                       }}
                     >
-                      <span style={{ fontSize: 11, color: T.textMuted }}>Шанс принятия</span>
+                      <span style={{ fontSize: 11, color: T.textMuted }}>
+                        {TXT.passenger.chanceLabel}
+                      </span>
                       <span
                         style={{
                           fontSize: 13,
@@ -506,7 +515,7 @@ export function PassengerBidUI() {
               marginBottom: 10,
             }}
           >
-            Итого
+            {TXT.passenger.totalTitle}
           </div>
           <div
             style={{
@@ -545,7 +554,7 @@ export function PassengerBidUI() {
             )}
             <div style={{ display: "flex", justifyContent: "space-between", padding: "7px 0 3px" }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: T.textPrimary }}>
-                Взвешенная сумма
+                {TXT.passenger.weightedTotal}
               </span>
               <span
                 style={{
@@ -559,9 +568,12 @@ export function PassengerBidUI() {
               </span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 10, color: T.textMuted }}>× бонус Platinum +10%</span>
+              <span style={{ fontSize: 10, color: T.textMuted }}>
+                {TXT.passenger.platinumBonus}
+              </span>
               <span style={{ fontSize: 11, color: T.textMuted, fontFamily: "monospace" }}>
-                базовая ${base}
+                {TXT.passenger.basePrefix}
+                {base}
               </span>
             </div>
           </div>
@@ -582,8 +594,11 @@ export function PassengerBidUI() {
               ℹ
             </span>
             <div style={{ fontSize: 11, color: T.brandPrimaryFg, lineHeight: 1.6 }}>
-              Средства <strong style={{ color: T.onBrandPrimarySoft }}>не списываются</strong>{" "}
-              сразу. Оплата — только при подтверждении апгрейда авиакомпанией.
+              {TXT.passenger.infoTextStart}{" "}
+              <strong style={{ color: T.onBrandPrimarySoft }}>
+                {TXT.passenger.infoTextStrong}
+              </strong>{" "}
+              {TXT.passenger.infoTextEnd}
             </div>
           </div>
 
@@ -606,10 +621,11 @@ export function PassengerBidUI() {
               marginBottom: 8,
             }}
           >
-            {base === 0 ? "Выберите хотя бы один апгрейд" : `Подать заявку · $${base}`}
+            {base === 0 ? TXT.passenger.submitEmpty : `${TXT.passenger.submitPrefix}${base}`}
           </button>
           <div style={{ fontSize: 10, color: T.textMuted, textAlign: "center", paddingBottom: 4 }}>
-            Аукцион закрывается через <strong style={{ color: T.statusWarning }}>3ч 20м</strong>
+            {TXT.passenger.auctionClosesIn}{" "}
+            <strong style={{ color: T.statusWarning }}>3ч 20м</strong>
           </div>
         </div>
       </div>

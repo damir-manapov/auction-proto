@@ -14,6 +14,7 @@ import type {
 } from "./types";
 import { T } from "./theme";
 import { DEFAULT_RULES, TIER_META, colorToken } from "./data";
+import { TXT } from "./i18n";
 import { NumInput, Pill, SectionLabel, Toggle } from "./primitives";
 
 type RuleSection = { id: RuleSectionId; l: string };
@@ -29,25 +30,25 @@ type FeatureStatusKey =
   | "blindBids";
 
 const RULE_SECTIONS: RuleSection[] = [
-  { id: "timing", l: "Тайминг" },
-  { id: "pricing", l: "Ценообразование" },
-  { id: "loyalty", l: "Лояльность" },
-  { id: "channels", l: "Каналы охвата" },
-  { id: "payment", l: "Платежи" },
-  { id: "features", l: "Функции" },
+  { id: "timing", l: TXT.globalRules.sections.timing },
+  { id: "pricing", l: TXT.globalRules.sections.pricing },
+  { id: "loyalty", l: TXT.globalRules.sections.loyalty },
+  { id: "channels", l: TXT.globalRules.sections.channels },
+  { id: "payment", l: TXT.globalRules.sections.payment },
+  { id: "features", l: TXT.globalRules.sections.features },
 ];
 
 const HAUL_COLS: HaulColumn[] = [
-  { k: "UltraShort", lbl: "<1.5ч" },
-  { k: "Short", lbl: "1.5–3ч" },
-  { k: "Medium", lbl: "3–5ч" },
-  { k: "Long", lbl: "5–8ч" },
-  { k: "UltraLong", lbl: "8ч+" },
+  { k: "UltraShort", lbl: TXT.globalRules.haulCols.ultraShort },
+  { k: "Short", lbl: TXT.globalRules.haulCols.short },
+  { k: "Medium", lbl: TXT.globalRules.haulCols.medium },
+  { k: "Long", lbl: TXT.globalRules.haulCols.long },
+  { k: "UltraLong", lbl: TXT.globalRules.haulCols.ultraLong },
 ];
 
 const PRICING_ROWS: PricingRow[] = [
   {
-    product: "Бизнес-класс",
+    product: TXT.globalRules.pricingProducts.business,
     keys: {
       UltraShort: "minBcUltraShort",
       Short: "minBcShort",
@@ -57,7 +58,7 @@ const PRICING_ROWS: PricingRow[] = [
     },
   },
   {
-    product: "Ряды у выхода",
+    product: TXT.globalRules.pricingProducts.exitRows,
     keys: {
       UltraShort: "minExitShort",
       Short: "minExitShort",
@@ -67,7 +68,7 @@ const PRICING_ROWS: PricingRow[] = [
     },
   },
   {
-    product: "Блок соседнего",
+    product: TXT.globalRules.pricingProducts.seatBlock,
     keys: {
       UltraShort: "minSeatBlockShort",
       Short: "minSeatBlockShort",
@@ -81,45 +82,45 @@ const PRICING_ROWS: PricingRow[] = [
 const TIMING_ROWS: TimingRow[] = [
   {
     key: "inviteDaysBefore",
-    label: "Первое приглашение (PTE)",
-    desc: "За сколько дней отправить первое письмо",
+    label: TXT.globalRules.timingRows.invite.label,
+    desc: TXT.globalRules.timingRows.invite.desc,
     min: 1,
     max: 60,
-    unit: "дн. до вылета",
+    unit: TXT.globalRules.timingRows.invite.unit,
   },
   {
     key: "chaserHoursBefore",
-    label: "Напоминание (Chaser)",
-    desc: "За сколько часов отправить напоминание без заявки",
+    label: TXT.globalRules.timingRows.chaser.label,
+    desc: TXT.globalRules.timingRows.chaser.desc,
     min: 12,
     max: 168,
-    unit: "ч. до вылета",
+    unit: TXT.globalRules.timingRows.chaser.unit,
   },
   {
     key: "closureHoursBefore",
-    label: "Закрытие аукциона",
-    desc: "За сколько часов прекратить приём заявок",
+    label: TXT.globalRules.timingRows.closure.label,
+    desc: TXT.globalRules.timingRows.closure.desc,
     min: 1,
     max: 48,
-    unit: "ч. до вылета",
+    unit: TXT.globalRules.timingRows.closure.unit,
   },
 ];
 
 const TIMING_TOGGLE_ROWS: LabelDescRow<RulesBooleanKey>[] = [
   {
     key: "autoFulfillment",
-    label: "Авто-фулфилмент",
-    desc: "Автоматически выбирает победителей и обновляет PNR",
+    label: TXT.globalRules.timingToggles.autoFulfillment.label,
+    desc: TXT.globalRules.timingToggles.autoFulfillment.desc,
   },
   {
     key: "requirePurchased",
-    label: "Только при наличии билета",
-    desc: "Ключевой антидилюционный механизм",
+    label: TXT.globalRules.timingToggles.requirePurchased.label,
+    desc: TXT.globalRules.timingToggles.requirePurchased.desc,
   },
   {
     key: "blindBids",
-    label: "Слепые ставки",
-    desc: "Пассажиры не видят ставки других участников",
+    label: TXT.globalRules.timingToggles.blindBids.label,
+    desc: TXT.globalRules.timingToggles.blindBids.desc,
   },
 ];
 
@@ -136,22 +137,34 @@ const CHANNEL_ROWS: LabelDescRow<ChannelRuleKey>[] = [
     desc: "30%+ всех заявок. Базовый канал",
   },
   { key: "mmb", label: "Manage My Booking", desc: "+25% к объёму. Средняя ставка выше на 77%" },
-  { key: "app", label: "Мобильное приложение + Push", desc: "+4% к объёму" },
-  { key: "web", label: "Маркетинговая страница", desc: "41% выручки партнёра" },
+  {
+    key: "app",
+    label: TXT.globalRules.channels.app.label,
+    desc: TXT.globalRules.channels.app.desc,
+  },
+  {
+    key: "web",
+    label: TXT.globalRules.channels.web.label,
+    desc: TXT.globalRules.channels.web.desc,
+  },
   {
     key: "webcheckin",
-    label: "Онлайн-регистрация",
-    desc: "+10% к выручке. 55% уникальных посетителей",
+    label: TXT.globalRules.channels.webcheckin.label,
+    desc: TXT.globalRules.channels.webcheckin.desc,
   },
-  { key: "pushNotif", label: "Push-уведомления", desc: "Уведомляет о статусе ставки" },
+  {
+    key: "pushNotif",
+    label: TXT.globalRules.channels.pushNotif.label,
+    desc: TXT.globalRules.channels.pushNotif.desc,
+  },
 ];
 
 const PAYMENT_ROWS: LabelDescRow<PaymentMethodKey>[] = [
-  { key: "visa", label: "Visa", desc: "Поддерживается всеми PSP-партнёрами" },
-  { key: "mastercard", label: "Mastercard", desc: "Поддерживается всеми PSP-партнёрами" },
-  { key: "amex", label: "American Express", desc: "Более высокий средний чек" },
-  { key: "jcb", label: "JCB", desc: "Актуально для маршрутов в Азию" },
-  { key: "diners", label: "Diners Club", desc: "Ограниченная поддержка эквайеров" },
+  { key: "visa", label: "Visa", desc: TXT.globalRules.payments.visa },
+  { key: "mastercard", label: "Mastercard", desc: TXT.globalRules.payments.mastercard },
+  { key: "amex", label: "American Express", desc: TXT.globalRules.payments.amex },
+  { key: "jcb", label: "JCB", desc: TXT.globalRules.payments.jcb },
+  { key: "diners", label: "Diners Club", desc: TXT.globalRules.payments.diners },
 ];
 
 const FEATURE_ROWS: LabelDescRow<RulesBooleanKey>[] = [
@@ -160,7 +173,11 @@ const FEATURE_ROWS: LabelDescRow<RulesBooleanKey>[] = [
     label: "Seat Blocker",
     desc: "+10–20% выручки. Блокировка соседнего места",
   },
-  { key: "payWithPoints", label: "Pay with Points", desc: "Оплата баллами лояльности" },
+  {
+    key: "payWithPoints",
+    label: "Pay with Points",
+    desc: TXT.globalRules.features.payWithPoints,
+  },
   {
     key: "crossAirlineUpgrades",
     label: "Cross Airline Upgrades",
@@ -173,19 +190,23 @@ const FEATURE_ROWS: LabelDescRow<RulesBooleanKey>[] = [
   },
   {
     key: "autoFulfillment",
-    label: "Авто-фулфилмент",
-    desc: "Автовыбор победителей без ручного одобрения",
+    label: TXT.globalRules.features.autoFulfillment.label,
+    desc: TXT.globalRules.features.autoFulfillment.desc,
   },
-  { key: "blindBids", label: "Слепые ставки", desc: "Участники не видят предложения других" },
+  {
+    key: "blindBids",
+    label: TXT.globalRules.features.blindBids.label,
+    desc: TXT.globalRules.features.blindBids.desc,
+  },
 ];
 
 const FEATURE_STATUS_LABELS: Record<FeatureStatusKey, string> = {
-  seatBlocker: "Seat Blocker",
+  seatBlocker: TXT.passenger.products.sb.label,
   payWithPoints: "Pay with Points",
   crossAirlineUpgrades: "Cross Airline",
   continuousPricing: "Continuous Pricing",
-  autoFulfillment: "Авто-фулфилмент",
-  blindBids: "Слепые ставки",
+  autoFulfillment: TXT.globalRules.features.autoFulfillment.label,
+  blindBids: TXT.globalRules.features.blindBids.label,
 };
 
 export function GlobalRules() {
@@ -266,10 +287,10 @@ export function GlobalRules() {
               color: T.textMuted,
             }}
           >
-            Глобальные правила
+            {TXT.globalRules.side.title}
           </div>
           <div style={{ fontSize: 11, color: T.textMuted, marginTop: 4, lineHeight: 1.5 }}>
-            Применяются ко всем рейсам по умолчанию
+            {TXT.globalRules.side.desc}
           </div>
         </div>
         {RULE_SECTIONS.map((s, i) => (
@@ -312,13 +333,13 @@ export function GlobalRules() {
               transition: "all .2s",
             }}
           >
-            {saved ? "✓ Сохранено" : "Сохранить правила"}
+            {saved ? TXT.globalRules.side.saved : TXT.globalRules.side.save}
           </button>
           {!saved && (
             <div
               style={{ fontSize: 10, color: T.statusWarning, marginTop: 5, textAlign: "center" }}
             >
-              Есть несохранённые изменения
+              {TXT.globalRules.side.unsaved}
             </div>
           )}
         </div>
@@ -354,22 +375,25 @@ export function GlobalRules() {
                 <Toggle checked={rules[row.key]} onChange={(v) => setRule(row.key, v)} />
               </RuleRow>
             ))}
-            <RuleRow label="Макс. апгрейдов на рейс" desc="0 = без ограничений">
+            <RuleRow
+              label={TXT.globalRules.labels.maxUpgrades}
+              desc={TXT.globalRules.labels.maxUpgradesDesc}
+            >
               <NumInput
                 value={rules.maxUpgradesPerFlight}
                 onChange={(v) => setRule("maxUpgradesPerFlight", v)}
                 min={0}
                 max={50}
-                unit="мест (0=∞)"
+                unit={TXT.globalRules.labels.maxUpgradesUnit}
               />
             </RuleRow>
           </div>
         )}
         {activeSection === "pricing" && (
           <div>
-            <SectionLabel>Минимальные ставки по типу хола (USD)</SectionLabel>
+            <SectionLabel>{TXT.globalRules.labels.pricingSection}</SectionLabel>
             <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 14, lineHeight: 1.6 }}>
-              Пассажир не сможет предложить сумму ниже указанной.
+              {TXT.globalRules.labels.pricingSectionDesc}
             </div>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
@@ -388,7 +412,7 @@ export function GlobalRules() {
                         background: T.surfaceElevated,
                       }}
                     >
-                      Продукт
+                      {TXT.globalRules.labels.product}
                     </th>
                     {HAUL_COLS.map((c) => (
                       <th
@@ -458,10 +482,9 @@ export function GlobalRules() {
         )}
         {activeSection === "loyalty" && (
           <div>
-            <SectionLabel>Множители статуса лояльности</SectionLabel>
+            <SectionLabel>{TXT.globalRules.labels.loyaltySection}</SectionLabel>
             <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 14, lineHeight: 1.6 }}>
-              Взвешенная = базовая × (1 + множитель%). При равных ставках побеждает более высокий
-              статус.
+              {TXT.globalRules.labels.loyaltySectionDesc}
             </div>
             {LOYALTY_ROWS.map((row) => (
               <RuleRow
@@ -505,7 +528,7 @@ export function GlobalRules() {
                   marginBottom: 10,
                 }}
               >
-                Предпросмотр: базовая $400
+                {TXT.globalRules.labels.previewBase}
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
                 {loyaltyPreview.map((row) => {
@@ -545,7 +568,7 @@ export function GlobalRules() {
         )}
         {activeSection === "channels" && (
           <div>
-            <SectionLabel>Активные каналы охвата</SectionLabel>
+            <SectionLabel>{TXT.globalRules.labels.channelsSection}</SectionLabel>
             {CHANNEL_ROWS.map((row) => (
               <RuleRow key={row.key} label={row.label} desc={row.desc}>
                 <Toggle
@@ -558,7 +581,7 @@ export function GlobalRules() {
         )}
         {activeSection === "payment" && (
           <div>
-            <SectionLabel>Методы оплаты</SectionLabel>
+            <SectionLabel>{TXT.globalRules.labels.paymentSection}</SectionLabel>
             {PAYMENT_ROWS.map((row) => (
               <RuleRow key={row.key} label={row.label} desc={row.desc}>
                 <Toggle
@@ -568,8 +591,8 @@ export function GlobalRules() {
               </RuleRow>
             ))}
             <RuleRow
-              label="3DS аутентификация"
-              desc="Снижает конверсию. Включайте только при обязательном 3DS в регионе"
+              label={TXT.globalRules.labels.auth3ds}
+              desc={TXT.globalRules.labels.auth3dsDesc}
             >
               <Toggle checked={rules.use3ds} onChange={(v) => setRule("use3ds", v)} />
             </RuleRow>
@@ -591,10 +614,10 @@ export function GlobalRules() {
                     marginBottom: 2,
                   }}
                 >
-                  ⚠ 3DS включён
+                  {TXT.globalRules.labels.auth3dsEnabled}
                 </div>
                 <div style={{ fontSize: 11, color: T.statusWarning, lineHeight: 1.5 }}>
-                  Используйте Plusgrade Community MPI.
+                  {TXT.globalRules.labels.auth3dsEnabledDesc}
                 </div>
               </div>
             )}
@@ -602,7 +625,7 @@ export function GlobalRules() {
         )}
         {activeSection === "features" && (
           <div>
-            <SectionLabel>Дополнительные функции</SectionLabel>
+            <SectionLabel>{TXT.globalRules.labels.featuresSection}</SectionLabel>
             {FEATURE_ROWS.map((row) => (
               <RuleRow key={row.key} label={row.label} desc={row.desc}>
                 <Toggle checked={rules[row.key]} onChange={(v) => setRule(row.key, v)} />
@@ -626,7 +649,7 @@ export function GlobalRules() {
                   marginBottom: 10,
                 }}
               >
-                Статус функций
+                {TXT.globalRules.labels.featuresStatus}
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 7 }}>
                 {(
@@ -652,7 +675,9 @@ export function GlobalRules() {
                         bg={rules[k] ? T.statusSuccessBg : T.neutralBgSoft}
                         size={10}
                       >
-                        {rules[k] ? "вкл" : "выкл"}
+                        {rules[k]
+                          ? TXT.globalRules.featureStatus.enabled
+                          : TXT.globalRules.featureStatus.disabled}
                       </Pill>
                     </div>
                   );

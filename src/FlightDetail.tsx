@@ -15,6 +15,7 @@ import {
   weighted,
 } from "./data";
 import { BarChart, MetricCard, Pill, SeatMap, SectionLabel } from "./primitives";
+import { TXT } from "./i18n";
 
 export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onBack: () => void }) {
   const flight = FLIGHTS_DATA.find((f) => f.id === flightId) ?? FLIGHTS_DATA[0] ?? FALLBACK_FLIGHT;
@@ -24,20 +25,20 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
   const [sortCol, setSortCol] = useState<FlightDetailSortCol>("weighted");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const detailFilters: Array<[FlightDetailFilter, string]> = [
-    ["all", "Все"],
-    ["pending", "Ожидают"],
-    ["approved", "Принятые"],
-    ["rejected", "Отклонённые"],
+    ["all", TXT.flightDetail.filters.all],
+    ["pending", TXT.flightDetail.filters.pending],
+    ["approved", TXT.flightDetail.filters.approved],
+    ["rejected", TXT.flightDetail.filters.rejected],
   ];
   const detailHeaderCols: Array<[FlightDetailSortCol | null, string, string]> = [
-    ["name", "Пассажир", "22%"],
-    ["tier", "Статус", "11%"],
-    ["bid", "Ставка", "10%"],
-    ["weighted", "Взвешенная", "11%"],
-    ["channel", "Канал", "9%"],
-    ["time", "Время", "9%"],
-    [null, "Статус", "11%"],
-    [null, "Действие", "17%"],
+    ["name", TXT.flightDetail.headers.passenger, "22%"],
+    ["tier", TXT.flightDetail.headers.tier, "11%"],
+    ["bid", TXT.flightDetail.headers.bid, "10%"],
+    ["weighted", TXT.flightDetail.headers.weighted, "11%"],
+    ["channel", TXT.flightDetail.headers.channel, "9%"],
+    ["time", TXT.flightDetail.headers.time, "9%"],
+    [null, TXT.flightDetail.headers.status, "11%"],
+    [null, TXT.flightDetail.headers.action, "17%"],
   ];
 
   const sorted = [...bids]
@@ -107,7 +108,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
             color: T.textMuted,
           }}
         >
-          ← Все рейсы
+          {TXT.flightDetail.backButton}
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 20, fontWeight: 800 }}>{flight.id}</span>
@@ -115,7 +116,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
             {flight.from} → {flight.to}
           </span>
           <Pill color={T.statusSuccessFg} bg={T.statusSuccessBg}>
-            Аукцион открыт
+            {TXT.flightDetail.auctionOpen}
           </Pill>
         </div>
         <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
@@ -134,11 +135,11 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                 cursor: "pointer",
               }}
             >
-              ⚡ Авто-отбор
+              {TXT.flightDetail.autoSelect}
             </button>
           ) : (
             <Pill color={T.statusSuccessFg} bg={T.statusSuccessBg}>
-              ✓ Amadeus RES обновлён
+              {TXT.flightDetail.amadeusUpdated}
             </Pill>
           )}
         </div>
@@ -151,27 +152,27 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
         style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 18 }}
       >
         <MetricCard
-          label="Мест в BC"
+          label={TXT.flightDetail.metrics.bcSeats.label}
           value={`${flight.bcFree} / ${flight.bcTotal}`}
           accent={flight.bcFree < 4 ? T.statusDangerFg : T.statusSuccessFg}
-          sub="свободно"
+          sub={TXT.flightDetail.metrics.bcSeats.sub}
         />
         <MetricCard
-          label="Заявок на BC"
+          label={TXT.flightDetail.metrics.bcBidsLabel}
           value={String(bids.length)}
-          sub={`${counts.pending} ожидают`}
+          sub={`${counts.pending} ${TXT.flightDetail.metrics.pendingSuffix}`}
         />
         <MetricCard
-          label="Топ ставка"
+          label={TXT.flightDetail.metrics.topBidLabel}
           value={`$${flight.topBid}`}
           accent={T.brandPrimaryFg}
-          sub={`взвеш. $${Math.round(flight.topBid * 1.1)}`}
+          sub={`${TXT.flightDetail.metrics.weightedPrefix}${Math.round(flight.topBid * 1.1)}`}
         />
         <MetricCard
-          label="Прогноз выручки"
+          label={TXT.flightDetail.metrics.revenueLabel}
           value={`$${flight.revenue.toLocaleString()}`}
           accent={T.statusSuccessFg}
-          sub={`${flight.bcFree} победителя`}
+          sub={`${flight.bcFree} ${TXT.flightDetail.metrics.winnersSuffix}`}
         />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 18 }}>
@@ -183,7 +184,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
             padding: "16px 18px",
           }}
         >
-          <SectionLabel>Карта мест — бизнес-класс</SectionLabel>
+          <SectionLabel>{TXT.flightDetail.section.seatMap}</SectionLabel>
           <SeatMap />
           <div style={{ marginTop: 10, fontSize: 11, color: T.textMuted }}>
             {flight.bcFree} свободных · {bids.length} заявок
@@ -197,7 +198,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
             padding: "16px 18px",
           }}
         >
-          <SectionLabel>Распределение ставок</SectionLabel>
+          <SectionLabel>{TXT.flightDetail.section.bidDistribution}</SectionLabel>
           <div
             style={{
               fontSize: 10,
@@ -208,7 +209,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
               marginBottom: 8,
             }}
           >
-            Бизнес-класс
+            {TXT.flightDetail.section.businessClass}
           </div>
           <BarChart data={DIST_DATA.map((row) => ({ ...row, color: colorToken(row.colorId) }))} />
           <div style={{ height: 1, background: T.borderDefault, margin: "12px 0" }} />
@@ -222,7 +223,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
               marginBottom: 8,
             }}
           >
-            Ряды у выхода
+            {TXT.flightDetail.section.exitRows}
           </div>
           <BarChart data={EXIT_DATA.map((row) => ({ ...row, color: colorToken(row.colorId) }))} />
         </div>
@@ -245,7 +246,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
             gap: 8,
           }}
         >
-          <SectionLabel>Заявки на бизнес-класс</SectionLabel>
+          <SectionLabel>{TXT.flightDetail.section.bidsTable}</SectionLabel>
           <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
             {detailFilters.map(([k, lbl]) => (
               <button
@@ -342,7 +343,9 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                         <div>
                           <div style={{ fontWeight: 600, color: T.textPrimary }}>{b.name}</div>
                           {isTop && (
-                            <div style={{ fontSize: 10, color: T.brandPrimaryFg }}>→ кандидат</div>
+                            <div style={{ fontSize: 10, color: T.brandPrimaryFg }}>
+                              {TXT.flightDetail.topCandidate}
+                            </div>
                           )}
                         </div>
                       </div>
@@ -434,7 +437,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                               color: T.statusSuccessFg,
                             }}
                           >
-                            ✓ Принять
+                            {TXT.flightDetail.acceptButton}
                           </button>
                           <button
                             type="button"
@@ -462,7 +465,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
           </table>
         </div>
         <div style={{ marginTop: 10, fontSize: 11, color: T.textMuted }}>
-          Взвешенная = базовая × множитель статуса. Кликните заголовок для сортировки.
+          {TXT.flightDetail.footerHint}
         </div>
       </div>
     </div>

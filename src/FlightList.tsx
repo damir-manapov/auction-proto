@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FLIGHTS_DATA, STATUS_META, colorToken } from "./data";
 import { MetricCard, Pill } from "./primitives";
 import { F, T } from "./theme";
+import { TXT } from "./i18n";
 import type { Flight, FlightListFilter, FlightListSortCol, SortDir } from "./types";
 
 type FlightListProps = {
@@ -14,20 +15,20 @@ export function FlightList({ onSelect }: FlightListProps) {
   const [sortCol, setSortCol] = useState<FlightListSortCol>("dep");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const statusFilters: Array<[FlightListFilter, string]> = [
-    ["all", "Все"],
-    ["active", "Активные"],
-    ["upcoming", "Скоро"],
-    ["sold", "Нет мест"],
+    ["all", TXT.flightList.statusFilters.all],
+    ["active", TXT.flightList.statusFilters.active],
+    ["upcoming", TXT.flightList.statusFilters.upcoming],
+    ["sold", TXT.flightList.statusFilters.sold],
   ];
   const headerCols: Array<[FlightListSortCol | null, string, string]> = [
-    ["dep", "Рейс / маршрут", "24%"],
-    [null, "Вылет", "13%"],
-    [null, "Борт", "8%"],
-    ["bids", "Заявок", "9%"],
-    [null, "Мест BC", "9%"],
-    ["topBid", "Топ ставка", "10%"],
-    ["revenue", "Прогноз", "10%"],
-    [null, "Статус", "9%"],
+    ["dep", TXT.flightList.headers.depRoute, "24%"],
+    [null, TXT.flightList.headers.dep, "13%"],
+    [null, TXT.flightList.headers.aircraft, "8%"],
+    ["bids", TXT.flightList.headers.bids, "9%"],
+    [null, TXT.flightList.headers.seatsBc, "9%"],
+    ["topBid", TXT.flightList.headers.topBid, "10%"],
+    ["revenue", TXT.flightList.headers.forecast, "10%"],
+    [null, TXT.flightList.headers.status, "9%"],
     [null, "", "8%"],
   ];
 
@@ -67,19 +68,27 @@ export function FlightList({ onSelect }: FlightListProps) {
       <div
         style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 20 }}
       >
-        <MetricCard label="Активных аукционов" value={String(totalActive)} sub="сегодня" />
-        <MetricCard label="Всего заявок" value={String(totalBids)} sub="по всем рейсам" />
         <MetricCard
-          label="Свободных мест BC"
-          value={String(totalFree)}
-          accent={totalFree < 10 ? T.statusDangerFg : T.statusSuccessFg}
-          sub="для апгрейда"
+          label={TXT.flightList.metrics.activeAuctions.label}
+          value={String(totalActive)}
+          sub={TXT.flightList.metrics.activeAuctions.sub}
         />
         <MetricCard
-          label="Прогноз выручки"
+          label={TXT.flightList.metrics.totalBids.label}
+          value={String(totalBids)}
+          sub={TXT.flightList.metrics.totalBids.sub}
+        />
+        <MetricCard
+          label={TXT.flightList.metrics.freeBcSeats.label}
+          value={String(totalFree)}
+          accent={totalFree < 10 ? T.statusDangerFg : T.statusSuccessFg}
+          sub={TXT.flightList.metrics.freeBcSeats.sub}
+        />
+        <MetricCard
+          label={TXT.flightList.metrics.revenueForecast.label}
           value={`$${Math.round(totalRevenue / 1000)}K`}
           accent={T.statusSuccessFg}
-          sub="все рейсы"
+          sub={TXT.flightList.metrics.revenueForecast.sub}
         />
       </div>
       <div
@@ -92,7 +101,7 @@ export function FlightList({ onSelect }: FlightListProps) {
         }}
       >
         <input
-          placeholder="Поиск: рейс, IATA…"
+          placeholder={TXT.flightList.searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{
@@ -128,7 +137,7 @@ export function FlightList({ onSelect }: FlightListProps) {
           ))}
         </div>
         <div style={{ marginLeft: "auto", fontSize: 12, color: T.textMuted }}>
-          {filtered.length} рейсов
+          {filtered.length} {TXT.flightList.flightsSuffix}
         </div>
       </div>
       <div
@@ -281,7 +290,7 @@ export function FlightList({ onSelect }: FlightListProps) {
                           color: T.brandPrimaryFg,
                         }}
                       >
-                        Открыть →
+                        {TXT.flightList.openButton}
                       </button>
                     </td>
                   </tr>
@@ -292,7 +301,7 @@ export function FlightList({ onSelect }: FlightListProps) {
         </div>
       </div>
       <div style={{ marginTop: 10, fontSize: 11, color: T.textMuted }}>
-        Кликните «Открыть» для деталей аукциона. Клик по заголовку — сортировка.
+        {TXT.flightList.footerHint}
       </div>
     </div>
   );
