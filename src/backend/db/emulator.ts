@@ -32,19 +32,16 @@ export type DbEmulator = {
     table: string,
     query: Omit<DbQuery, "page" | "pageSize">,
   ) => TRow[];
-  findOne: <TRow extends DbRow>(
-    table: string,
-    predicate: (row: TRow) => boolean,
-  ) => TRow | undefined;
+  findOne: <TRow extends DbRow>(table: string, filters: DbFilter[]) => TRow | undefined;
   updateOne: <TRow extends DbRow>(
     table: string,
-    predicate: (row: TRow) => boolean,
-    updater: (row: TRow) => TRow,
+    filters: DbFilter[],
+    patch: Partial<TRow>,
   ) => TRow | undefined;
   updateMany: <TRow extends DbRow>(
     table: string,
-    predicate: (row: TRow) => boolean,
-    updater: (row: TRow) => TRow,
+    filters: DbFilter[],
+    patch: Partial<TRow>,
   ) => number;
 };
 
@@ -69,6 +66,10 @@ function matchesFilter(row: DbRow, filter: DbFilter): boolean {
 
   if (!Array.isArray(filter.value)) return false;
   return filter.value.map((v) => String(v)).includes(String(fieldValue));
+}
+
+function matchesFilters(row: DbRow, filters: DbFilter[]): boolean {
+  return filters.every((filter) => matchesFilter(row, filter));
 }
 
 function applyQuery<TRow extends DbRow>(rows: TRow[], query: DbQuery): DbQueryResult<TRow> {
@@ -146,37 +147,29 @@ export function createDbEmulator(seed: Record<string, DbRow[]>): DbEmulator {
       return result.items;
     },
 
-    findOne: <TRow extends DbRow>(table: string, predicate: (row: TRow) => boolean) => {
+    findOne: <TRow extends DbRow>(table: string, filters: DbFilter[]) => {
       const rows = readTable(table) as TRow[];
-      const found = rows.find(predicate);
+      const found = rows.find((row) => matchesFilters(row as DbRow, filters));
       return found ? (cloneRow(found as DbRow) as TRow) : undefined;
     },
 
-    updateOne: <TRow extends DbRow>(
-      table: string,
-      predicate: (row: TRow) => boolean,
-      updater: (row: TRow) => TRow,
-    ) => {
+    updateOne: <TRow extends DbRow>(table: string, filters: DbFilter[], patch: Partial<TRow>) => {
       const rows = readTable(table) as TRow[];
-      const idx = rows.findIndex(predicate);
+      const idx = rows.findIndex((row) => matchesFilters(row as DbRow, filters));
       if (idx === -1) return undefined;
       const current = rows[idx] as TRow;
-      const next = updater(cloneRow(current as DbRow) as TRow);
+      const next = { ...cloneRow(current as DbRow), ...(patch as DbRow) } as TRow;
       rows[idx] = cloneRow(next as DbRow) as TRow;
       return cloneRow(next as DbRow) as TRow;
     },
 
-    updateMany: <TRow extends DbRow>(
-      table: string,
-      predicate: (row: TRow) => boolean,
-      updater: (row: TRow) => TRow,
-    ) => {
+    updateMany: <TRow extends DbRow>(table: string, filters: DbFilter[], patch: Partial<TRow>) => {
       const rows = readTable(table) as TRow[];
       let count = 0;
       for (let i = 0; i < rows.length; i += 1) {
         const current = rows[i] as TRow;
-        if (!predicate(current)) continue;
-        const next = updater(cloneRow(current as DbRow) as TRow);
+        if (!matchesFilters(current as DbRow, filters)) continue;
+        const next = { ...cloneRow(current as DbRow), ...(patch as DbRow) } as TRow;
         rows[i] = cloneRow(next as DbRow) as TRow;
         count += 1;
       }

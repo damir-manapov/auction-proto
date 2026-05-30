@@ -45,7 +45,7 @@ export const createServiceClient = (): BackendClient => {
       },
 
       async getFlightById(flightId) {
-        return db.findOne<Flight>("flights", (flight) => flight.id === flightId);
+        return db.findOne<Flight>("flights", [{ field: "id", op: "eq", value: flightId }]);
       },
     },
     bids: {
@@ -57,8 +57,11 @@ export const createServiceClient = (): BackendClient => {
       async approveBid(flightId, bidId) {
         const updated = db.updateOne<BidRow>(
           "bids",
-          (bid) => bid.flightId === flightId && bid.id === bidId,
-          (bid) => ({ ...bid, state: "approved" }),
+          [
+            { field: "flightId", op: "eq", value: flightId },
+            { field: "id", op: "eq", value: bidId },
+          ],
+          { state: "approved" },
         );
         if (!updated) return undefined;
         return bidRowsToBids([updated])[0];
@@ -67,8 +70,11 @@ export const createServiceClient = (): BackendClient => {
       async rejectBid(flightId, bidId) {
         const updated = db.updateOne<BidRow>(
           "bids",
-          (bid) => bid.flightId === flightId && bid.id === bidId,
-          (bid) => ({ ...bid, state: "rejected" }),
+          [
+            { field: "flightId", op: "eq", value: flightId },
+            { field: "id", op: "eq", value: bidId },
+          ],
+          { state: "rejected" },
         );
         if (!updated) return undefined;
         return bidRowsToBids([updated])[0];
@@ -78,7 +84,7 @@ export const createServiceClient = (): BackendClient => {
         const all = db.list<BidRow>("bids");
         const mutable = bidRowsToBids(all.filter((bid) => bid.flightId === flightId));
 
-        const flight = db.findOne<Flight>("flights", (f) => f.id === flightId);
+        const flight = db.findOne<Flight>("flights", [{ field: "id", op: "eq", value: flightId }]);
         const availableSeats = flight?.bcFree ?? 0;
 
         const winners = [...mutable]
@@ -88,11 +94,13 @@ export const createServiceClient = (): BackendClient => {
           .map((bid) => bid.id);
 
         if (winners.length > 0) {
-          const target = new Set(winners);
           db.updateMany<BidRow>(
             "bids",
-            (bid) => bid.flightId === flightId && target.has(bid.id),
-            (bid) => ({ ...bid, state: "approved" as BidState }),
+            [
+              { field: "flightId", op: "eq", value: flightId },
+              { field: "id", op: "in", value: winners },
+            ],
+            { state: "approved" as BidState },
           );
         }
 

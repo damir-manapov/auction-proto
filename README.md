@@ -9,7 +9,8 @@ It includes:
 - Email template previews (invite, reminder, confirmation)
 - Passenger-side bidding flow mockup
 
-This is a front-end prototype with mock data (no backend/API integration yet).
+This is a front-end prototype with an in-memory mock backend service layer.
+There is no real network/API integration yet.
 
 ## Mock Backend Latency
 
@@ -37,8 +38,6 @@ Default behavior:
 Environment variables:
 - `VITE_MOCK_FAILURE_ENABLED` (`true`/`false`)
 - `VITE_MOCK_FAILURE_RATE` (number between `0` and `1`)
-- `VITE_MOCK_FAILURE_LIST_FLIGHTS` (`true`/`false`) force-fail list endpoint
-- `VITE_MOCK_FAILURE_GET_FLIGHT_BY_ID` (`true`/`false`) force-fail detail endpoint
 
 ## Tech Stack
 
@@ -118,6 +117,8 @@ bash all-checks.sh # runs both scripts
 │   ├── primitives.tsx                 # reusable UI primitives
 │   ├── main.tsx                       # React entry point
 │   └── index.css                      # global styles
+│   ├── queries/                       # TanStack Query hooks and keys
+│   └── backend/                       # in-memory backend service + db emulator
 ├── index.html                         # app shell
 ├── vite.config.ts                     # Vite config
 ├── tsconfig.json                      # strict TS config
@@ -146,6 +147,13 @@ Theme uses a palette + semantic token architecture:
 - Domain data (flight statuses, tiers, distributions)
 - UI mapping records (state metadata, color IDs, icons)
 - `colorToken()` resolver for semantic token lookup
+
+### Backend Layering
+- Service contracts and domain models are defined in `src/backend/contracts.ts`
+- Service implementation/orchestration is in `src/backend/serviceClient.ts`
+- Service-specific pure helpers are in `src/backend/serviceUtils.ts`
+- Generic DB emulator is in `src/backend/db/emulator.ts`
+- DB operations are declarative (`filters` + `patch`)
 
 ### Text & Localization Prep
 - User-facing shared labels are centralized in `src/i18n.ts` under a locale dictionary (`ru`)
