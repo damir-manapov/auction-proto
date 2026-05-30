@@ -13,8 +13,9 @@ import type {
   TimingRow,
 } from "./types";
 import { T } from "./theme";
-import { DEFAULT_RULES, TIER_META } from "./data";
+import { DEFAULT_RULES } from "./data";
 import { NumInput, Pill, SectionLabel, Toggle } from "./primitives";
+import { TIER_META } from "./ui-mappings";
 
 type RuleSection = { id: RuleSectionId; l: string };
 type LabelDescRow<K extends string> = { key: K; label: string; desc: string };

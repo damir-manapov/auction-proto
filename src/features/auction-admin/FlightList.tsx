@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { FLIGHTS_DATA, STATUS_META } from "./data";
+import { FLIGHTS_DATA } from "./data";
 import { MetricCard, Pill } from "./primitives";
 import { F, T } from "./theme";
+import { STATUS_META } from "./ui-mappings";
 import type { Flight, FlightListFilter, FlightListSortCol, SortDir } from "./types";
 
 type FlightListProps = {

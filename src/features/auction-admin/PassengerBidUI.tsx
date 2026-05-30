@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TIER_META } from "./data";
+import { TIER_META } from "./ui-mappings";
 import { Pill, Toggle } from "./primitives";
 import { T } from "./theme";
 import type { ProductActiveMap, ProductBidMap, ProductConfig, ProductKey, Tier } from "./types";

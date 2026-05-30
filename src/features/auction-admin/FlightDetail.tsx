@@ -1,18 +1,8 @@
 import { useState } from "react";
 import type { Bid, Flight, FlightDetailFilter, FlightDetailSortCol, SortDir } from "./types";
 import { F, T } from "./theme";
-import {
-  CH_ICONS,
-  DIST_DATA,
-  EXIT_DATA,
-  FALLBACK_FLIGHT,
-  FLIGHTS_DATA,
-  HAUL_LABELS,
-  INITIAL_BIDS,
-  STATE_META,
-  TIER_META,
-  weighted,
-} from "./data";
+import { CH_ICONS, DIST_DATA, EXIT_DATA, HAUL_LABELS, STATE_META, TIER_META } from "./ui-mappings";
+import { FALLBACK_FLIGHT, FLIGHTS_DATA, INITIAL_BIDS, weighted } from "./data";
 import { BarChart, MetricCard, Pill, SeatMap, SectionLabel } from "./primitives";
 
 export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onBack: () => void }) {
