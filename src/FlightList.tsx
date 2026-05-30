@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { STATUS_META, colorToken } from "./data";
-import { useFlights } from "./queries/useFlights";
+import { useFlightsQuery } from "./queries/useFlightsQuery";
 import { MetricCard, Pill } from "./primitives";
 import { F, T } from "./theme";
 import { TXT } from "./i18n";
@@ -11,13 +11,13 @@ type FlightListProps = {
 };
 
 export function FlightList({ onSelect }: FlightListProps) {
-  const { data: flights = [], isLoading, isError } = useFlights();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const search = searchParams.get("q") ?? "";
   const rawStatus = searchParams.get("status");
   const rawSortCol = searchParams.get("sort");
   const rawSortDir = searchParams.get("dir");
+  const rawPage = searchParams.get("page");
 
   const statusF: FlightListFilter =
     rawStatus === "all" ||
@@ -34,6 +34,21 @@ export function FlightList({ onSelect }: FlightListProps) {
       ? rawSortCol
       : "dep";
   const sortDir: SortDir = rawSortDir === "desc" ? "desc" : "asc";
+  const page = Math.max(1, Number(rawPage ?? "1") || 1);
+  const pageSize = 6;
+
+  const { data, isLoading, isError } = useFlightsQuery({
+    search,
+    status: statusF,
+    sortBy: sortCol,
+    sortDir,
+    page,
+    pageSize,
+  });
+
+  const flights = data?.items ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const statusFilters: Array<[FlightListFilter, string]> = [
     ["all", TXT.flightList.statusFilters.all],
@@ -55,6 +70,7 @@ export function FlightList({ onSelect }: FlightListProps) {
 
   const handleSort = (col: FlightListSortCol) => {
     const next = new URLSearchParams(searchParams);
+    next.set("page", "1");
     if (sortCol === col) {
       next.set("dir", sortDir === "asc" ? "desc" : "asc");
     } else {
@@ -64,29 +80,10 @@ export function FlightList({ onSelect }: FlightListProps) {
     setSearchParams(next, { replace: true });
   };
 
-  const filtered = flights
-    .filter((f) => statusF === "all" || f.status === statusF)
-    .filter(
-      (f) =>
-        f.id.toLowerCase().includes(search.toLowerCase()) ||
-        f.from.includes(search.toUpperCase()) ||
-        f.to.includes(search.toUpperCase()),
-    )
-    .sort((a, b) => {
-      const vals: Record<FlightListSortCol, [string | number, string | number]> = {
-        dep: [a.dep, b.dep],
-        bids: [a.bids, b.bids],
-        revenue: [a.revenue, b.revenue],
-        topBid: [a.topBid, b.topBid],
-      };
-      const [va, vb] = vals[sortCol];
-      return sortDir === "asc" ? (va > vb ? 1 : -1) : vb > va ? 1 : -1;
-    });
-
-  const totalActive = flights.filter((f) => f.status === "active").length;
-  const totalBids = flights.reduce((s, f) => s + f.bids, 0);
-  const totalRevenue = flights.reduce((s, f) => s + f.revenue, 0);
-  const totalFree = flights.reduce((s, f) => s + f.bcFree, 0);
+  const totalActive = data?.summary.active ?? 0;
+  const totalBids = data?.summary.bids ?? 0;
+  const totalRevenue = data?.summary.revenue ?? 0;
+  const totalFree = data?.summary.freeSeats ?? 0;
 
   if (isLoading) {
     return <div style={{ fontSize: 13, color: T.textMuted }}>{TXT.flightList.states.loading}</div>;
@@ -142,6 +139,7 @@ export function FlightList({ onSelect }: FlightListProps) {
             const next = new URLSearchParams(searchParams);
             if (e.target.value) next.set("q", e.target.value);
             else next.delete("q");
+            next.set("page", "1");
             setSearchParams(next, { replace: true });
           }}
           style={{
@@ -164,6 +162,7 @@ export function FlightList({ onSelect }: FlightListProps) {
                 const next = new URLSearchParams(searchParams);
                 if (k === "all") next.delete("status");
                 else next.set("status", k);
+                next.set("page", "1");
                 setSearchParams(next, { replace: true });
               }}
               style={{
@@ -182,7 +181,7 @@ export function FlightList({ onSelect }: FlightListProps) {
           ))}
         </div>
         <div style={{ marginLeft: "auto", fontSize: 12, color: T.textMuted }}>
-          {filtered.length} {TXT.flightList.flightsSuffix}
+          {total} {TXT.flightList.flightsSuffix}
         </div>
       </div>
       <div
@@ -229,7 +228,7 @@ export function FlightList({ onSelect }: FlightListProps) {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((f) => {
+              {flights.map((f) => {
                 const sm = STATUS_META[f.status] ?? STATUS_META.upcoming;
                 const fc =
                   f.bcFree === 0
@@ -343,6 +342,64 @@ export function FlightList({ onSelect }: FlightListProps) {
               })}
             </tbody>
           </table>
+        </div>
+      </div>
+      <div
+        style={{
+          marginTop: 10,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 10,
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ fontSize: 11, color: T.textMuted }}>
+          {TXT.flightList.pagination.pageOf
+            .replace("{page}", String(page))
+            .replace("{totalPages}", String(totalPages))}
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            type="button"
+            disabled={page <= 1}
+            onClick={() => {
+              const next = new URLSearchParams(searchParams);
+              next.set("page", String(Math.max(1, page - 1)));
+              setSearchParams(next, { replace: true });
+            }}
+            style={{
+              padding: "5px 10px",
+              borderRadius: 6,
+              border: `0.5px solid ${T.borderDefault}`,
+              background: "transparent",
+              color: T.textPrimary,
+              cursor: page <= 1 ? "not-allowed" : "pointer",
+              opacity: page <= 1 ? 0.6 : 1,
+            }}
+          >
+            {TXT.flightList.pagination.prev}
+          </button>
+          <button
+            type="button"
+            disabled={page >= totalPages}
+            onClick={() => {
+              const next = new URLSearchParams(searchParams);
+              next.set("page", String(Math.min(totalPages, page + 1)));
+              setSearchParams(next, { replace: true });
+            }}
+            style={{
+              padding: "5px 10px",
+              borderRadius: 6,
+              border: `0.5px solid ${T.borderDefault}`,
+              background: "transparent",
+              color: T.textPrimary,
+              cursor: page >= totalPages ? "not-allowed" : "pointer",
+              opacity: page >= totalPages ? 0.6 : 1,
+            }}
+          >
+            {TXT.flightList.pagination.next}
+          </button>
         </div>
       </div>
       <div style={{ marginTop: 10, fontSize: 11, color: T.textMuted }}>

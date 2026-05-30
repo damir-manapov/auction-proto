@@ -56,6 +56,11 @@ export const I18N = {
       },
       searchPlaceholder: "Поиск: рейс, IATA…",
       flightsSuffix: "рейсов",
+      pagination: {
+        pageOf: "Страница {page} из {totalPages}",
+        prev: "← Назад",
+        next: "Вперёд →",
+      },
       openButton: "Открыть →",
       footerHint: "Кликните «Открыть» для деталей аукциона. Клик по заголовку — сортировка.",
     },

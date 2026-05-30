@@ -1,7 +1,30 @@
-import type { Bid, Flight } from "../types";
+import type { Bid, Flight, FlightListFilter, FlightListSortCol, SortDir } from "../types";
+
+export type FlightQuery = {
+  search?: string;
+  status?: FlightListFilter;
+  sortBy?: FlightListSortCol;
+  sortDir?: SortDir;
+  page?: number;
+  pageSize?: number;
+};
+
+export type FlightsPage = {
+  items: Flight[];
+  total: number;
+  page: number;
+  pageSize: number;
+  summary: {
+    active: number;
+    bids: number;
+    revenue: number;
+    freeSeats: number;
+  };
+};
 
 export type FlightsService = {
   listFlights: () => Promise<Flight[]>;
+  queryFlights: (query: FlightQuery) => Promise<FlightsPage>;
   getFlightById: (flightId: Flight["id"]) => Promise<Flight | undefined>;
 };
 
