@@ -1,18 +1,9 @@
-import { FLIGHTS_DATA, INITIAL_BIDS, weighted } from "../data";
+import { FLIGHTS_DATA, INITIAL_BIDS } from "../data";
 import type { Bid, Flight } from "../types";
-import type { FlightQuery, FlightsSummary } from "./contracts";
-import { createDbEmulator, type DbFilter, type DbQuery, type DbQueryResult } from "./db/emulator";
+import type { FlightQuery } from "./contracts";
+import { createDbEmulator, type DbFilter, type DbQuery } from "./db/emulator";
 
 export type BidRow = Bid & { flightId: Flight["id"] };
-
-export function summarizeFlights(flights: Flight[]): FlightsSummary {
-  return {
-    active: flights.filter((f) => f.status === "active").length,
-    bids: flights.reduce((sum, f) => sum + f.bids, 0),
-    revenue: flights.reduce((sum, f) => sum + f.revenue, 0),
-    freeSeats: flights.reduce((sum, f) => sum + f.bcFree, 0),
-  };
-}
 
 function cloneBids(bids: Bid[]): Bid[] {
   return bids.map((bid) => ({ ...bid }));
@@ -62,25 +53,6 @@ export function toFlightSummaryQueryParams(
   };
 }
 
-export function toFlightsPage(
-  result: DbQueryResult<Flight>,
-  filteredForSummary: Flight[],
-): {
-  items: Flight[];
-  total: number;
-  page: number;
-  pageSize: number;
-  summary: FlightsSummary;
-} {
-  return {
-    items: result.items,
-    total: result.total,
-    page: result.page,
-    pageSize: result.pageSize,
-    summary: summarizeFlights(filteredForSummary),
-  };
-}
-
 export function bidRowsToBids(rows: BidRow[]): Bid[] {
   return rows.map(({ flightId: _flightId, ...bid }) => bid);
 }
@@ -91,12 +63,4 @@ export function toBidRowFilters(flightId: Flight["id"], bidId?: Bid["id"]): DbFi
     filters.push({ field: "id", op: "eq", value: bidId });
   }
   return filters;
-}
-
-export function selectWinningBidIds(rows: Bid[], availableSeats: number): Bid["id"][] {
-  return [...rows]
-    .filter((bid) => bid.state === "pending")
-    .sort((a, b) => weighted(b) - weighted(a))
-    .slice(0, availableSeats)
-    .map((bid) => bid.id);
 }

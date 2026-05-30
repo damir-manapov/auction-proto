@@ -1,16 +1,14 @@
-import type { BidState, Flight } from "../types";
+import { weighted } from "../data";
+import type { Bid, BidState, Flight } from "../types";
 import type { BackendClient } from "./contracts";
 import {
   bidRowsToBids,
   seedDb,
   toDbFilters,
   toBidRowFilters,
-  toFlightsPage,
   toFlightQueryParams,
   toFlightSummaryQueryParams,
   type BidRow,
-  selectWinningBidIds,
-  summarizeFlights,
 } from "./serviceUtils";
 import {
   composeBeforeCall,
@@ -19,6 +17,36 @@ import {
   getMockLatencyRange,
   withLatency,
 } from "./latency";
+
+function summarizeFlights(flights: Flight[]) {
+  return {
+    active: flights.filter((f) => f.status === "active").length,
+    bids: flights.reduce((sum, f) => sum + f.bids, 0),
+    revenue: flights.reduce((sum, f) => sum + f.revenue, 0),
+    freeSeats: flights.reduce((sum, f) => sum + f.bcFree, 0),
+  };
+}
+
+function toFlightsPage(
+  result: { items: Flight[]; total: number; page: number; pageSize: number },
+  filteredForSummary: Flight[],
+) {
+  return {
+    items: result.items,
+    total: result.total,
+    page: result.page,
+    pageSize: result.pageSize,
+    summary: summarizeFlights(filteredForSummary),
+  };
+}
+
+function selectWinningBidIds(rows: Bid[], availableSeats: number): Bid["id"][] {
+  return [...rows]
+    .filter((bid) => bid.state === "pending")
+    .sort((a, b) => weighted(b) - weighted(a))
+    .slice(0, availableSeats)
+    .map((bid) => bid.id);
+}
 
 export const createServiceClient = (): BackendClient => {
   const db = seedDb();
