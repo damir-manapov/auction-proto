@@ -1,0 +1,42 @@
+import { describe, expect, it } from "vitest";
+import { createServiceClient } from "../src/backend/serviceClient";
+
+describe("backend bids service", () => {
+  it("lists, approves, rejects, and auto-selects bids", async () => {
+    const client = createServiceClient();
+
+    const bids = await client.bids.listBids("HY 602");
+    expect(bids).toHaveLength(10);
+
+    const approved = await client.bids.approveBid("HY 602", 2);
+    expect(approved?.state).toBe("approved");
+
+    const rejected = await client.bids.rejectBid("HY 602", 3);
+    expect(rejected?.state).toBe("rejected");
+
+    const winners = await client.bids.autoSelect("HY 602");
+    expect(winners).toEqual([1, 4]);
+
+    const refreshed = await client.bids.listBids("HY 602");
+    expect(refreshed.find((bid) => bid.id === 1)?.state).toBe("approved");
+    expect(refreshed.find((bid) => bid.id === 4)?.state).toBe("approved");
+    expect(refreshed.find((bid) => bid.id === 3)?.state).toBe("rejected");
+  });
+
+  it("returns undefined for missing bids", async () => {
+    const client = createServiceClient();
+
+    await expect(client.bids.approveBid("HY 999", 1)).resolves.toBeUndefined();
+    await expect(client.bids.rejectBid("HY 999", 1)).resolves.toBeUndefined();
+  });
+
+  it("auto-selects nothing when no seats are available", async () => {
+    const client = createServiceClient();
+
+    const winners = await client.bids.autoSelect("HY 233");
+
+    expect(winners).toEqual([]);
+    const bids = await client.bids.listBids("HY 233");
+    expect(bids.every((bid) => bid.state === "pending")).toBe(true);
+  });
+});
