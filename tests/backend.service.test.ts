@@ -64,4 +64,22 @@ describe("backend service client", () => {
     expect(refreshed.find((bid) => bid.id === 4)?.state).toBe("approved");
     expect(refreshed.find((bid) => bid.id === 3)?.state).toBe("rejected");
   });
+
+  it("returns undefined for missing flights and bids", async () => {
+    const client = createServiceClient();
+
+    await expect(client.flights.getFlightById("HY 999")).resolves.toBeUndefined();
+    await expect(client.bids.approveBid("HY 999", 1)).resolves.toBeUndefined();
+    await expect(client.bids.rejectBid("HY 999", 1)).resolves.toBeUndefined();
+  });
+
+  it("auto-selects nothing when no seats are available", async () => {
+    const client = createServiceClient();
+
+    const winners = await client.bids.autoSelect("HY 233");
+
+    expect(winners).toEqual([]);
+    const bids = await client.bids.listBids("HY 233");
+    expect(bids.every((bid) => bid.state === "pending")).toBe(true);
+  });
 });
