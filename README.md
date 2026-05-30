@@ -11,6 +11,20 @@ It includes:
 
 This is a front-end prototype with mock data (no backend/API integration yet).
 
+## Mock Backend Latency
+
+The in-memory mock backend can simulate network latency to better exercise loading states.
+
+Default behavior:
+- Enabled in development
+- Random delay between `120ms` and `800ms`
+- Disabled in test mode (`vitest`)
+
+Environment variables:
+- `VITE_MOCK_LATENCY_ENABLED` (`true`/`false`)
+- `VITE_MOCK_LATENCY_MIN_MS` (number)
+- `VITE_MOCK_LATENCY_MAX_MS` (number)
+
 ## Tech Stack
 
 - React 19
