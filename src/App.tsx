@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { EmailTemplateType, Flight, MainTab } from "./types";
 import { F, T } from "./theme";
-import { FLIGHTS_DATA } from "./data";
 import { FlightList } from "./FlightList";
 import { FlightDetail } from "./FlightDetail";
 import { GlobalRules } from "./GlobalRules";
@@ -9,9 +8,11 @@ import { EmailPreview } from "./EmailPreview";
 import { PassengerBidUI } from "./PassengerBidUI";
 import { AdminHeader, EmailTemplateTabs, EmptyFlightState } from "./AdminShell";
 import { TXT } from "./i18n";
+import { useFlights } from "./queries/useFlights";
 
 // ─── Root App ─────────────────────────────────────────────────
 export default function App() {
+  const { data: flights = [] } = useFlights();
   const [tab, setTab] = useState<MainTab>("flights");
   const [emailTab, setEmailTab] = useState<EmailTemplateType>("pte");
   const [selectedFlight, setSelectedFlight] = useState<Flight["id"] | null>(null);
@@ -25,8 +26,8 @@ export default function App() {
     setTab("flights");
   };
 
-  const totalActive = FLIGHTS_DATA.filter((f) => f.status === "active").length;
-  const totalBids = FLIGHTS_DATA.reduce((s, f) => s + f.bids, 0);
+  const totalActive = flights.filter((f) => f.status === "active").length;
+  const totalBids = flights.reduce((s, f) => s + f.bids, 0);
 
   const navItems = [
     { id: "flights", label: TXT.nav.flights },

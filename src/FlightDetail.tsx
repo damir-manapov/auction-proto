@@ -6,7 +6,6 @@ import {
   DIST_DATA,
   EXIT_DATA,
   FALLBACK_FLIGHT,
-  FLIGHTS_DATA,
   HAUL_LABELS,
   INITIAL_BIDS,
   STATE_META,
@@ -16,9 +15,11 @@ import {
 } from "./data";
 import { BarChart, MetricCard, Pill, SeatMap, SectionLabel } from "./primitives";
 import { TXT } from "./i18n";
+import { useFlightById } from "./queries/useFlightById";
 
 export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onBack: () => void }) {
-  const flight = FLIGHTS_DATA.find((f) => f.id === flightId) ?? FLIGHTS_DATA[0] ?? FALLBACK_FLIGHT;
+  const { data: flightData } = useFlightById(flightId);
+  const flight = flightData ?? FALLBACK_FLIGHT;
   const [bids, setBids] = useState(INITIAL_BIDS);
   const [filter, setFilter] = useState<FlightDetailFilter>("all");
   const [autoRan, setAutoRan] = useState(false);

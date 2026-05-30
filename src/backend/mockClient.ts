@@ -7,5 +7,9 @@ export const createMockBackendClient = (): BackendClient => ({
       // Return a cloned array to avoid accidental in-place mutation by consumers.
       return [...FLIGHTS_DATA];
     },
+
+    async getFlightById(flightId) {
+      return FLIGHTS_DATA.find((flight) => flight.id === flightId);
+    },
   },
 });
