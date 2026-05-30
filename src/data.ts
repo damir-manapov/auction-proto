@@ -1,5 +1,4 @@
 import { T } from "./theme";
-import { TXT } from "./i18n";
 import type {
   Bid,
   BidState,
@@ -360,26 +359,26 @@ export const TIER_META: Record<
   Platinum: {
     colorId: "statusWarning",
     bgId: "statusWarningBg",
-    label: TXT.data.tiers.Platinum.label,
-    mult: TXT.data.tiers.Platinum.mult,
+    label: "Platinum",
+    mult: "+10%",
   },
   Gold: {
     colorId: "brandPrimary",
     bgId: "brandPrimaryBg",
-    label: TXT.data.tiers.Gold.label,
-    mult: TXT.data.tiers.Gold.mult,
+    label: "Gold",
+    mult: "+5%",
   },
   Silver: {
     colorId: "textSecondary",
     bgId: "neutralBgSoft",
-    label: TXT.data.tiers.Silver.label,
-    mult: TXT.data.tiers.Silver.mult,
+    label: "Silver",
+    mult: "+3%",
   },
   Standard: {
     colorId: "textMuted",
     bgId: "neutralBgPale",
-    label: TXT.data.tiers.Standard.label,
-    mult: TXT.data.tiers.Standard.mult,
+    label: "Standard",
+    mult: "—",
   },
 };
 
@@ -387,14 +386,14 @@ export const STATE_META: Record<
   BidState,
   { label: string; colorId: ColorTokenId; bgId: ColorTokenId }
 > = {
-  pending: { label: TXT.data.bidStates.pending, colorId: "textMuted", bgId: "neutralBgSoft" },
+  pending: { label: "Ожидает", colorId: "textMuted", bgId: "neutralBgSoft" },
   approved: {
-    label: TXT.data.bidStates.approved,
+    label: "Принята",
     colorId: "statusSuccessFg",
     bgId: "statusSuccessBg",
   },
   rejected: {
-    label: TXT.data.bidStates.rejected,
+    label: "Отклонена",
     colorId: "statusDangerFg",
     bgId: "statusDangerBg",
   },
@@ -405,24 +404,24 @@ export const STATUS_META: Record<
   { label: string; colorId: ColorTokenId; bgId: ColorTokenId }
 > = {
   active: {
-    label: TXT.data.flightStatuses.active,
+    label: "Активен",
     colorId: "statusSuccessFg",
     bgId: "statusSuccessBg",
   },
-  sold: { label: TXT.data.flightStatuses.sold, colorId: "statusDangerFg", bgId: "statusDangerBg" },
+  sold: { label: "Нет мест", colorId: "statusDangerFg", bgId: "statusDangerBg" },
   upcoming: {
-    label: TXT.data.flightStatuses.upcoming,
+    label: "Скоро",
     colorId: "statusWarningFg",
     bgId: "statusWarningBg",
   },
 };
 
 export const HAUL_LABELS: Record<FlightHaul, string> = {
-  "ultra-short": TXT.data.haulLabels["ultra-short"],
-  short: TXT.data.haulLabels.short,
-  medium: TXT.data.haulLabels.medium,
-  long: TXT.data.haulLabels.long,
-  ultra: TXT.data.haulLabels.ultra,
+  "ultra-short": "Ультракороткий (<1.5ч)",
+  short: "Короткий (1.5–3ч)",
+  medium: "Средний (3–5ч)",
+  long: "Длинный (5–8ч)",
+  ultra: "Ультрадальний (8ч+)",
 };
 
 export const CH_ICONS: Record<Channel, string> = {

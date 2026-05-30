@@ -23,31 +23,6 @@ export const I18N = {
       bid: "Заявка",
       free: "Свободно",
     },
-    data: {
-      tiers: {
-        Platinum: { label: "Platinum", mult: "+10%" },
-        Gold: { label: "Gold", mult: "+5%" },
-        Silver: { label: "Silver", mult: "+3%" },
-        Standard: { label: "Standard", mult: "—" },
-      },
-      bidStates: {
-        pending: "Ожидает",
-        approved: "Принята",
-        rejected: "Отклонена",
-      },
-      flightStatuses: {
-        active: "Активен",
-        sold: "Нет мест",
-        upcoming: "Скоро",
-      },
-      haulLabels: {
-        "ultra-short": "Ультракороткий (<1.5ч)",
-        short: "Короткий (1.5–3ч)",
-        medium: "Средний (3–5ч)",
-        long: "Длинный (5–8ч)",
-        ultra: "Ультрадальний (8ч+)",
-      },
-    },
   },
 } as const;
 
