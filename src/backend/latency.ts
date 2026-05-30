@@ -6,8 +6,6 @@ type LatencyRange = {
 type MockFailureConfig = {
   enabled: boolean;
   rate: number;
-  forceFailures: Partial<Record<string, boolean>>;
-  forceFailurePatterns: string[];
 };
 
 export type DecoratorCallContext = {
@@ -16,8 +14,8 @@ export type DecoratorCallContext = {
 
 type BeforeCall = (ctx: DecoratorCallContext) => Promise<void> | void;
 
-const DEFAULT_MOCK_LATENCY_MIN_MS = 320;
-const DEFAULT_MOCK_LATENCY_MAX_MS = 1200;
+const DEFAULT_MOCK_LATENCY_MIN_MS = 120;
+const DEFAULT_MOCK_LATENCY_MAX_MS = 800;
 const DEFAULT_MOCK_FAILURE_RATE = 0;
 
 function toNumber(value: string | undefined): number | null {
@@ -33,14 +31,6 @@ function toBoolean(value: string | undefined): boolean | null {
   if (normalized === "true" || normalized === "1") return true;
   if (normalized === "false" || normalized === "0") return false;
   return null;
-}
-
-function parseCsv(value: string | undefined): string[] {
-  if (!value) return [];
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
 }
 
 export function getMockLatencyRange(): LatencyRange {
@@ -76,7 +66,7 @@ export function createJitterSleeper(getRange: () => LatencyRange): () => Promise
 
 export function getMockFailureConfig(): MockFailureConfig {
   if (import.meta.env.MODE === "test") {
-    return { enabled: false, rate: 0, forceFailures: {}, forceFailurePatterns: [] };
+    return { enabled: false, rate: 0 };
   }
 
   const enabledFromEnv = toBoolean(import.meta.env.VITE_MOCK_FAILURE_ENABLED);
@@ -88,28 +78,7 @@ export function getMockFailureConfig(): MockFailureConfig {
   return {
     enabled,
     rate,
-    forceFailures: {
-      "flights.listFlights": toBoolean(import.meta.env.VITE_MOCK_FAILURE_LIST_FLIGHTS) ?? false,
-      "flights.queryFlights": toBoolean(import.meta.env.VITE_MOCK_FAILURE_QUERY_FLIGHTS) ?? false,
-      "flights.getFlightsSummary":
-        toBoolean(import.meta.env.VITE_MOCK_FAILURE_GET_FLIGHTS_SUMMARY) ?? false,
-      "flights.getFlightById":
-        toBoolean(import.meta.env.VITE_MOCK_FAILURE_GET_FLIGHT_BY_ID) ?? false,
-      "bids.listBids": toBoolean(import.meta.env.VITE_MOCK_FAILURE_LIST_BIDS) ?? false,
-      "bids.approveBid": toBoolean(import.meta.env.VITE_MOCK_FAILURE_APPROVE_BID) ?? false,
-      "bids.rejectBid": toBoolean(import.meta.env.VITE_MOCK_FAILURE_REJECT_BID) ?? false,
-      "bids.autoSelect": toBoolean(import.meta.env.VITE_MOCK_FAILURE_AUTO_SELECT) ?? false,
-    },
-    forceFailurePatterns: parseCsv(import.meta.env.VITE_MOCK_FAILURE_ENDPOINTS),
   };
-}
-
-function matchesPattern(endpoint: string, pattern: string): boolean {
-  if (pattern.endsWith("*")) {
-    const prefix = pattern.slice(0, -1);
-    return endpoint.startsWith(prefix);
-  }
-  return endpoint === pattern;
 }
 
 export function createMockFailureInjector(
@@ -120,14 +89,6 @@ export function createMockFailureInjector(
     if (!config.enabled) return;
 
     const endpoint = path.join(".");
-    if (config.forceFailures[endpoint]) {
-      throw new Error(`Mock backend failure at ${endpoint}`);
-    }
-
-    if (config.forceFailurePatterns.some((pattern) => matchesPattern(endpoint, pattern))) {
-      throw new Error(`Mock backend failure at ${endpoint}`);
-    }
-
     if (config.rate > 0 && Math.random() < config.rate) {
       throw new Error(`Mock backend failure at ${endpoint}`);
     }

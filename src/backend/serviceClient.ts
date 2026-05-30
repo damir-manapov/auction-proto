@@ -1,6 +1,16 @@
 import { weighted } from "../data";
+import type { BidState, Flight } from "../types";
 import type { BackendClient } from "./contracts";
-import { createAppInMemoryDb } from "./db/appInMemoryDb";
+import {
+  bidRowsToBids,
+  seedDb,
+  toDbFilters,
+  toFlightsPage,
+  toFlightQueryParams,
+  toFlightSummaryQueryParams,
+  type BidRow,
+  summarizeFlights,
+} from "./serviceUtils";
 import {
   composeBeforeCall,
   createJitterSleeper,
@@ -10,42 +20,65 @@ import {
 } from "./latency";
 
 export const createServiceClient = (): BackendClient => {
-  const db = createAppInMemoryDb();
+  const db = seedDb();
 
   const baseClient: BackendClient = {
     flights: {
       async listFlights() {
-        return db.flights.listFlights();
+        return db.list<Flight>("flights");
       },
 
       async queryFlights(query) {
-        return db.flights.queryFlights(query);
+        const mappedFilters = toDbFilters(query);
+        const queryParams = toFlightQueryParams(query, mappedFilters);
+        const result = db.query<Flight>("flights", queryParams);
+        const filteredForSummary = db.queryAll<Flight>(
+          "flights",
+          toFlightSummaryQueryParams(query, mappedFilters),
+        );
+        return toFlightsPage(result, filteredForSummary);
       },
 
       async getFlightsSummary() {
-        return db.flights.getFlightsSummary();
+        const allFlights = db.list<Flight>("flights");
+        return summarizeFlights(allFlights);
       },
 
       async getFlightById(flightId) {
-        return db.flights.getFlightById(flightId);
+        return db.findOne<Flight>("flights", (flight) => flight.id === flightId);
       },
     },
     bids: {
       async listBids(flightId) {
-        return db.bids.listBids(flightId);
+        const all = db.list<BidRow>("bids");
+        return bidRowsToBids(all.filter((bid) => bid.flightId === flightId));
       },
 
       async approveBid(flightId, bidId) {
-        return db.bids.setBidState(flightId, bidId, "approved");
+        const updated = db.updateOne<BidRow>(
+          "bids",
+          (bid) => bid.flightId === flightId && bid.id === bidId,
+          (bid) => ({ ...bid, state: "approved" }),
+        );
+        if (!updated) return undefined;
+        return bidRowsToBids([updated])[0];
       },
 
       async rejectBid(flightId, bidId) {
-        return db.bids.setBidState(flightId, bidId, "rejected");
+        const updated = db.updateOne<BidRow>(
+          "bids",
+          (bid) => bid.flightId === flightId && bid.id === bidId,
+          (bid) => ({ ...bid, state: "rejected" }),
+        );
+        if (!updated) return undefined;
+        return bidRowsToBids([updated])[0];
       },
 
       async autoSelect(flightId) {
-        const mutable = await db.bids.listBids(flightId);
-        const flight = await db.flights.getFlightById(flightId);
+        const all = db.list<BidRow>("bids");
+        const mutable = bidRowsToBids(all.filter((bid) => bid.flightId === flightId));
+
+        const flight = db.findOne<Flight>("flights", (f) => f.id === flightId);
         const availableSeats = flight?.bcFree ?? 0;
 
         const winners = [...mutable]
@@ -54,7 +87,14 @@ export const createServiceClient = (): BackendClient => {
           .slice(0, availableSeats)
           .map((bid) => bid.id);
 
-        await db.bids.setManyBidStates(flightId, winners, "approved");
+        if (winners.length > 0) {
+          const target = new Set(winners);
+          db.updateMany<BidRow>(
+            "bids",
+            (bid) => bid.flightId === flightId && target.has(bid.id),
+            (bid) => ({ ...bid, state: "approved" as BidState }),
+          );
+        }
 
         return winners;
       },
