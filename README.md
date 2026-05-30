@@ -76,18 +76,17 @@ bash all-checks.sh # runs both scripts
 ```text
 .
 ├── src/
-│   ├── features/auction-admin/
-│   │   ├── UpgradeAuctionAdmin.tsx    # main app orchestration
-│   │   ├── AdminShell.tsx             # shell header + tab layout
-│   │   ├── FlightList.tsx             # flight table view
-│   │   ├── FlightDetail.tsx           # flight detail panel
-│   │   ├── GlobalRules.tsx            # rules configuration
-│   │   ├── EmailPreview.tsx           # email template previews
-│   │   ├── PassengerBidUI.tsx         # passenger bid mockup
-│   │   ├── theme.ts                   # palette + semantic design tokens
-│   │   ├── data.ts                    # domain data + UI mappings
-│   │   ├── types.ts                   # feature type definitions
-│   │   └── primitives.tsx             # reusable UI primitives
+│   ├── UpgradeAuctionAdmin.tsx        # main app orchestration
+│   ├── AdminShell.tsx                 # shell header + tab layout
+│   ├── FlightList.tsx                 # flight table view
+│   ├── FlightDetail.tsx               # flight detail panel
+│   ├── GlobalRules.tsx                # rules configuration
+│   ├── EmailPreview.tsx               # email template previews
+│   ├── PassengerBidUI.tsx             # passenger bid mockup
+│   ├── theme.ts                       # palette + semantic design tokens
+│   ├── data.ts                        # domain data + UI mappings
+│   ├── types.ts                       # type definitions
+│   ├── primitives.tsx                 # reusable UI primitives
 │   ├── main.tsx                       # React entry point
 │   └── index.css                      # global styles
 ├── index.html                         # app shell
@@ -102,7 +101,7 @@ bash all-checks.sh # runs both scripts
 ## Architecture Notes
 
 ### Modular Features
-The codebase is organized by feature under `src/features/auction-admin/`:  
+The codebase is flattened under `src/` for prototype speed, while keeping modular files:  
 - Each major UI panel is a self-contained module (FlightList, FlightDetail, GlobalRules, etc.)
 - Shared UI primitives are isolated in `primitives.tsx`
 - Type definitions are centralized in `types.ts`
