@@ -1,4 +1,4 @@
-import { FLIGHTS_DATA, INITIAL_BIDS } from "../data";
+import { FLIGHTS_DATA, INITIAL_BIDS, weighted } from "../data";
 import type { Bid, Flight } from "../types";
 import type { FlightQuery, FlightsSummary } from "./contracts";
 import { createDbEmulator, type DbFilter, type DbQuery, type DbQueryResult } from "./db/emulator";
@@ -83,4 +83,20 @@ export function toFlightsPage(
 
 export function bidRowsToBids(rows: BidRow[]): Bid[] {
   return rows.map(({ flightId: _flightId, ...bid }) => bid);
+}
+
+export function toBidRowFilters(flightId: Flight["id"], bidId?: Bid["id"]): DbFilter[] {
+  const filters: DbFilter[] = [{ field: "flightId", op: "eq", value: flightId }];
+  if (bidId !== undefined) {
+    filters.push({ field: "id", op: "eq", value: bidId });
+  }
+  return filters;
+}
+
+export function selectWinningBidIds(rows: Bid[], availableSeats: number): Bid["id"][] {
+  return [...rows]
+    .filter((bid) => bid.state === "pending")
+    .sort((a, b) => weighted(b) - weighted(a))
+    .slice(0, availableSeats)
+    .map((bid) => bid.id);
 }

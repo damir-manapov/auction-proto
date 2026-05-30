@@ -1,14 +1,15 @@
-import { weighted } from "../data";
 import type { BidState, Flight } from "../types";
 import type { BackendClient } from "./contracts";
 import {
   bidRowsToBids,
   seedDb,
   toDbFilters,
+  toBidRowFilters,
   toFlightsPage,
   toFlightQueryParams,
   toFlightSummaryQueryParams,
   type BidRow,
+  selectWinningBidIds,
   summarizeFlights,
 } from "./serviceUtils";
 import {
@@ -50,48 +51,39 @@ export const createServiceClient = (): BackendClient => {
     },
     bids: {
       async listBids(flightId) {
-        const all = db.list<BidRow>("bids");
-        return bidRowsToBids(all.filter((bid) => bid.flightId === flightId));
+        const all = db.queryAll<BidRow>("bids", {
+          filters: [{ field: "flightId", op: "eq", value: flightId }],
+        });
+        return bidRowsToBids(all);
       },
 
       async approveBid(flightId, bidId) {
-        const updated = db.updateOne<BidRow>(
-          "bids",
-          [
-            { field: "flightId", op: "eq", value: flightId },
-            { field: "id", op: "eq", value: bidId },
-          ],
-          { state: "approved" },
-        );
+        const updated = db.updateOne<BidRow>("bids", toBidRowFilters(flightId, bidId), {
+          state: "approved",
+        });
         if (!updated) return undefined;
         return bidRowsToBids([updated])[0];
       },
 
       async rejectBid(flightId, bidId) {
-        const updated = db.updateOne<BidRow>(
-          "bids",
-          [
-            { field: "flightId", op: "eq", value: flightId },
-            { field: "id", op: "eq", value: bidId },
-          ],
-          { state: "rejected" },
-        );
+        const updated = db.updateOne<BidRow>("bids", toBidRowFilters(flightId, bidId), {
+          state: "rejected",
+        });
         if (!updated) return undefined;
         return bidRowsToBids([updated])[0];
       },
 
       async autoSelect(flightId) {
-        const all = db.list<BidRow>("bids");
-        const mutable = bidRowsToBids(all.filter((bid) => bid.flightId === flightId));
+        const mutable = bidRowsToBids(
+          db.queryAll<BidRow>("bids", {
+            filters: [{ field: "flightId", op: "eq", value: flightId }],
+          }),
+        );
 
         const flight = db.findOne<Flight>("flights", [{ field: "id", op: "eq", value: flightId }]);
         const availableSeats = flight?.bcFree ?? 0;
 
-        const winners = [...mutable]
-          .filter((bid) => bid.state === "pending")
-          .sort((a, b) => weighted(b) - weighted(a))
-          .slice(0, availableSeats)
-          .map((bid) => bid.id);
+        const winners = selectWinningBidIds(mutable, availableSeats);
 
         if (winners.length > 0) {
           db.updateMany<BidRow>(
