@@ -76,7 +76,7 @@ bash all-checks.sh # runs both scripts
 ```text
 .
 ├── src/
-│   ├── UpgradeAuctionAdmin.tsx        # main app orchestration
+│   ├── App.tsx                        # main app orchestration
 │   ├── AdminShell.tsx                 # shell header + tab layout
 │   ├── FlightList.tsx                 # flight table view
 │   ├── FlightDetail.tsx               # flight detail panel

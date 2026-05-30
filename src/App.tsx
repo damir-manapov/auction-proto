@@ -10,7 +10,7 @@ import { PassengerBidUI } from "./PassengerBidUI";
 import { AdminHeader, EmailTemplateTabs, EmptyFlightState } from "./AdminShell";
 
 // ─── Root App ─────────────────────────────────────────────────
-export default function UpgradeAuctionAdmin() {
+export default function App() {
   const [tab, setTab] = useState<MainTab>("flights");
   const [emailTab, setEmailTab] = useState<EmailTemplateType>("pte");
   const [selectedFlight, setSelectedFlight] = useState<Flight["id"] | null>(null);
