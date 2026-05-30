@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { STATUS_META, colorToken } from "./data";
-import { backendClient } from "./backend/client";
+import { useFlights } from "./queries/useFlights";
 import { MetricCard, Pill } from "./primitives";
 import { F, T } from "./theme";
 import { TXT } from "./i18n";
@@ -11,23 +11,11 @@ type FlightListProps = {
 };
 
 export function FlightList({ onSelect }: FlightListProps) {
-  const [flights, setFlights] = useState<Flight[]>([]);
+  const { data: flights = [] } = useFlights();
   const [search, setSearch] = useState("");
   const [statusF, setStatusF] = useState<FlightListFilter>("all");
   const [sortCol, setSortCol] = useState<FlightListSortCol>("dep");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
-
-  useEffect(() => {
-    let mounted = true;
-
-    void backendClient.flights.listFlights().then((items) => {
-      if (mounted) setFlights(items);
-    });
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   const statusFilters: Array<[FlightListFilter, string]> = [
     ["all", TXT.flightList.statusFilters.all],
