@@ -3,86 +3,91 @@ import type { EmailTemplateConfig, EmailTemplateType } from "./types";
 import { F, T } from "./theme";
 import { Pill, SectionLabel } from "./primitives";
 
+type MetaRow = [string, string];
+type MetadataRow = { key: string; label: string; value: ReactNode };
+
+const TEMPLATE_CONFIGS: Record<EmailTemplateType, EmailTemplateConfig> = {
+  pte: {
+    subject: "Азиз, предложите свою цену на бизнес-класс",
+    to: "aziz.karimov@mail.uz",
+    tag: "PTE · за 7–14 дней",
+    tagC: T.accent,
+    tagBg: T.accentDim,
+    hBg: T.emailPteBg,
+    hLine: T.accent,
+    title: "Улучшите перелёт до бизнес-класса",
+    body: "Ваш рейс HY 602 квалифицирован для участия в аукционе. Предложите цену — средства спишутся только при подтверждении.",
+    ctaLabel: "Предложить цену →",
+    ctaBg: T.accent,
+    offers: [
+      { name: "Бизнес-класс", desc: "Раскладное кресло · Лаундж", from: "$262" },
+      { name: "Ряд у выхода", desc: "+30 см для ног", from: "$32" },
+    ],
+    footer: "Ставка не гарантирует апгрейд. Оплата только при подтверждении.",
+  },
+  chaser: {
+    subject: "Последний шанс: мест в бизнес-классе почти нет",
+    to: "j.smith@company.com",
+    tag: "Chaser · за 48–72 часа",
+    tagC: T.amber,
+    tagBg: T.amberDim,
+    hBg: T.emailChaserBg,
+    hLine: T.amber,
+    title: "Аукцион закрывается через 14 часов",
+    body: "Вы не подавали заявку. Осталось ограниченное число мест. Деньги не списываются без подтверждённого апгрейда.",
+    ctaLabel: "Участвовать — осталось мало мест →",
+    ctaBg: T.amber,
+    urgency: true,
+    footer: "Ставка не гарантирует апгрейд. Оплата только при подтверждении.",
+  },
+  win: {
+    subject: "Поздравляем — вы летите бизнес-классом!",
+    to: "aziz.karimov@mail.uz",
+    tag: "Confirm · за 4–8 часов",
+    tagC: T.green,
+    tagBg: T.greenDim,
+    hBg: T.emailWinBg,
+    hLine: T.green,
+    title: "Ваш апгрейд подтверждён!",
+    body: "Добро пожаловать в бизнес-класс, Азиз! Место 4A забронировано, $580 списано. Приоритетная посадка и лаундж уже доступны.",
+    ctaLabel: "Посмотреть посадочный →",
+    ctaBg: T.green,
+    booking: {
+      Рейс: "HY 602",
+      Маршрут: "Ташкент → Стамбул",
+      Место: "4A · Бизнес-класс",
+      Вылет: "15 июня · 08:45",
+      Списано: "$580",
+    },
+    footer: "Uzbekistan Airways · hy-support@uzbekistanairways.com",
+  },
+};
+
+const META_ROWS_BY_TYPE: Record<EmailTemplateType, MetaRow[]> = {
+  pte: [
+    ["Открываемость", "~35%"],
+    ["Конверсия", "18.4%"],
+    ["Доля заявок", "30%+"],
+    ["Отписок", "0.4%"],
+  ],
+  chaser: [
+    ["Открываемость", "~42%"],
+    ["Конверсия", "11.2%"],
+    ["Срочность", "высокая"],
+    ["A/B тест", "2 варианта"],
+  ],
+  win: [
+    ["Доставлено", "100%"],
+    ["Открыто", "~88%"],
+    ["Жалоб", "0"],
+    ["NPS impact", "+12"],
+  ],
+};
+
 export function EmailPreview({ type }: { type: EmailTemplateType }) {
-  const cfgs: Record<EmailTemplateType, EmailTemplateConfig> = {
-    pte: {
-      subject: "Азиз, предложите свою цену на бизнес-класс",
-      to: "aziz.karimov@mail.uz",
-      tag: "PTE · за 7–14 дней",
-      tagC: T.accent,
-      tagBg: T.accentDim,
-      hBg: T.emailPteBg,
-      hLine: T.accent,
-      title: "Улучшите перелёт до бизнес-класса",
-      body: "Ваш рейс HY 602 квалифицирован для участия в аукционе. Предложите цену — средства спишутся только при подтверждении.",
-      ctaLabel: "Предложить цену →",
-      ctaBg: T.accent,
-      offers: [
-        { name: "Бизнес-класс", desc: "Раскладное кресло · Лаундж", from: "$262" },
-        { name: "Ряд у выхода", desc: "+30 см для ног", from: "$32" },
-      ],
-      footer: "Ставка не гарантирует апгрейд. Оплата только при подтверждении.",
-    },
-    chaser: {
-      subject: "Последний шанс: мест в бизнес-классе почти нет",
-      to: "j.smith@company.com",
-      tag: "Chaser · за 48–72 часа",
-      tagC: T.amber,
-      tagBg: T.amberDim,
-      hBg: T.emailChaserBg,
-      hLine: T.amber,
-      title: "Аукцион закрывается через 14 часов",
-      body: "Вы не подавали заявку. Осталось ограниченное число мест. Деньги не списываются без подтверждённого апгрейда.",
-      ctaLabel: "Участвовать — осталось мало мест →",
-      ctaBg: T.amber,
-      urgency: true,
-      footer: "Ставка не гарантирует апгрейд. Оплата только при подтверждении.",
-    },
-    win: {
-      subject: "Поздравляем — вы летите бизнес-классом!",
-      to: "aziz.karimov@mail.uz",
-      tag: "Confirm · за 4–8 часов",
-      tagC: T.green,
-      tagBg: T.greenDim,
-      hBg: T.emailWinBg,
-      hLine: T.green,
-      title: "Ваш апгрейд подтверждён!",
-      body: "Добро пожаловать в бизнес-класс, Азиз! Место 4A забронировано, $580 списано. Приоритетная посадка и лаундж уже доступны.",
-      ctaLabel: "Посмотреть посадочный →",
-      ctaBg: T.green,
-      booking: {
-        Рейс: "HY 602",
-        Маршрут: "Ташкент → Стамбул",
-        Место: "4A · Бизнес-класс",
-        Вылет: "15 июня · 08:45",
-        Списано: "$580",
-      },
-      footer: "Uzbekistan Airways · hy-support@uzbekistanairways.com",
-    },
-  };
-  const c = cfgs[type];
-  const metaRows: Array<[string, string]> =
-    type === "pte"
-      ? [
-          ["Открываемость", "~35%"],
-          ["Конверсия", "18.4%"],
-          ["Доля заявок", "30%+"],
-          ["Отписок", "0.4%"],
-        ]
-      : type === "chaser"
-        ? [
-            ["Открываемость", "~42%"],
-            ["Конверсия", "11.2%"],
-            ["Срочность", "высокая"],
-            ["A/B тест", "2 варианта"],
-          ]
-        : [
-            ["Доставлено", "100%"],
-            ["Открыто", "~88%"],
-            ["Жалоб", "0"],
-            ["NPS impact", "+12"],
-          ];
-  const metadataRows: Array<{ key: string; label: string; value: ReactNode }> = [
+  const c = TEMPLATE_CONFIGS[type];
+  const metaRows = META_ROWS_BY_TYPE[type];
+  const metadataRows: MetadataRow[] = [
     {
       key: "type",
       label: "Тип",

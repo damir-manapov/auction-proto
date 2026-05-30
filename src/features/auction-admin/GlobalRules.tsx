@@ -16,6 +16,178 @@ import { T } from "./theme";
 import { DEFAULT_RULES, TIER_META } from "./data";
 import { NumInput, Pill, SectionLabel, Toggle } from "./primitives";
 
+type RuleSection = { id: RuleSectionId; l: string };
+type LabelDescRow<K extends string> = { key: K; label: string; desc: string };
+type HaulColumn = { k: PricingHaulKey; lbl: string };
+type LoyaltyRow = { key: RulesNumberKey; tier: Tier; color: string; bg: string };
+type FeatureStatusKey =
+  | "seatBlocker"
+  | "payWithPoints"
+  | "crossAirlineUpgrades"
+  | "continuousPricing"
+  | "autoFulfillment"
+  | "blindBids";
+
+const RULE_SECTIONS: RuleSection[] = [
+  { id: "timing", l: "Тайминг" },
+  { id: "pricing", l: "Ценообразование" },
+  { id: "loyalty", l: "Лояльность" },
+  { id: "channels", l: "Каналы охвата" },
+  { id: "payment", l: "Платежи" },
+  { id: "features", l: "Функции" },
+];
+
+const HAUL_COLS: HaulColumn[] = [
+  { k: "UltraShort", lbl: "<1.5ч" },
+  { k: "Short", lbl: "1.5–3ч" },
+  { k: "Medium", lbl: "3–5ч" },
+  { k: "Long", lbl: "5–8ч" },
+  { k: "UltraLong", lbl: "8ч+" },
+];
+
+const PRICING_ROWS: PricingRow[] = [
+  {
+    product: "Бизнес-класс",
+    keys: {
+      UltraShort: "minBcUltraShort",
+      Short: "minBcShort",
+      Medium: "minBcMedium",
+      Long: "minBcLong",
+      UltraLong: "minBcUltraLong",
+    },
+  },
+  {
+    product: "Ряды у выхода",
+    keys: {
+      UltraShort: "minExitShort",
+      Short: "minExitShort",
+      Medium: "minExitMedium",
+      Long: "minExitLong",
+      UltraLong: "minExitLong",
+    },
+  },
+  {
+    product: "Блок соседнего",
+    keys: {
+      UltraShort: "minSeatBlockShort",
+      Short: "minSeatBlockShort",
+      Medium: "minSeatBlockMedium",
+      Long: "minSeatBlockLong",
+      UltraLong: "minSeatBlockLong",
+    },
+  },
+];
+
+const TIMING_ROWS: TimingRow[] = [
+  {
+    key: "inviteDaysBefore",
+    label: "Первое приглашение (PTE)",
+    desc: "За сколько дней отправить первое письмо",
+    min: 1,
+    max: 60,
+    unit: "дн. до вылета",
+  },
+  {
+    key: "chaserHoursBefore",
+    label: "Напоминание (Chaser)",
+    desc: "За сколько часов отправить напоминание без заявки",
+    min: 12,
+    max: 168,
+    unit: "ч. до вылета",
+  },
+  {
+    key: "closureHoursBefore",
+    label: "Закрытие аукциона",
+    desc: "За сколько часов прекратить приём заявок",
+    min: 1,
+    max: 48,
+    unit: "ч. до вылета",
+  },
+];
+
+const TIMING_TOGGLE_ROWS: LabelDescRow<RulesBooleanKey>[] = [
+  {
+    key: "autoFulfillment",
+    label: "Авто-фулфилмент",
+    desc: "Автоматически выбирает победителей и обновляет PNR",
+  },
+  {
+    key: "requirePurchased",
+    label: "Только при наличии билета",
+    desc: "Ключевой антидилюционный механизм",
+  },
+  {
+    key: "blindBids",
+    label: "Слепые ставки",
+    desc: "Пассажиры не видят ставки других участников",
+  },
+];
+
+const LOYALTY_ROWS: LoyaltyRow[] = [
+  { key: "multiplierPlatinum", tier: "Platinum", color: T.amber, bg: T.amberDim },
+  { key: "multiplierGold", tier: "Gold", color: T.accent, bg: T.accentDim },
+  { key: "multiplierSilver", tier: "Silver", color: T.textSub, bg: T.neutralSoft },
+];
+
+const CHANNEL_ROWS: LabelDescRow<ChannelRuleKey>[] = [
+  {
+    key: "email",
+    label: "Email (PTE + Chaser + Confirm)",
+    desc: "30%+ всех заявок. Базовый канал",
+  },
+  { key: "mmb", label: "Manage My Booking", desc: "+25% к объёму. Средняя ставка выше на 77%" },
+  { key: "app", label: "Мобильное приложение + Push", desc: "+4% к объёму" },
+  { key: "web", label: "Маркетинговая страница", desc: "41% выручки партнёра" },
+  {
+    key: "webcheckin",
+    label: "Онлайн-регистрация",
+    desc: "+10% к выручке. 55% уникальных посетителей",
+  },
+  { key: "pushNotif", label: "Push-уведомления", desc: "Уведомляет о статусе ставки" },
+];
+
+const PAYMENT_ROWS: LabelDescRow<PaymentMethodKey>[] = [
+  { key: "visa", label: "Visa", desc: "Поддерживается всеми PSP-партнёрами" },
+  { key: "mastercard", label: "Mastercard", desc: "Поддерживается всеми PSP-партнёрами" },
+  { key: "amex", label: "American Express", desc: "Более высокий средний чек" },
+  { key: "jcb", label: "JCB", desc: "Актуально для маршрутов в Азию" },
+  { key: "diners", label: "Diners Club", desc: "Ограниченная поддержка эквайеров" },
+];
+
+const FEATURE_ROWS: LabelDescRow<RulesBooleanKey>[] = [
+  {
+    key: "seatBlocker",
+    label: "Seat Blocker",
+    desc: "+10–20% выручки. Блокировка соседнего места",
+  },
+  { key: "payWithPoints", label: "Pay with Points", desc: "Оплата баллами лояльности" },
+  {
+    key: "crossAirlineUpgrades",
+    label: "Cross Airline Upgrades",
+    desc: "+21% заявок через альянс/кодшер",
+  },
+  {
+    key: "continuousPricing",
+    label: "Continuous Pricing (AI)",
+    desc: "+12% выручки по A/B-тесту",
+  },
+  {
+    key: "autoFulfillment",
+    label: "Авто-фулфилмент",
+    desc: "Автовыбор победителей без ручного одобрения",
+  },
+  { key: "blindBids", label: "Слепые ставки", desc: "Участники не видят предложения других" },
+];
+
+const FEATURE_STATUS_LABELS: Record<FeatureStatusKey, string> = {
+  seatBlocker: "Seat Blocker",
+  payWithPoints: "Pay with Points",
+  crossAirlineUpgrades: "Cross Airline",
+  continuousPricing: "Continuous Pricing",
+  autoFulfillment: "Авто-фулфилмент",
+  blindBids: "Слепые ставки",
+};
+
 export function GlobalRules() {
   const [rules, setRules] = useState<Rules>(DEFAULT_RULES);
   const [saved, setSaved] = useState(true);
@@ -33,15 +205,6 @@ export function GlobalRules() {
     setRules((r) => ({ ...r, [key]: { ...r[key], [subkey]: val } as Rules[K] }));
     setSaved(false);
   };
-
-  const SECTIONS: Array<{ id: RuleSectionId; l: string }> = [
-    { id: "timing", l: "Тайминг" },
-    { id: "pricing", l: "Ценообразование" },
-    { id: "loyalty", l: "Лояльность" },
-    { id: "channels", l: "Каналы охвата" },
-    { id: "payment", l: "Платежи" },
-    { id: "features", l: "Функции" },
-  ];
 
   const RuleRow = ({
     label,
@@ -74,162 +237,12 @@ export function GlobalRules() {
     </div>
   );
 
-  const haulCols: Array<{ k: PricingHaulKey; lbl: string }> = [
-    { k: "UltraShort", lbl: "<1.5ч" },
-    { k: "Short", lbl: "1.5–3ч" },
-    { k: "Medium", lbl: "3–5ч" },
-    { k: "Long", lbl: "5–8ч" },
-    { k: "UltraLong", lbl: "8ч+" },
-  ];
-  const pricingRows: PricingRow[] = [
-    {
-      product: "Бизнес-класс",
-      keys: {
-        UltraShort: "minBcUltraShort",
-        Short: "minBcShort",
-        Medium: "minBcMedium",
-        Long: "minBcLong",
-        UltraLong: "minBcUltraLong",
-      },
-    },
-    {
-      product: "Ряды у выхода",
-      keys: {
-        UltraShort: "minExitShort",
-        Short: "minExitShort",
-        Medium: "minExitMedium",
-        Long: "minExitLong",
-        UltraLong: "minExitLong",
-      },
-    },
-    {
-      product: "Блок соседнего",
-      keys: {
-        UltraShort: "minSeatBlockShort",
-        Short: "minSeatBlockShort",
-        Medium: "minSeatBlockMedium",
-        Long: "minSeatBlockLong",
-        UltraLong: "minSeatBlockLong",
-      },
-    },
-  ];
-  const timingRows: TimingRow[] = [
-    {
-      key: "inviteDaysBefore",
-      label: "Первое приглашение (PTE)",
-      desc: "За сколько дней отправить первое письмо",
-      min: 1,
-      max: 60,
-      unit: "дн. до вылета",
-    },
-    {
-      key: "chaserHoursBefore",
-      label: "Напоминание (Chaser)",
-      desc: "За сколько часов отправить напоминание без заявки",
-      min: 12,
-      max: 168,
-      unit: "ч. до вылета",
-    },
-    {
-      key: "closureHoursBefore",
-      label: "Закрытие аукциона",
-      desc: "За сколько часов прекратить приём заявок",
-      min: 1,
-      max: 48,
-      unit: "ч. до вылета",
-    },
-  ];
-  const timingToggleRows: Array<{ key: RulesBooleanKey; label: string; desc: string }> = [
-    {
-      key: "autoFulfillment",
-      label: "Авто-фулфилмент",
-      desc: "Автоматически выбирает победителей и обновляет PNR",
-    },
-    {
-      key: "requirePurchased",
-      label: "Только при наличии билета",
-      desc: "Ключевой антидилюционный механизм",
-    },
-    {
-      key: "blindBids",
-      label: "Слепые ставки",
-      desc: "Пассажиры не видят ставки других участников",
-    },
-  ];
-  const loyaltyRows: Array<{ key: RulesNumberKey; tier: Tier; color: string; bg: string }> = [
-    { key: "multiplierPlatinum", tier: "Platinum", color: T.amber, bg: T.amberDim },
-    { key: "multiplierGold", tier: "Gold", color: T.accent, bg: T.accentDim },
-    { key: "multiplierSilver", tier: "Silver", color: T.textSub, bg: T.neutralSoft },
-  ];
   const loyaltyPreview: Array<{ tier: Tier; mult: number }> = [
     { tier: "Standard", mult: 1 },
     { tier: "Silver", mult: 1 + rules.multiplierSilver / 100 },
     { tier: "Gold", mult: 1 + rules.multiplierGold / 100 },
     { tier: "Platinum", mult: 1 + rules.multiplierPlatinum / 100 },
   ];
-  const channelRows: Array<{ key: ChannelRuleKey; label: string; desc: string }> = [
-    {
-      key: "email",
-      label: "Email (PTE + Chaser + Confirm)",
-      desc: "30%+ всех заявок. Базовый канал",
-    },
-    { key: "mmb", label: "Manage My Booking", desc: "+25% к объёму. Средняя ставка выше на 77%" },
-    { key: "app", label: "Мобильное приложение + Push", desc: "+4% к объёму" },
-    { key: "web", label: "Маркетинговая страница", desc: "41% выручки партнёра" },
-    {
-      key: "webcheckin",
-      label: "Онлайн-регистрация",
-      desc: "+10% к выручке. 55% уникальных посетителей",
-    },
-    { key: "pushNotif", label: "Push-уведомления", desc: "Уведомляет о статусе ставки" },
-  ];
-  const paymentRows: Array<{ key: PaymentMethodKey; label: string; desc: string }> = [
-    { key: "visa", label: "Visa", desc: "Поддерживается всеми PSP-партнёрами" },
-    { key: "mastercard", label: "Mastercard", desc: "Поддерживается всеми PSP-партнёрами" },
-    { key: "amex", label: "American Express", desc: "Более высокий средний чек" },
-    { key: "jcb", label: "JCB", desc: "Актуально для маршрутов в Азию" },
-    { key: "diners", label: "Diners Club", desc: "Ограниченная поддержка эквайеров" },
-  ];
-  const featureRows: Array<{ key: RulesBooleanKey; label: string; desc: string }> = [
-    {
-      key: "seatBlocker",
-      label: "Seat Blocker",
-      desc: "+10–20% выручки. Блокировка соседнего места",
-    },
-    { key: "payWithPoints", label: "Pay with Points", desc: "Оплата баллами лояльности" },
-    {
-      key: "crossAirlineUpgrades",
-      label: "Cross Airline Upgrades",
-      desc: "+21% заявок через альянс/кодшер",
-    },
-    {
-      key: "continuousPricing",
-      label: "Continuous Pricing (AI)",
-      desc: "+12% выручки по A/B-тесту",
-    },
-    {
-      key: "autoFulfillment",
-      label: "Авто-фулфилмент",
-      desc: "Автовыбор победителей без ручного одобрения",
-    },
-    { key: "blindBids", label: "Слепые ставки", desc: "Участники не видят предложения других" },
-  ];
-  const featureStatusLabels: Record<
-    | "seatBlocker"
-    | "payWithPoints"
-    | "crossAirlineUpgrades"
-    | "continuousPricing"
-    | "autoFulfillment"
-    | "blindBids",
-    string
-  > = {
-    seatBlocker: "Seat Blocker",
-    payWithPoints: "Pay with Points",
-    crossAirlineUpgrades: "Cross Airline",
-    continuousPricing: "Continuous Pricing",
-    autoFulfillment: "Авто-фулфилмент",
-    blindBids: "Слепые ставки",
-  };
 
   return (
     <div
@@ -259,7 +272,7 @@ export function GlobalRules() {
             Применяются ко всем рейсам по умолчанию
           </div>
         </div>
-        {SECTIONS.map((s, i) => (
+        {RULE_SECTIONS.map((s, i) => (
           <button
             type="button"
             key={s.id}
@@ -275,7 +288,7 @@ export function GlobalRules() {
               background: activeSection === s.id ? T.accentDim : "transparent",
               border: "none",
               cursor: "pointer",
-              borderBottom: i < SECTIONS.length - 1 ? `0.5px solid ${T.border}` : "none",
+              borderBottom: i < RULE_SECTIONS.length - 1 ? `0.5px solid ${T.border}` : "none",
             }}
           >
             {s.l}
@@ -322,7 +335,7 @@ export function GlobalRules() {
             <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 14, lineHeight: 1.6 }}>
               Управляет жизненным циклом коммуникаций и автоматическими процессами.
             </div>
-            {timingRows.map((row) => (
+            {TIMING_ROWS.map((row) => (
               <RuleRow key={row.key} label={row.label} desc={row.desc}>
                 <NumInput
                   value={rules[row.key]}
@@ -333,7 +346,7 @@ export function GlobalRules() {
                 />
               </RuleRow>
             ))}
-            {timingToggleRows.map((row) => (
+            {TIMING_TOGGLE_ROWS.map((row) => (
               <RuleRow key={row.key} label={row.label} desc={row.desc}>
                 <Toggle checked={rules[row.key]} onChange={(v) => setRule(row.key, v)} />
               </RuleRow>
@@ -374,7 +387,7 @@ export function GlobalRules() {
                     >
                       Продукт
                     </th>
-                    {haulCols.map((c) => (
+                    {HAUL_COLS.map((c) => (
                       <th
                         key={c.k}
                         style={{
@@ -395,12 +408,12 @@ export function GlobalRules() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pricingRows.map((row) => (
+                  {PRICING_ROWS.map((row) => (
                     <tr key={row.product} style={{ borderBottom: `0.5px solid ${T.border}` }}>
                       <td style={{ padding: "9px 10px", fontWeight: 600, color: T.text }}>
                         {row.product}
                       </td>
-                      {haulCols.map((c) => (
+                      {HAUL_COLS.map((c) => (
                         <td key={c.k} style={{ padding: "9px 10px", textAlign: "center" }}>
                           <input
                             type="number"
@@ -444,7 +457,7 @@ export function GlobalRules() {
               Взвешенная = базовая × (1 + множитель%). При равных ставках побеждает более высокий
               статус.
             </div>
-            {loyaltyRows.map((row) => (
+            {LOYALTY_ROWS.map((row) => (
               <RuleRow
                 key={row.key}
                 label={
@@ -520,7 +533,7 @@ export function GlobalRules() {
         {activeSection === "channels" && (
           <div>
             <SectionLabel>Активные каналы охвата</SectionLabel>
-            {channelRows.map((row) => (
+            {CHANNEL_ROWS.map((row) => (
               <RuleRow key={row.key} label={row.label} desc={row.desc}>
                 <Toggle
                   checked={rules.channels[row.key]}
@@ -533,7 +546,7 @@ export function GlobalRules() {
         {activeSection === "payment" && (
           <div>
             <SectionLabel>Методы оплаты</SectionLabel>
-            {paymentRows.map((row) => (
+            {PAYMENT_ROWS.map((row) => (
               <RuleRow key={row.key} label={row.label} desc={row.desc}>
                 <Toggle
                   checked={rules.paymentMethods[row.key]}
@@ -570,7 +583,7 @@ export function GlobalRules() {
         {activeSection === "features" && (
           <div>
             <SectionLabel>Дополнительные функции</SectionLabel>
-            {featureRows.map((row) => (
+            {FEATURE_ROWS.map((row) => (
               <RuleRow key={row.key} label={row.label} desc={row.desc}>
                 <Toggle checked={rules[row.key]} onChange={(v) => setRule(row.key, v)} />
               </RuleRow>
@@ -591,34 +604,34 @@ export function GlobalRules() {
                 Статус функций
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 7 }}>
-                {(Object.keys(featureStatusLabels) as Array<keyof typeof featureStatusLabels>).map(
-                  (k) => {
-                    return (
-                      <div
-                        key={k}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          background: T.bg,
-                          borderRadius: 7,
-                          padding: "7px 11px",
-                        }}
+                {(
+                  Object.keys(FEATURE_STATUS_LABELS) as Array<keyof typeof FEATURE_STATUS_LABELS>
+                ).map((k) => {
+                  return (
+                    <div
+                      key={k}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        background: T.bg,
+                        borderRadius: 7,
+                        padding: "7px 11px",
+                      }}
+                    >
+                      <span style={{ fontSize: 12, color: T.textSub }}>
+                        {FEATURE_STATUS_LABELS[k]}
+                      </span>
+                      <Pill
+                        color={rules[k] ? T.greenText : T.textMuted}
+                        bg={rules[k] ? T.greenDim : T.neutralSoft}
+                        size={10}
                       >
-                        <span style={{ fontSize: 12, color: T.textSub }}>
-                          {featureStatusLabels[k]}
-                        </span>
-                        <Pill
-                          color={rules[k] ? T.greenText : T.textMuted}
-                          bg={rules[k] ? T.greenDim : T.neutralSoft}
-                          size={10}
-                        >
-                          {rules[k] ? "вкл" : "выкл"}
-                        </Pill>
-                      </div>
-                    );
-                  },
-                )}
+                        {rules[k] ? "вкл" : "выкл"}
+                      </Pill>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
