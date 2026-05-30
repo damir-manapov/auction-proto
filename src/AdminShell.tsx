@@ -1,6 +1,7 @@
 import type { EmailTemplateType, MainTab } from "./types";
 import { T } from "./theme";
 import { Pill } from "./primitives";
+import { TXT } from "./i18n";
 
 type NavItem = {
   id: MainTab;
@@ -65,7 +66,7 @@ export function AdminHeader({
           </span>
         </div>
         <span style={{ fontSize: 12, fontWeight: 700, color: T.textPrimary, letterSpacing: 0.5 }}>
-          Auction Admin
+          {TXT.admin.title}
         </span>
       </div>
       {navItems.map((tab) => (
@@ -92,10 +93,10 @@ export function AdminHeader({
       ))}
       <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
         <Pill color={T.statusSuccessFg} bg={T.statusSuccessBg}>
-          {totalActive} активных
+          {totalActive} {TXT.admin.activeFlightsSuffix}
         </Pill>
         <Pill color={T.brandPrimaryFg} bg={T.brandPrimaryBg}>
-          {totalBids} заявок
+          {totalBids} {TXT.admin.bidsSuffix}
         </Pill>
         <div
           style={{
@@ -124,9 +125,9 @@ type EmailTemplateTabsProps = {
 };
 
 const EMAIL_TABS: Array<[EmailTemplateType, string]> = [
-  ["pte", "Приглашение (PTE)"],
-  ["chaser", "Напоминание"],
-  ["win", "Подтверждение"],
+  ["pte", TXT.emailTemplates.pte],
+  ["chaser", TXT.emailTemplates.chaser],
+  ["win", TXT.emailTemplates.win],
 ];
 
 export function EmailTemplateTabs({ activeTab, onChange }: EmailTemplateTabsProps) {
@@ -168,7 +169,7 @@ export function EmptyFlightState() {
   return (
     <div style={{ textAlign: "center", padding: "60px 0", color: T.textMuted }}>
       <div style={{ fontSize: 28, marginBottom: 10 }}>✈</div>
-      <div style={{ fontSize: 14 }}>Выберите рейс из списка</div>
+      <div style={{ fontSize: 14 }}>{TXT.admin.emptyFlightPrompt}</div>
     </div>
   );
 }

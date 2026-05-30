@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { SEAT_MAP_BC } from "./data";
 import { F, T } from "./theme";
 import type { SeatCell } from "./types";
+import { TXT } from "./i18n";
 
 export function Pill({
   children,
@@ -146,9 +147,9 @@ export function SeatMap() {
     <div>
       <div style={{ display: "flex", gap: 12, marginBottom: 10, flexWrap: "wrap" }}>
         {[
-          { c: T.seatTakenBg, l: "Занято" },
-          { c: T.brandPrimary, l: "Заявка" },
-          { c: T.surfaceElevated, l: "Свободно", b: T.borderDefault },
+          { c: T.seatTakenBg, l: TXT.seatMap.taken },
+          { c: T.brandPrimary, l: TXT.seatMap.bid },
+          { c: T.surfaceElevated, l: TXT.seatMap.free, b: T.borderDefault },
         ].map((s) => (
           <div key={s.l} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <div

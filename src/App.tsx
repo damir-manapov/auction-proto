@@ -8,6 +8,7 @@ import { GlobalRules } from "./GlobalRules";
 import { EmailPreview } from "./EmailPreview";
 import { PassengerBidUI } from "./PassengerBidUI";
 import { AdminHeader, EmailTemplateTabs, EmptyFlightState } from "./AdminShell";
+import { TXT } from "./i18n";
 
 // ─── Root App ─────────────────────────────────────────────────
 export default function App() {
@@ -28,11 +29,11 @@ export default function App() {
   const totalBids = FLIGHTS_DATA.reduce((s, f) => s + f.bids, 0);
 
   const navItems = [
-    { id: "flights", label: "Рейсы" },
-    { id: "flight", label: "Детали рейса", hide: !selectedFlight },
-    { id: "rules", label: "Глобальные правила" },
-    { id: "email", label: "Email-шаблоны" },
-    { id: "passenger", label: "Интерфейс пассажира" },
+    { id: "flights", label: TXT.nav.flights },
+    { id: "flight", label: TXT.nav.flight, hide: !selectedFlight },
+    { id: "rules", label: TXT.nav.rules },
+    { id: "email", label: TXT.nav.email },
+    { id: "passenger", label: TXT.nav.passenger },
   ] satisfies Array<{ id: MainTab; label: string; hide?: boolean }>;
   const NAV = navItems.filter((t) => !t.hide);
 

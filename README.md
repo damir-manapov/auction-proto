@@ -118,6 +118,11 @@ Theme uses a palette + semantic token architecture:
 - UI mapping records (state metadata, color IDs, icons)
 - `colorToken()` resolver for semantic token lookup
 
+### Text & Localization Prep
+- User-facing shared labels are centralized in `src/i18n.ts` under a locale dictionary (`ru`)
+- Components consume `TXT` instead of hardcoded strings where extraction is complete
+- Adding a new locale can be done by extending `I18N` and switching `CURRENT_LOCALE`
+
 ## AI-Assisted shadcn Workflow
 
 This repository includes project-level shadcn skills for agent-driven development.
