@@ -1,4 +1,4 @@
-import type { LocalizedString, TierRow } from "../types";
+import type { TierRow } from "../types";
 
 export const TIERS_DATA: TierRow[] = [
   {
@@ -30,10 +30,3 @@ export const TIERS_DATA: TierRow[] = [
     bgId: "neutralBgPale",
   },
 ];
-
-export const tiersTitle: LocalizedString = { en: "Loyalty Tiers", ru: "Статусы лояльности" };
-
-export const TIERS_BY_ID = Object.fromEntries(TIERS_DATA.map((r) => [r.id, r])) as Record<
-  TierRow["id"],
-  TierRow
->;

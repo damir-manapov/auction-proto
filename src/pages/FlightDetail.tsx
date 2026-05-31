@@ -12,9 +12,9 @@ import {
 } from "../format/bidDistribution";
 import { BarChart, MetricCard, Pill, SeatMap, SectionLabel } from "../primitives";
 import { CURRENT_LOCALE, TXT } from "../i18n";
-import { TIERS_BY_ID } from "../data/tiers";
-import { BID_STATES_BY_ID } from "../data/bidStates";
-import { FLIGHT_HAULS_BY_ID } from "../data/flightHauls";
+import { useTiersById } from "../queries/useTiers";
+import { useBidStatesById } from "../queries/useBidStates";
+import { useFlightHaulsById } from "../queries/useFlightHauls";
 import { useFlightDetail } from "../queries/useFlightDetail";
 import { useFlightBids } from "../queries/useFlightBids";
 import { queryKeys } from "../queries/keys";
@@ -30,6 +30,9 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
     isError: isBidsError,
   } = useFlightBids(flightId, "businessClass");
   const { data: exitBids = [] } = useFlightBids(flightId, "exitRows");
+  const { byId: tiersById } = useTiersById();
+  const { byId: bidStatesById } = useBidStatesById();
+  const { byId: haulsById } = useFlightHaulsById();
   const fromAirport = flight?.fromAirport;
   const toAirport = flight?.toAirport;
   const fromTz = fromAirport?.city.timezone ?? "UTC";
@@ -304,7 +307,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
       <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 18 }}>
         {formatFlightDep(flight.depAt, fromTz)} — {formatFlightArr(flight.arrAt, toTz)} ·{" "}
         {flight.aircraft} · {formatFlightDuration(flight.depAt, flight.arrAt)} ·{" "}
-        {FLIGHT_HAULS_BY_ID[flight.haul].name[CURRENT_LOCALE]}
+        {haulsById[flight.haul]?.name[CURRENT_LOCALE] ?? flight.haul}
       </div>
       <div
         style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 18 }}
@@ -486,8 +489,8 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
               {sorted.map((b, i) => {
                 const w = weighted(b);
                 const isTop = b.state === "pending" && i < flight.bcFree && filter === "all";
-                const tm = TIERS_BY_ID[b.passenger.tier];
-                const sm = BID_STATES_BY_ID[b.state] ?? BID_STATES_BY_ID.pending;
+                const tm = tiersById[b.passenger.tier];
+                const sm = bidStatesById[b.state] ?? bidStatesById.pending;
                 return (
                   <tr key={b.id} style={{ background: isTop ? T.overlayBrand : "transparent" }}>
                     <td
@@ -526,11 +529,15 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                         borderBottom: `0.5px solid ${T.borderDefault}`,
                       }}
                     >
-                      <Pill color={colorToken(tm.colorId)} bg={colorToken(tm.bgId)} size={10}>
+                      <Pill
+                        color={colorToken(tm?.colorId ?? "textMuted")}
+                        bg={colorToken(tm?.bgId ?? "neutralBgSoft")}
+                        size={10}
+                      >
                         {b.passenger.tier}
                       </Pill>
                       <div style={{ fontSize: 10, color: T.textMuted, marginTop: 2 }}>
-                        {TIERS_BY_ID[b.passenger.tier].multLabel[CURRENT_LOCALE]}
+                        {tm?.multLabel[CURRENT_LOCALE] ?? ""}
                       </div>
                     </td>
                     <td
@@ -581,8 +588,12 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                         borderBottom: `0.5px solid ${T.borderDefault}`,
                       }}
                     >
-                      <Pill color={colorToken(sm.colorId)} bg={colorToken(sm.bgId)} size={10}>
-                        {BID_STATES_BY_ID[b.state].name[CURRENT_LOCALE]}
+                      <Pill
+                        color={colorToken(sm?.colorId ?? "textMuted")}
+                        bg={colorToken(sm?.bgId ?? "neutralBgSoft")}
+                        size={10}
+                      >
+                        {bidStatesById[b.state]?.name[CURRENT_LOCALE] ?? b.state}
                       </Pill>
                     </td>
                     <td

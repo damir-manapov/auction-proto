@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TIERS_BY_ID } from "../data/tiers";
+import { useTiersById } from "../queries/useTiers";
 import { colorToken } from "../domain/color";
 import { Pill, Toggle } from "../primitives";
 import { T } from "../theme";
@@ -20,6 +20,7 @@ import type { ProductActiveMap, ProductBidMap, ProductConfig, ProductKey } from 
 export function PassengerBidUI() {
   const { data: passenger } = useCurrentPassenger();
   const { data: flight } = useFlightDetail(PASSENGER_FLIGHT_ID);
+  const { byId: tiersById } = useTiersById();
   const fromAirport = flight?.fromAirport;
   const toAirport = flight?.toAirport;
   const fromCityName = fromAirport?.city.name[CURRENT_LOCALE] ?? "";
@@ -91,7 +92,7 @@ export function PassengerBidUI() {
     return `linear-gradient(to right,${p.trackColor} 0%,${p.trackColor} ${pct}%,${T.borderDefault} ${pct}%,${T.borderDefault} 100%)`;
   };
 
-  const tierMeta = passenger ? TIERS_BY_ID[passenger.tier] : undefined;
+  const tierMeta = passenger ? tiersById[passenger.tier] : undefined;
 
   if (submitted) {
     const prods = (Object.keys(active) as ProductKey[])

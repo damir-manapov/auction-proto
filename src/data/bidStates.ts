@@ -1,4 +1,4 @@
-import type { BidStateRow, LocalizedString } from "../types";
+import type { BidStateRow } from "../types";
 
 export const BID_STATES_DATA: BidStateRow[] = [
   {
@@ -20,10 +20,3 @@ export const BID_STATES_DATA: BidStateRow[] = [
     bgId: "statusDangerBg",
   },
 ];
-
-export const bidStatesTitle: LocalizedString = { en: "Bid States", ru: "Состояния заявок" };
-
-export const BID_STATES_BY_ID = Object.fromEntries(BID_STATES_DATA.map((r) => [r.id, r])) as Record<
-  BidStateRow["id"],
-  BidStateRow
->;

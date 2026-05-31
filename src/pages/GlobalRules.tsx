@@ -13,7 +13,7 @@ import type {
   TimingRow,
 } from "../types";
 import { T } from "../theme";
-import { TIERS_BY_ID } from "../data/tiers";
+import { useTiersById } from "../queries/useTiers";
 import { DEFAULT_RULES } from "../domain/rules";
 import { colorToken } from "../domain/color";
 import { TXT } from "../i18n";
@@ -212,6 +212,7 @@ const FEATURE_STATUS_LABELS: Record<FeatureStatusKey, string> = {
 };
 
 export function GlobalRules() {
+  const { byId: tiersById } = useTiersById();
   const [rules, setRules] = useState<Rules>(DEFAULT_RULES);
   const [saved, setSaved] = useState(true);
   const [activeSection, setActiveSection] = useState<RuleSectionId>("timing");
@@ -534,7 +535,7 @@ export function GlobalRules() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
                 {loyaltyPreview.map((row) => {
-                  const tm = TIERS_BY_ID[row.tier];
+                  const tm = tiersById[row.tier];
                   return (
                     <div
                       key={row.tier}
@@ -545,7 +546,11 @@ export function GlobalRules() {
                         textAlign: "center",
                       }}
                     >
-                      <Pill color={colorToken(tm.colorId)} bg={colorToken(tm.bgId)} size={10}>
+                      <Pill
+                        color={colorToken(tm?.colorId ?? "textMuted")}
+                        bg={colorToken(tm?.bgId ?? "neutralBgSoft")}
+                        size={10}
+                      >
                         {row.tier}
                       </Pill>
                       <div style={{ fontSize: 11, color: T.textMuted, margin: "5px 0 2px" }}>

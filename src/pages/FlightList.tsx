@@ -5,7 +5,7 @@ import { useAirportsWithLocationByIds } from "../queries/useAirportsWithLocation
 import { MetricCard, Pill } from "../primitives";
 import { F, T } from "../theme";
 import { CURRENT_LOCALE, TXT } from "../i18n";
-import { FLIGHT_STATUSES_BY_ID } from "../data/flightStatuses";
+import { useFlightStatusesById } from "../queries/useFlightStatuses";
 import { formatFlightDep, formatFlightDuration } from "../format/flightTime";
 import type { Flight, FlightListFilter, FlightListSortCol, SortDir } from "../types";
 
@@ -60,6 +60,7 @@ export function FlightList({ onSelect }: FlightListProps) {
   });
 
   const flights = data?.items ?? [];
+  const { byId: flightStatusesById } = useFlightStatusesById();
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -248,7 +249,7 @@ export function FlightList({ onSelect }: FlightListProps) {
             </thead>
             <tbody>
               {flights.map((f) => {
-                const sm = FLIGHT_STATUSES_BY_ID[f.status] ?? FLIGHT_STATUSES_BY_ID.upcoming;
+                const sm = flightStatusesById[f.status] ?? flightStatusesById.upcoming;
                 const fc =
                   f.bcFree === 0
                     ? T.statusDanger
@@ -340,8 +341,11 @@ export function FlightList({ onSelect }: FlightListProps) {
                       {f.revenue > 0 ? `$${f.revenue.toLocaleString()}` : "—"}
                     </td>
                     <td style={{ padding: "11px 14px" }}>
-                      <Pill color={colorToken(sm.colorId)} bg={colorToken(sm.bgId)}>
-                        {FLIGHT_STATUSES_BY_ID[f.status].name[CURRENT_LOCALE]}
+                      <Pill
+                        color={colorToken(sm?.colorId ?? "textMuted")}
+                        bg={colorToken(sm?.bgId ?? "neutralBgSoft")}
+                      >
+                        {flightStatusesById[f.status]?.name[CURRENT_LOCALE] ?? f.status}
                       </Pill>
                     </td>
                     <td style={{ padding: "11px 14px" }}>
