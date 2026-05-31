@@ -1,3 +1,3 @@
-import type { DbEmulator, DbFilter, DbQuery, DbQueryResult, DbRow } from "./emulator";
+import type { DbEmulator, DbFilter, DbQuery, DbQueryResult, DbRow, DbSchema } from "./emulator";
 
-export type { DbEmulator, DbFilter, DbQuery, DbQueryResult, DbRow };
+export type { DbEmulator, DbFilter, DbQuery, DbQueryResult, DbRow, DbSchema };

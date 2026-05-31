@@ -25,8 +25,11 @@ export type DbQueryResult<TRow> = {
   pageSize: number;
 };
 
-export type DbEmulator = {
+export type DbSchema = {
   tableNames: () => string[];
+};
+
+export type DbEmulator = DbSchema & {
   list: <TRow extends DbRow>(table: string) => TRow[];
   query: <TRow extends DbRow>(table: string, query: DbQuery) => DbQueryResult<TRow>;
   queryAll: <TRow extends DbRow>(
