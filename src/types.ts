@@ -51,6 +51,13 @@ export type FlightStats = {
 
 export type FlightWithStats = Flight & FlightStats;
 
+export type Passenger = {
+  id: string;
+  name: string;
+  initials: string;
+  tier: Tier;
+};
+
 export type BidProduct = "businessClass" | "exitRows";
 
 export type Bid = {

@@ -9,6 +9,7 @@ import type {
   Flight,
   FlightHaul,
   FlightStatus,
+  Passenger,
   Rules,
   SeatCell,
   Tier,
@@ -119,6 +120,10 @@ export const AIRPORTS_DATA: Airport[] = [
     name: { en: "Almaty International Airport", ru: "Международный аэропорт Алматы" },
     cityId: "almaty",
   },
+];
+
+export const PASSENGERS_DATA: Passenger[] = [
+  { id: "current", name: "Азиз Каримов", initials: "АК", tier: "Platinum" },
 ];
 
 export const FLIGHTS_DATA: Flight[] = [

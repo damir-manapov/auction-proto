@@ -274,7 +274,7 @@ export const I18N = {
         editButton: "← Изменить заявку",
       },
       flightHeader: {
-        planeLine: "Airbus A321 · 5ч 35м · Эконом → Бизнес",
+        classTransition: "Эконом → Бизнес",
       },
       loyaltyProgram: "Программа лояльности",
       chooseUpgrades: "Выберите апгрейды",

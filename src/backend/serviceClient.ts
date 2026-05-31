@@ -5,6 +5,7 @@ import { bidsSeed, createBidsService } from "./services/bids/service";
 import { citiesSeed, createCitiesService } from "./services/cities/service";
 import { countriesSeed, createCountriesService } from "./services/countries/service";
 import { flightsSeed, createFlightsService } from "./services/flights/service";
+import { passengersSeed, createPassengersService } from "./services/passengers/service";
 import {
   composeBeforeCall,
   createJitterSleeper,
@@ -28,6 +29,7 @@ export const createServiceClient = (): BackendClient => {
     ...airportsSeed,
     ...citiesSeed,
     ...countriesSeed,
+    ...passengersSeed,
   });
 
   const baseClient: BackendClient = {
@@ -36,6 +38,7 @@ export const createServiceClient = (): BackendClient => {
     airports: createAirportsService(db),
     cities: createCitiesService(db),
     countries: createCountriesService(db),
+    passengers: createPassengersService(db),
     entities: createEntitiesService(db),
   };
 

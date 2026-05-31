@@ -4,6 +4,7 @@ import type { BidsService } from "./services/bids/contracts";
 import type { CitiesService } from "./services/cities/contracts";
 import type { CountriesService } from "./services/countries/contracts";
 import type { FlightsService } from "./services/flights/contracts";
+import type { PassengersService } from "./services/passengers/contracts";
 
 export type {
   FlightFilter,
@@ -16,6 +17,7 @@ export type { BidsService } from "./services/bids/contracts";
 export type { AirportsService } from "./services/airports/contracts";
 export type { CitiesService } from "./services/cities/contracts";
 export type { CountriesService } from "./services/countries/contracts";
+export type { PassengersService } from "./services/passengers/contracts";
 
 export type EntityTable = {
   name: string;
@@ -32,5 +34,6 @@ export type BackendClient = {
   airports: AirportsService;
   cities: CitiesService;
   countries: CountriesService;
+  passengers: PassengersService;
   entities: EntitiesService;
 };

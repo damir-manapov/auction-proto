@@ -9,7 +9,7 @@ describe("backend entities service", () => {
     const byName = new Map(tables.map((t) => [t.name, t.rows]));
 
     expect(new Set(byName.keys())).toEqual(
-      new Set(["flights", "bids", "airports", "cities", "countries"]),
+      new Set(["flights", "bids", "airports", "cities", "countries", "passengers"]),
     );
     expect(byName.get("flights")?.length).toBe(8);
     expect(byName.get("airports")?.length).toBe(9);

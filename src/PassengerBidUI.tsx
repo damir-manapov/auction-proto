@@ -6,24 +6,35 @@ import { CURRENT_LOCALE, TXT } from "./i18n";
 import {
   PASSENGER_DEFAULT_ACTIVE,
   PASSENGER_DEFAULT_BIDS,
-  PASSENGER_FLIGHT,
+  PASSENGER_FLIGHT_ID,
+  PASSENGER_FRAME,
   PASSENGER_MULTIPLIER,
   PASSENGER_PRODUCT_SPECS,
-  PASSENGER_PROFILE,
-  passengerRouteLabel,
-} from "./passengerBidData";
+} from "./passengerConfig";
 import { useAirportsWithLocationByIds } from "./queries/useAirportsWithLocationByIds";
+import { useCurrentPassenger } from "./queries/useCurrentPassenger";
+import { useFlightById } from "./queries/useFlightById";
+import { formatFlightDep, formatFlightDuration } from "./format/flightTime";
 import type { ProductActiveMap, ProductBidMap, ProductConfig, ProductKey } from "./types";
 
 export function PassengerBidUI() {
-  const airportIds = [PASSENGER_FLIGHT.fromAirportId, PASSENGER_FLIGHT.toAirportId];
+  const { data: passenger } = useCurrentPassenger();
+  const { data: flight } = useFlightById(PASSENGER_FLIGHT_ID);
+  const airportIds = flight ? [flight.fromAirportId, flight.toAirportId] : [];
   const airportsQuery = useAirportsWithLocationByIds(airportIds);
   const airports = airportsQuery.data ?? [];
-  const fromAirport = airports.find((a) => a.id === PASSENGER_FLIGHT.fromAirportId);
-  const toAirport = airports.find((a) => a.id === PASSENGER_FLIGHT.toAirportId);
+  const fromAirport = airports.find((a) => a.id === flight?.fromAirportId);
+  const toAirport = airports.find((a) => a.id === flight?.toAirportId);
   const fromCityName = fromAirport?.city.name[CURRENT_LOCALE] ?? "";
   const toCityName = toAirport?.city.name[CURRENT_LOCALE] ?? "";
-  const routeLabel = passengerRouteLabel(PASSENGER_FLIGHT);
+  const departureLabel = flight
+    ? formatFlightDep(flight.depAt, fromAirport?.city.timezone ?? "UTC")
+    : "";
+  const flightDuration = flight ? formatFlightDuration(flight.depAt, flight.arrAt) : "";
+  const aircraftLine = flight
+    ? `${flight.aircraft} · ${flightDuration} · ${TXT.passenger.flightHeader.classTransition}`
+    : "";
+  const routeLabel = flight ? `${flight.id} · ${flight.fromAirportId} → ${flight.toAirportId}` : "";
   const PRODUCTS: Record<ProductKey, ProductConfig> = {
     bc: {
       label: TXT.passenger.products.bc.label,
@@ -83,7 +94,7 @@ export function PassengerBidUI() {
     return `linear-gradient(to right,${p.trackColor} 0%,${p.trackColor} ${pct}%,${T.borderDefault} ${pct}%,${T.borderDefault} 100%)`;
   };
 
-  const tierMeta = TIER_META[PASSENGER_PROFILE.tier];
+  const tierMeta = passenger ? TIER_META[passenger.tier] : undefined;
 
   if (submitted) {
     const prods = (Object.keys(active) as ProductKey[])
@@ -110,10 +121,10 @@ export function PassengerBidUI() {
             }}
           >
             <span style={{ fontSize: 11, color: T.textMuted }}>
-              {PASSENGER_FLIGHT.statusBarTime}
+              {PASSENGER_FRAME.statusBarTime}
             </span>
             <span style={{ fontSize: 11, color: T.textMuted }}>
-              {PASSENGER_FLIGHT.statusBarHost}
+              {PASSENGER_FRAME.statusBarHost}
             </span>
             <span style={{ fontSize: 11, color: T.textMuted }}>●●●</span>
           </div>
@@ -234,8 +245,8 @@ export function PassengerBidUI() {
             justifyContent: "space-between",
           }}
         >
-          <span style={{ fontSize: 11, color: T.textMuted }}>{PASSENGER_FLIGHT.statusBarTime}</span>
-          <span style={{ fontSize: 11, color: T.textMuted }}>{PASSENGER_FLIGHT.statusBarHost}</span>
+          <span style={{ fontSize: 11, color: T.textMuted }}>{PASSENGER_FRAME.statusBarTime}</span>
+          <span style={{ fontSize: 11, color: T.textMuted }}>{PASSENGER_FRAME.statusBarHost}</span>
           <span style={{ fontSize: 11, color: T.textMuted }}>●●●</span>
         </div>
 
@@ -273,7 +284,7 @@ export function PassengerBidUI() {
             <span
               style={{ fontSize: 16, fontWeight: 700, color: T.textPrimary, letterSpacing: -0.3 }}
             >
-              {PASSENGER_FLIGHT.number}
+              {flight?.id ?? ""}
             </span>
             <span
               style={{
@@ -283,7 +294,7 @@ export function PassengerBidUI() {
                 fontFamily: "monospace",
               }}
             >
-              {PASSENGER_FLIGHT.departureLabel}
+              {departureLabel}
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -305,9 +316,7 @@ export function PassengerBidUI() {
               <div style={{ fontSize: 10, color: T.textMuted }}>{toCityName}</div>
             </div>
           </div>
-          <div style={{ fontSize: 11, color: T.textMuted, marginTop: 7 }}>
-            {PASSENGER_FLIGHT.aircraftLine}
-          </div>
+          <div style={{ fontSize: 11, color: T.textMuted, marginTop: 7 }}>{aircraftLine}</div>
         </div>
 
         <div style={{ padding: "14px 16px", maxHeight: 540, overflowY: "auto" }}>
@@ -339,17 +348,19 @@ export function PassengerBidUI() {
                 flexShrink: 0,
               }}
             >
-              {PASSENGER_PROFILE.initials}
+              {passenger?.initials ?? ""}
             </div>
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: T.textPrimary }}>
-                {PASSENGER_PROFILE.name}
+                {passenger?.name ?? ""}
               </div>
               <div style={{ fontSize: 10, color: T.textMuted }}>{TXT.passenger.loyaltyProgram}</div>
             </div>
-            <Pill color={colorToken(tierMeta.colorId)} bg={colorToken(tierMeta.bgId)} size={10}>
-              {PASSENGER_PROFILE.tier}
-            </Pill>
+            {passenger && tierMeta && (
+              <Pill color={colorToken(tierMeta.colorId)} bg={colorToken(tierMeta.bgId)} size={10}>
+                {passenger.tier}
+              </Pill>
+            )}
           </div>
 
           <div
@@ -641,7 +652,7 @@ export function PassengerBidUI() {
           </button>
           <div style={{ fontSize: 10, color: T.textMuted, textAlign: "center", paddingBottom: 4 }}>
             {TXT.passenger.auctionClosesIn}{" "}
-            <strong style={{ color: T.statusWarning }}>{PASSENGER_FLIGHT.closingIn}</strong>
+            <strong style={{ color: T.statusWarning }}>{PASSENGER_FRAME.closingIn}</strong>
           </div>
         </div>
       </div>

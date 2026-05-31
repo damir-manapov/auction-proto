@@ -14,8 +14,8 @@ export type DecoratorCallContext = {
 
 type BeforeCall = (ctx: DecoratorCallContext) => Promise<void> | void;
 
-const DEFAULT_MOCK_LATENCY_MIN_MS = 120;
-const DEFAULT_MOCK_LATENCY_MAX_MS = 800;
+const DEFAULT_MOCK_LATENCY_MIN_MS = 20;
+const DEFAULT_MOCK_LATENCY_MAX_MS = 400;
 const DEFAULT_MOCK_FAILURE_RATE = 0;
 
 function toNumber(value: string | undefined): number | null {
