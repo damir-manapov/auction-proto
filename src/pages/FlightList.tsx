@@ -5,7 +5,8 @@ import { useFlightsQuery } from "../queries/useFlightsQuery";
 import { useAirportsWithLocationByIds } from "../queries/useAirportsWithLocationByIds";
 import { MetricCard, Pill } from "../primitives";
 import { F, T } from "../theme";
-import { TXT } from "../i18n";
+import { CURRENT_LOCALE, TXT } from "../i18n";
+import { FLIGHT_STATUSES_BY_ID } from "../data/flightStatuses";
 import { formatFlightDep, formatFlightDuration } from "../format/flightTime";
 import type { Flight, FlightListFilter, FlightListSortCol, SortDir } from "../types";
 
@@ -341,7 +342,7 @@ export function FlightList({ onSelect }: FlightListProps) {
                     </td>
                     <td style={{ padding: "11px 14px" }}>
                       <Pill color={colorToken(sm.colorId)} bg={colorToken(sm.bgId)}>
-                        {TXT.flightStatusLabels[f.status]}
+                        {FLIGHT_STATUSES_BY_ID[f.status].name[CURRENT_LOCALE]}
                       </Pill>
                     </td>
                     <td style={{ padding: "11px 14px" }}>

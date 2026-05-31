@@ -14,6 +14,10 @@ import {
   passengersSeed,
   passengersTitle,
 } from "./services/passengers/service";
+import { BID_STATES_DATA, bidStatesTitle } from "../data/bidStates";
+import { FLIGHT_HAULS_DATA, flightHaulsTitle } from "../data/flightHauls";
+import { FLIGHT_STATUSES_DATA, flightStatusesTitle } from "../data/flightStatuses";
+import { TIERS_DATA, tiersTitle } from "../data/tiers";
 import {
   composeBeforeCall,
   createJitterSleeper,
@@ -46,6 +50,10 @@ export const createServiceClient = (): BackendClient => {
     ...citiesSeed,
     ...countriesSeed,
     ...passengersSeed,
+    tiers: TIERS_DATA,
+    bidStates: BID_STATES_DATA,
+    flightStatuses: FLIGHT_STATUSES_DATA,
+    flightHauls: FLIGHT_HAULS_DATA,
   });
 
   const entityTitles: Record<string, LocalizedString> = {
@@ -55,6 +63,10 @@ export const createServiceClient = (): BackendClient => {
     cities: citiesTitle,
     countries: countriesTitle,
     passengers: passengersTitle,
+    tiers: tiersTitle,
+    bidStates: bidStatesTitle,
+    flightStatuses: flightStatusesTitle,
+    flightHauls: flightHaulsTitle,
   };
 
   const baseClient: BackendClient = {

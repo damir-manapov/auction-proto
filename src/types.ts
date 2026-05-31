@@ -30,6 +30,27 @@ export type AirportWithLocation = Airport & {
   country: Country;
 };
 
+export type TierRow = {
+  id: Tier;
+  name: LocalizedString;
+  multLabel: LocalizedString;
+};
+
+export type BidStateRow = {
+  id: BidState;
+  name: LocalizedString;
+};
+
+export type FlightStatusRow = {
+  id: FlightStatus;
+  name: LocalizedString;
+};
+
+export type FlightHaulRow = {
+  id: FlightHaul;
+  name: LocalizedString;
+};
+
 export type Flight = {
   id: string;
   fromAirportId: Airport["id"];

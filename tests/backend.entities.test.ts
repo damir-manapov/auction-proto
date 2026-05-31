@@ -9,7 +9,18 @@ describe("backend entities service", () => {
     const byName = new Map(tables.map((t) => [t.name, t.rows]));
 
     expect(new Set(byName.keys())).toEqual(
-      new Set(["flights", "bids", "airports", "cities", "countries", "passengers"]),
+      new Set([
+        "flights",
+        "bids",
+        "airports",
+        "cities",
+        "countries",
+        "passengers",
+        "tiers",
+        "bidStates",
+        "flightStatuses",
+        "flightHauls",
+      ]),
     );
     expect(byName.get("flights")?.length).toBe(8);
     expect(byName.get("airports")?.length).toBe(9);
@@ -17,6 +28,10 @@ describe("backend entities service", () => {
     expect(byName.get("cities")?.length).toBe(9);
     expect(byName.get("countries")?.length).toBe(9);
     expect(byName.get("passengers")?.length).toBe(70);
+    expect(byName.get("tiers")?.length).toBe(4);
+    expect(byName.get("bidStates")?.length).toBe(3);
+    expect(byName.get("flightStatuses")?.length).toBe(3);
+    expect(byName.get("flightHauls")?.length).toBe(5);
   });
 
   it("returns rows containing the expected fields", async () => {

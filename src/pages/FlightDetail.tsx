@@ -13,7 +13,10 @@ import {
   EXIT_DIST_COLORS,
 } from "../format/bidDistribution";
 import { BarChart, MetricCard, Pill, SeatMap, SectionLabel } from "../primitives";
-import { TXT } from "../i18n";
+import { CURRENT_LOCALE, TXT } from "../i18n";
+import { TIERS_BY_ID } from "../data/tiers";
+import { BID_STATES_BY_ID } from "../data/bidStates";
+import { FLIGHT_HAULS_BY_ID } from "../data/flightHauls";
 import { useFlightDetail } from "../queries/useFlightDetail";
 import { useFlightBids } from "../queries/useFlightBids";
 import { queryKeys } from "../queries/keys";
@@ -303,7 +306,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
       <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 18 }}>
         {formatFlightDep(flight.depAt, fromTz)} — {formatFlightArr(flight.arrAt, toTz)} ·{" "}
         {flight.aircraft} · {formatFlightDuration(flight.depAt, flight.arrAt)} ·{" "}
-        {TXT.haulLabels[flight.haul]}
+        {FLIGHT_HAULS_BY_ID[flight.haul].name[CURRENT_LOCALE]}
       </div>
       <div
         style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 18 }}
@@ -529,7 +532,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                         {b.passenger.tier}
                       </Pill>
                       <div style={{ fontSize: 10, color: T.textMuted, marginTop: 2 }}>
-                        {TXT.tierMultLabels[b.passenger.tier]}
+                        {TIERS_BY_ID[b.passenger.tier].multLabel[CURRENT_LOCALE]}
                       </div>
                     </td>
                     <td
@@ -581,7 +584,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                       }}
                     >
                       <Pill color={colorToken(sm.colorId)} bg={colorToken(sm.bgId)} size={10}>
-                        {TXT.bidStateLabels[b.state]}
+                        {BID_STATES_BY_ID[b.state].name[CURRENT_LOCALE]}
                       </Pill>
                     </td>
                     <td
