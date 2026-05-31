@@ -7,11 +7,21 @@ export type Channel = "Email" | "App" | "MMB" | "Web";
 export type LocaleCode = "en" | "ru";
 export type LocalizedString = Record<LocaleCode, string>;
 
+export type Country = {
+  id: string;
+  name: LocalizedString;
+};
+
+export type City = {
+  id: string;
+  name: LocalizedString;
+  countryId: Country["id"];
+};
+
 export type Airport = {
   id: string;
   name: LocalizedString;
-  city: LocalizedString;
-  country: LocalizedString;
+  cityId: City["id"];
 };
 
 export type Flight = {

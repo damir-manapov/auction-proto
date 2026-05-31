@@ -4,6 +4,8 @@ import type {
   Bid,
   BidState,
   Channel,
+  City,
+  Country,
   Flight,
   FlightHaul,
   FlightStatus,
@@ -12,64 +14,81 @@ import type {
   Tier,
 } from "./types";
 
+export const COUNTRIES_DATA: Country[] = [
+  { id: "uz", name: { en: "Uzbekistan", ru: "Узбекистан" } },
+  { id: "tr", name: { en: "Turkey", ru: "Турция" } },
+  { id: "ae", name: { en: "United Arab Emirates", ru: "ОАЭ" } },
+  { id: "ru", name: { en: "Russia", ru: "Россия" } },
+  { id: "de", name: { en: "Germany", ru: "Германия" } },
+  { id: "cn", name: { en: "China", ru: "Китай" } },
+  { id: "kr", name: { en: "South Korea", ru: "Южная Корея" } },
+  { id: "gb", name: { en: "United Kingdom", ru: "Великобритания" } },
+  { id: "kz", name: { en: "Kazakhstan", ru: "Казахстан" } },
+];
+
+export const CITIES_DATA: City[] = [
+  { id: "tashkent", name: { en: "Tashkent", ru: "Ташкент" }, countryId: "uz" },
+  { id: "istanbul", name: { en: "Istanbul", ru: "Стамбул" }, countryId: "tr" },
+  { id: "dubai", name: { en: "Dubai", ru: "Дубай" }, countryId: "ae" },
+  { id: "moscow", name: { en: "Moscow", ru: "Москва" }, countryId: "ru" },
+  { id: "frankfurt", name: { en: "Frankfurt", ru: "Франкфурт" }, countryId: "de" },
+  { id: "beijing", name: { en: "Beijing", ru: "Пекин" }, countryId: "cn" },
+  { id: "seoul", name: { en: "Seoul", ru: "Сеул" }, countryId: "kr" },
+  { id: "london", name: { en: "London", ru: "Лондон" }, countryId: "gb" },
+  { id: "almaty", name: { en: "Almaty", ru: "Алматы" }, countryId: "kz" },
+];
+
 export const AIRPORTS_DATA: Airport[] = [
   {
     id: "TAS",
     name: { en: "Tashkent International Airport", ru: "Международный аэропорт Ташкент" },
-    city: { en: "Tashkent", ru: "Ташкент" },
-    country: { en: "Uzbekistan", ru: "Узбекистан" },
+    cityId: "tashkent",
   },
   {
     id: "IST",
     name: { en: "Istanbul Airport", ru: "Аэропорт Стамбул" },
-    city: { en: "Istanbul", ru: "Стамбул" },
-    country: { en: "Turkey", ru: "Турция" },
+    cityId: "istanbul",
   },
   {
     id: "DXB",
     name: { en: "Dubai International Airport", ru: "Международный аэропорт Дубай" },
-    city: { en: "Dubai", ru: "Дубай" },
-    country: { en: "United Arab Emirates", ru: "ОАЭ" },
+    cityId: "dubai",
   },
   {
     id: "MOW",
     name: { en: "Moscow Sheremetyevo Airport", ru: "Шереметьево" },
-    city: { en: "Moscow", ru: "Москва" },
-    country: { en: "Russia", ru: "Россия" },
+    cityId: "moscow",
   },
   {
     id: "FRA",
     name: { en: "Frankfurt Airport", ru: "Аэропорт Франкфурт" },
-    city: { en: "Frankfurt", ru: "Франкфурт" },
-    country: { en: "Germany", ru: "Германия" },
+    cityId: "frankfurt",
   },
   {
     id: "PEK",
     name: { en: "Beijing Capital International Airport", ru: "Пекин Столичный" },
-    city: { en: "Beijing", ru: "Пекин" },
-    country: { en: "China", ru: "Китай" },
+    cityId: "beijing",
   },
   {
     id: "ICN",
     name: { en: "Incheon International Airport", ru: "Аэропорт Инчхон" },
-    city: { en: "Seoul", ru: "Сеул" },
-    country: { en: "South Korea", ru: "Южная Корея" },
+    cityId: "seoul",
   },
   {
     id: "LHR",
     name: { en: "London Heathrow Airport", ru: "Хитроу" },
-    city: { en: "London", ru: "Лондон" },
-    country: { en: "United Kingdom", ru: "Великобритания" },
+    cityId: "london",
   },
   {
     id: "ALA",
     name: { en: "Almaty International Airport", ru: "Международный аэропорт Алматы" },
-    city: { en: "Almaty", ru: "Алматы" },
-    country: { en: "Kazakhstan", ru: "Казахстан" },
+    cityId: "almaty",
   },
 ];
 
 const AIRPORTS_BY_ID = new Map(AIRPORTS_DATA.map((airport) => [airport.id, airport]));
+const CITIES_BY_ID = new Map(CITIES_DATA.map((city) => [city.id, city]));
+const COUNTRIES_BY_ID = new Map(COUNTRIES_DATA.map((country) => [country.id, country]));
 
 export function getAirport(id: Airport["id"]): Airport {
   const airport = AIRPORTS_BY_ID.get(id);
@@ -77,6 +96,22 @@ export function getAirport(id: Airport["id"]): Airport {
     throw new Error(`Unknown airport id: ${id}`);
   }
   return airport;
+}
+
+export function getCity(id: City["id"]): City {
+  const city = CITIES_BY_ID.get(id);
+  if (!city) {
+    throw new Error(`Unknown city id: ${id}`);
+  }
+  return city;
+}
+
+export function getCountry(id: Country["id"]): Country {
+  const country = COUNTRIES_BY_ID.get(id);
+  if (!country) {
+    throw new Error(`Unknown country id: ${id}`);
+  }
+  return country;
 }
 
 export const FLIGHTS_DATA: Flight[] = [

@@ -1,6 +1,8 @@
 import { airportsSeed, createAirportsService } from "./airportsService";
 import { bidsSeed, createBidsService } from "./bidsService";
+import { citiesSeed, createCitiesService } from "./citiesService";
 import type { BackendClient, EntitiesService } from "./contracts";
+import { countriesSeed, createCountriesService } from "./countriesService";
 import { createDbEmulator, type DbEmulator } from "./db/emulator";
 import { flightsSeed, createFlightsService } from "./flightsService";
 import {
@@ -24,12 +26,16 @@ export const createServiceClient = (): BackendClient => {
     ...flightsSeed,
     ...bidsSeed,
     ...airportsSeed,
+    ...citiesSeed,
+    ...countriesSeed,
   });
 
   const baseClient: BackendClient = {
     flights: createFlightsService(db),
     bids: createBidsService(db),
     airports: createAirportsService(db),
+    cities: createCitiesService(db),
+    countries: createCountriesService(db),
     entities: createEntitiesService(db),
   };
 

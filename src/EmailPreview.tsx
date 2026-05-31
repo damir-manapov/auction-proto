@@ -3,7 +3,7 @@ import type { EmailTemplateConfig, EmailTemplateType } from "./types";
 import { F, T } from "./theme";
 import { Pill, SectionLabel } from "./primitives";
 import { CURRENT_LOCALE, TXT } from "./i18n";
-import { getAirport } from "./data";
+import { getAirport, getCity } from "./data";
 
 const EMAIL_FROM_AIRPORT = getAirport("TAS");
 const EMAIL_TO_AIRPORT = getAirport("IST");
@@ -296,7 +296,7 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
                     {EMAIL_FROM_AIRPORT.id}
                   </div>
                   <div style={{ fontSize: 9, color: T.textMuted }}>
-                    {EMAIL_FROM_AIRPORT.city[CURRENT_LOCALE]}
+                    {getCity(EMAIL_FROM_AIRPORT.cityId).name[CURRENT_LOCALE]}
                   </div>
                 </div>
                 <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 3 }}>
@@ -309,7 +309,7 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
                     {EMAIL_TO_AIRPORT.id}
                   </div>
                   <div style={{ fontSize: 9, color: T.textMuted }}>
-                    {EMAIL_TO_AIRPORT.city[CURRENT_LOCALE]}
+                    {getCity(EMAIL_TO_AIRPORT.cityId).name[CURRENT_LOCALE]}
                   </div>
                 </div>
               </div>

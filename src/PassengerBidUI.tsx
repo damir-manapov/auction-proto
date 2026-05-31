@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TIER_META, colorToken, getAirport } from "./data";
+import { TIER_META, colorToken, getAirport, getCity } from "./data";
 import { Pill, Toggle } from "./primitives";
 import { T } from "./theme";
 import { CURRENT_LOCALE, TXT } from "./i18n";
@@ -286,7 +286,7 @@ export function PassengerBidUI() {
                 {fromAirport.id}
               </div>
               <div style={{ fontSize: 10, color: T.textMuted }}>
-                {fromAirport.city[CURRENT_LOCALE]}
+                {getCity(fromAirport.cityId).name[CURRENT_LOCALE]}
               </div>
             </div>
             <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 4 }}>
@@ -299,7 +299,7 @@ export function PassengerBidUI() {
                 {toAirport.id}
               </div>
               <div style={{ fontSize: 10, color: T.textMuted }}>
-                {toAirport.city[CURRENT_LOCALE]}
+                {getCity(toAirport.cityId).name[CURRENT_LOCALE]}
               </div>
             </div>
           </div>

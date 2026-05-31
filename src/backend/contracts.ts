@@ -1,4 +1,4 @@
-import type { Airport, Bid, Flight } from "../types";
+import type { Airport, Bid, City, Country, Flight } from "../types";
 import type { FlightListSortCol, SortDir } from "../types";
 import type { DbRow } from "./db/emulator";
 
@@ -50,6 +50,14 @@ export type AirportsService = {
   listAirports: () => Promise<Airport[]>;
 };
 
+export type CitiesService = {
+  listCities: () => Promise<City[]>;
+};
+
+export type CountriesService = {
+  listCountries: () => Promise<Country[]>;
+};
+
 export type EntityTable = {
   name: string;
   rows: DbRow[];
@@ -63,5 +71,7 @@ export type BackendClient = {
   flights: FlightsService;
   bids: BidsService;
   airports: AirportsService;
+  cities: CitiesService;
+  countries: CountriesService;
   entities: EntitiesService;
 };
