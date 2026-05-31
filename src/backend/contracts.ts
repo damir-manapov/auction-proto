@@ -1,5 +1,6 @@
-import type { Bid, Flight } from "../types";
+import type { Airport, Bid, Flight } from "../types";
 import type { FlightListSortCol, SortDir } from "../types";
+import type { DbRow } from "./db/emulator";
 
 export type FlightFilter = {
   field: keyof Flight;
@@ -45,7 +46,22 @@ export type BidsService = {
   autoSelect: (flightId: Flight["id"]) => Promise<Bid["id"][]>;
 };
 
+export type AirportsService = {
+  listAirports: () => Promise<Airport[]>;
+};
+
+export type EntityTable = {
+  name: string;
+  rows: DbRow[];
+};
+
+export type EntitiesService = {
+  listAll: () => Promise<EntityTable[]>;
+};
+
 export type BackendClient = {
   flights: FlightsService;
   bids: BidsService;
+  airports: AirportsService;
+  entities: EntitiesService;
 };

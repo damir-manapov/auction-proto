@@ -1,6 +1,8 @@
-import { createBidsService } from "./bidsService";
-import type { BackendClient } from "./contracts";
-import { createFlightsService } from "./flightsService";
+import { airportsSeed, createAirportsService } from "./airportsService";
+import { bidsSeed, createBidsService } from "./bidsService";
+import type { BackendClient, EntitiesService } from "./contracts";
+import { createDbEmulator, type DbEmulator } from "./db/emulator";
+import { flightsSeed, createFlightsService } from "./flightsService";
 import {
   composeBeforeCall,
   createJitterSleeper,
@@ -8,14 +10,27 @@ import {
   getMockLatencyRange,
   withLatency,
 } from "./latency";
-import { seedDb } from "./serviceUtils";
+
+function createEntitiesService(db: DbEmulator): EntitiesService {
+  return {
+    async listAll() {
+      return db.tableNames().map((name) => ({ name, rows: db.list(name) }));
+    },
+  };
+}
 
 export const createServiceClient = (): BackendClient => {
-  const db = seedDb();
+  const db = createDbEmulator({
+    ...flightsSeed,
+    ...bidsSeed,
+    ...airportsSeed,
+  });
 
   const baseClient: BackendClient = {
     flights: createFlightsService(db),
     bids: createBidsService(db),
+    airports: createAirportsService(db),
+    entities: createEntitiesService(db),
   };
 
   const sleep = createJitterSleeper(getMockLatencyRange);

@@ -1,24 +1,10 @@
-import { FLIGHTS_DATA, INITIAL_BIDS } from "../data";
 import type { Bid, Flight } from "../types";
 import type { FlightQuery } from "./contracts";
-import { createDbEmulator, type DbFilter, type DbQuery } from "./db/emulator";
+import type { DbFilter, DbQuery, DbRow } from "./db/emulator";
 
 export type BidRow = Bid & { flightId: Flight["id"] };
 
-function cloneBids(bids: Bid[]): Bid[] {
-  return bids.map((bid) => ({ ...bid }));
-}
-
-export function seedDb() {
-  const bidRows: BidRow[] = FLIGHTS_DATA.flatMap((flight) =>
-    cloneBids(INITIAL_BIDS).map((bid) => ({ ...bid, flightId: flight.id })),
-  );
-
-  return createDbEmulator({
-    flights: FLIGHTS_DATA,
-    bids: bidRows,
-  });
-}
+export type EntitySeed = Record<string, DbRow[]>;
 
 export function toDbFilters(query: FlightQuery): DbFilter[] | undefined {
   return query.filters?.map((filter) => ({

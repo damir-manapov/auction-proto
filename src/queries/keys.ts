@@ -1,5 +1,6 @@
 export const queryKeys = {
   flightsSummary: ["flights-summary"] as const,
+  entities: ["entities"] as const,
   flightsQuery: (params: {
     search?: string;
     status?: string;

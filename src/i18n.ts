@@ -16,6 +16,18 @@ export const I18N = {
       rules: "Глобальные правила",
       email: "Email-шаблоны",
       passenger: "Интерфейс пассажира",
+      entities: "Сущности",
+    },
+    entities: {
+      title: "Сущности",
+      subtitle: "Все таблицы базы и их записи",
+      empty: "Нет записей",
+      tableHeader: "Таблица",
+      countSuffix: "записей",
+      states: {
+        loading: "Загрузка сущностей...",
+        loadError: "Не удалось загрузить сущности.",
+      },
     },
     emailTemplates: {
       pte: "Приглашение (PTE)",

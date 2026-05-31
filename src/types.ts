@@ -79,6 +79,7 @@ export const MAIN_TAB = {
   rules: "rules",
   email: "email",
   passenger: "passenger",
+  entities: "entities",
 } as const;
 export type MainTab = (typeof MAIN_TAB)[keyof typeof MAIN_TAB];
 

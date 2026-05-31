@@ -1,7 +1,17 @@
+import { FLIGHTS_DATA } from "../data";
 import type { Flight } from "../types";
 import type { FlightsService } from "./contracts";
 import type { DbEmulator } from "./db/emulator";
-import { toDbFilters, toFlightQueryParams, toFlightSummaryQueryParams } from "./serviceUtils";
+import {
+  type EntitySeed,
+  toDbFilters,
+  toFlightQueryParams,
+  toFlightSummaryQueryParams,
+} from "./serviceUtils";
+
+export const flightsSeed: EntitySeed = {
+  flights: FLIGHTS_DATA,
+};
 
 function summarizeFlights(flights: Flight[]) {
   return {

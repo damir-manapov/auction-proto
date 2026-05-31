@@ -26,6 +26,7 @@ export type DbQueryResult<TRow> = {
 };
 
 export type DbEmulator = {
+  tableNames: () => string[];
   list: <TRow extends DbRow>(table: string) => TRow[];
   query: <TRow extends DbRow>(table: string, query: DbQuery) => DbQueryResult<TRow>;
   queryAll: <TRow extends DbRow>(
@@ -128,6 +129,8 @@ export function createDbEmulator(seed: Record<string, DbRow[]>): DbEmulator {
   };
 
   const api: DbEmulator = {
+    tableNames: () => Array.from(tables.keys()),
+
     list: <TRow extends DbRow>(table: string) => {
       return readTable(table).map((row) => cloneRow(row)) as TRow[];
     },

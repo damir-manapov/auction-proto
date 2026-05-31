@@ -14,6 +14,7 @@ import { FlightList } from "./FlightList";
 import { FlightDetail } from "./FlightDetail";
 import { GlobalRules } from "./GlobalRules";
 import { EmailPreview } from "./EmailPreview";
+import { EntitiesPage } from "./EntitiesPage";
 import { PassengerBidUI } from "./PassengerBidUI";
 import { AdminHeader, EmailTemplateTabs, EmptyFlightState } from "./AdminShell";
 import { TXT } from "./i18n";
@@ -23,6 +24,7 @@ function routeToTab(pathname: string): MainTab {
   if (pathname === "/rules") return MAIN_TAB.rules;
   if (pathname === "/email") return MAIN_TAB.email;
   if (pathname === "/passenger") return MAIN_TAB.passenger;
+  if (pathname === "/entities") return MAIN_TAB.entities;
   if (pathname.startsWith("/flights/")) return MAIN_TAB.flight;
   return MAIN_TAB.flights;
 }
@@ -141,6 +143,7 @@ export default function App() {
           if (nextTab === MAIN_TAB.rules) navigate("/rules");
           if (nextTab === MAIN_TAB.email) navigate("/email");
           if (nextTab === MAIN_TAB.passenger) navigate("/passenger");
+          if (nextTab === MAIN_TAB.entities) navigate("/entities");
         }}
       />
 
@@ -152,9 +155,38 @@ export default function App() {
           <Route path="/rules" element={<GlobalRules />} />
           <Route path="/email" element={<EmailRoute />} />
           <Route path="/passenger" element={<PassengerBidUI />} />
+          <Route path="/entities" element={<EntitiesPage />} />
           <Route path="*" element={<Navigate to="/flights" replace />} />
         </Routes>
       </div>
+      <footer
+        style={{
+          padding: "16px 24px 24px",
+          borderTop: `0.5px solid ${T.borderDefault}`,
+          marginTop: 32,
+          fontSize: 12,
+          color: T.textMuted,
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => navigate("/entities")}
+          style={{
+            background: "transparent",
+            border: "none",
+            padding: 0,
+            color: T.brandPrimary,
+            cursor: "pointer",
+            fontSize: 12,
+            fontWeight: 600,
+            textDecoration: "underline",
+          }}
+        >
+          {TXT.nav.entities}
+        </button>
+      </footer>
     </div>
   );
 }
