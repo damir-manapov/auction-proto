@@ -12,25 +12,17 @@ import {
   PASSENGER_PROFILE,
   passengerRouteLabel,
 } from "./passengerBidData";
-import { useAirportsByIds } from "./queries/useAirportsByIds";
-import { useCitiesByIds } from "./queries/useCitiesByIds";
+import { useAirportsWithLocationByIds } from "./queries/useAirportsWithLocationByIds";
 import type { ProductActiveMap, ProductBidMap, ProductConfig, ProductKey } from "./types";
 
 export function PassengerBidUI() {
   const airportIds = [PASSENGER_FLIGHT.fromAirportId, PASSENGER_FLIGHT.toAirportId];
-  const airportsQuery = useAirportsByIds(airportIds);
+  const airportsQuery = useAirportsWithLocationByIds(airportIds);
   const airports = airportsQuery.data ?? [];
   const fromAirport = airports.find((a) => a.id === PASSENGER_FLIGHT.fromAirportId);
   const toAirport = airports.find((a) => a.id === PASSENGER_FLIGHT.toAirportId);
-  const cityIds = airports.map((a) => a.cityId);
-  const citiesQuery = useCitiesByIds(cityIds);
-  const cities = citiesQuery.data ?? [];
-  const fromCityName = fromAirport
-    ? (cities.find((c) => c.id === fromAirport.cityId)?.name[CURRENT_LOCALE] ?? "")
-    : "";
-  const toCityName = toAirport
-    ? (cities.find((c) => c.id === toAirport.cityId)?.name[CURRENT_LOCALE] ?? "")
-    : "";
+  const fromCityName = fromAirport?.city.name[CURRENT_LOCALE] ?? "";
+  const toCityName = toAirport?.city.name[CURRENT_LOCALE] ?? "";
   const routeLabel = passengerRouteLabel(PASSENGER_FLIGHT);
   const PRODUCTS: Record<ProductKey, ProductConfig> = {
     bc: {

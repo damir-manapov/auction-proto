@@ -3,8 +3,7 @@ import type { EmailTemplateConfig, EmailTemplateType } from "./types";
 import { F, T } from "./theme";
 import { Pill, SectionLabel } from "./primitives";
 import { CURRENT_LOCALE, TXT } from "./i18n";
-import { useAirportsByIds } from "./queries/useAirportsByIds";
-import { useCitiesByIds } from "./queries/useCitiesByIds";
+import { useAirportsWithLocationByIds } from "./queries/useAirportsWithLocationByIds";
 
 const EMAIL_FROM_AIRPORT_ID = "TAS";
 const EMAIL_TO_AIRPORT_ID = "IST";
@@ -160,19 +159,12 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
   const c = TEMPLATE_CONFIGS[type];
   const metaRows = META_ROWS_BY_TYPE[type];
   const airportIds = [EMAIL_FROM_AIRPORT_ID, EMAIL_TO_AIRPORT_ID];
-  const airportsQuery = useAirportsByIds(airportIds);
+  const airportsQuery = useAirportsWithLocationByIds(airportIds);
   const airports = airportsQuery.data ?? [];
   const fromAirport = airports.find((a) => a.id === EMAIL_FROM_AIRPORT_ID);
   const toAirport = airports.find((a) => a.id === EMAIL_TO_AIRPORT_ID);
-  const cityIds = airports.map((a) => a.cityId);
-  const citiesQuery = useCitiesByIds(cityIds);
-  const cities = citiesQuery.data ?? [];
-  const fromCityName = fromAirport
-    ? (cities.find((city) => city.id === fromAirport.cityId)?.name[CURRENT_LOCALE] ?? "")
-    : "";
-  const toCityName = toAirport
-    ? (cities.find((city) => city.id === toAirport.cityId)?.name[CURRENT_LOCALE] ?? "")
-    : "";
+  const fromCityName = fromAirport?.city.name[CURRENT_LOCALE] ?? "";
+  const toCityName = toAirport?.city.name[CURRENT_LOCALE] ?? "";
   const metadataRows: MetadataRow[] = [
     {
       key: "type",

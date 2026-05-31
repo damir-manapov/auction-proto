@@ -24,6 +24,11 @@ export type Airport = {
   cityId: City["id"];
 };
 
+export type AirportWithLocation = Airport & {
+  city: City;
+  country: Country;
+};
+
 export type Flight = {
   id: string;
   fromAirportId: Airport["id"];

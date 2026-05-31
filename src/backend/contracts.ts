@@ -1,4 +1,4 @@
-import type { Airport, Bid, City, Country, Flight } from "../types";
+import type { Airport, AirportWithLocation, Bid, City, Country, Flight } from "../types";
 import type { FlightListSortCol, SortDir } from "../types";
 import type { DbRow } from "./db/emulator";
 
@@ -49,6 +49,8 @@ export type BidsService = {
 export type AirportsService = {
   list: () => Promise<Airport[]>;
   findByIds: (ids: Airport["id"][]) => Promise<Airport[]>;
+  listWithLocation: () => Promise<AirportWithLocation[]>;
+  findWithLocationByIds: (ids: Airport["id"][]) => Promise<AirportWithLocation[]>;
 };
 
 export type CitiesService = {
