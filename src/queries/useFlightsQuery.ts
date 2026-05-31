@@ -13,5 +13,5 @@ export const useFlightsQuery = (query: FlightQuery) =>
       ...(query.page !== undefined ? { page: query.page } : {}),
       ...(query.pageSize !== undefined ? { pageSize: query.pageSize } : {}),
     }),
-    queryFn: () => backendClient.flights.queryFlights(query),
+    queryFn: () => backendClient.flights.query(query),
   });

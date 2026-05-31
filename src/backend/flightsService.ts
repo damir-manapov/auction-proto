@@ -37,11 +37,11 @@ function toFlightsPage(
 
 export function createFlightsService(db: DbEmulator): FlightsService {
   return {
-    async listFlights() {
+    async list() {
       return db.list<Flight>("flights");
     },
 
-    async queryFlights(query) {
+    async query(query) {
       const mappedFilters = toDbFilters(query);
       const queryParams = toFlightQueryParams(query, mappedFilters);
       const result = db.query<Flight>("flights", queryParams);
@@ -52,11 +52,11 @@ export function createFlightsService(db: DbEmulator): FlightsService {
       return toFlightsPage(result, filteredForSummary);
     },
 
-    async getFlightsSummary() {
+    async getSummary() {
       return summarizeFlights(db.list<Flight>("flights"));
     },
 
-    async getFlightById(flightId) {
+    async findById(flightId) {
       return db.findOne<Flight>("flights", [{ field: "id", op: "eq", value: flightId }]);
     },
   };

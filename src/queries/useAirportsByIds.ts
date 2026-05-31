@@ -6,6 +6,6 @@ import { queryKeys } from "./keys";
 export const useAirportsByIds = (ids: Airport["id"][]) =>
   useQuery({
     queryKey: queryKeys.airportsByIds(ids),
-    queryFn: () => backendClient.airports.findAirportsByIds(ids),
+    queryFn: () => backendClient.airports.findByIds(ids),
     enabled: ids.length > 0,
   });

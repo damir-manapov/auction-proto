@@ -35,11 +35,11 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
   const refreshBids = () =>
     queryClient.invalidateQueries({ queryKey: queryKeys.flightBids(flightId) });
   const approveMutation = useMutation({
-    mutationFn: (bidId: Bid["id"]) => backendClient.bids.approveBid(flightId, bidId),
+    mutationFn: (bidId: Bid["id"]) => backendClient.bids.approve(flightId, bidId),
     onSuccess: refreshBids,
   });
   const rejectMutation = useMutation({
-    mutationFn: (bidId: Bid["id"]) => backendClient.bids.rejectBid(flightId, bidId),
+    mutationFn: (bidId: Bid["id"]) => backendClient.bids.reject(flightId, bidId),
     onSuccess: refreshBids,
   });
   const autoSelectMutation = useMutation({

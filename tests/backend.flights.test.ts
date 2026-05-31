@@ -5,8 +5,8 @@ describe("backend flights service", () => {
   it("returns seeded flights and summary data", async () => {
     const client = createServiceClient();
 
-    const allFlights = await client.flights.listFlights();
-    const summary = await client.flights.getFlightsSummary();
+    const allFlights = await client.flights.list();
+    const summary = await client.flights.getSummary();
 
     expect(allFlights).toHaveLength(8);
     expect(summary).toEqual({
@@ -20,7 +20,7 @@ describe("backend flights service", () => {
   it("queries flights with filters and summary shaping", async () => {
     const client = createServiceClient();
 
-    const page = await client.flights.queryFlights({
+    const page = await client.flights.query({
       search: "TAS",
       filters: [{ field: "status", op: "eq", value: "active" }],
       sortBy: "revenue",
@@ -44,13 +44,13 @@ describe("backend flights service", () => {
   it("looks up a flight by id", async () => {
     const client = createServiceClient();
 
-    const flight = await client.flights.getFlightById("HY 602");
+    const flight = await client.flights.findById("HY 602");
     expect(flight?.fromAirportId).toBe("TAS");
   });
 
   it("returns undefined for missing flights", async () => {
     const client = createServiceClient();
 
-    await expect(client.flights.getFlightById("HY 999")).resolves.toBeUndefined();
+    await expect(client.flights.findById("HY 999")).resolves.toBeUndefined();
   });
 });

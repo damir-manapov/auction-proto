@@ -6,6 +6,6 @@ import { queryKeys } from "./keys";
 export const useCitiesByIds = (ids: City["id"][]) =>
   useQuery({
     queryKey: queryKeys.citiesByIds(ids),
-    queryFn: () => backendClient.cities.findCitiesByIds(ids),
+    queryFn: () => backendClient.cities.findByIds(ids),
     enabled: ids.length > 0,
   });

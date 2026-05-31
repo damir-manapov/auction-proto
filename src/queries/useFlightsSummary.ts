@@ -5,5 +5,5 @@ import { queryKeys } from "./keys";
 export const useFlightsSummary = () =>
   useQuery({
     queryKey: queryKeys.flightsSummary,
-    queryFn: () => backendClient.flights.getFlightsSummary(),
+    queryFn: () => backendClient.flights.getSummary(),
   });

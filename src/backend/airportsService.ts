@@ -10,10 +10,10 @@ export const airportsSeed: EntitySeed = {
 
 export function createAirportsService(db: DbEmulator): AirportsService {
   return {
-    async listAirports() {
+    async list() {
       return db.list<Airport>("airports");
     },
-    async findAirportsByIds(ids) {
+    async findByIds(ids) {
       if (ids.length === 0) return [];
       return db.queryAll<Airport>("airports", {
         filters: [{ field: "id", op: "in", value: ids }],

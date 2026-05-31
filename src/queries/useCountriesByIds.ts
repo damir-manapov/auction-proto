@@ -6,6 +6,6 @@ import { queryKeys } from "./keys";
 export const useCountriesByIds = (ids: Country["id"][]) =>
   useQuery({
     queryKey: queryKeys.countriesByIds(ids),
-    queryFn: () => backendClient.countries.findCountriesByIds(ids),
+    queryFn: () => backendClient.countries.findByIds(ids),
     enabled: ids.length > 0,
   });

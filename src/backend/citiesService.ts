@@ -10,10 +10,10 @@ export const citiesSeed: EntitySeed = {
 
 export function createCitiesService(db: DbEmulator): CitiesService {
   return {
-    async listCities() {
+    async list() {
       return db.list<City>("cities");
     },
-    async findCitiesByIds(ids) {
+    async findByIds(ids) {
       if (ids.length === 0) return [];
       return db.queryAll<City>("cities", {
         filters: [{ field: "id", op: "in", value: ids }],

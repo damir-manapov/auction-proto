@@ -20,14 +20,14 @@ function selectWinningBidIds(rows: Bid[], availableSeats: number): Bid["id"][] {
 
 export function createBidsService(db: DbEmulator): BidsService {
   return {
-    async listBids(flightId) {
+    async list(flightId) {
       const all = db.queryAll<BidRow>("bids", {
         filters: [{ field: "flightId", op: "eq", value: flightId }],
       });
       return bidRowsToBids(all);
     },
 
-    async approveBid(flightId, bidId) {
+    async approve(flightId, bidId) {
       const updated = db.updateOne<BidRow>("bids", toBidRowFilters(flightId, bidId), {
         state: "approved",
       });
@@ -35,7 +35,7 @@ export function createBidsService(db: DbEmulator): BidsService {
       return bidRowsToBids([updated])[0];
     },
 
-    async rejectBid(flightId, bidId) {
+    async reject(flightId, bidId) {
       const updated = db.updateOne<BidRow>("bids", toBidRowFilters(flightId, bidId), {
         state: "rejected",
       });

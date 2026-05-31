@@ -33,32 +33,32 @@ export type FlightsPage = {
 };
 
 export type FlightsService = {
-  listFlights: () => Promise<Flight[]>;
-  queryFlights: (query: FlightQuery) => Promise<FlightsPage>;
-  getFlightsSummary: () => Promise<FlightsSummary>;
-  getFlightById: (flightId: Flight["id"]) => Promise<Flight | undefined>;
+  list: () => Promise<Flight[]>;
+  query: (query: FlightQuery) => Promise<FlightsPage>;
+  getSummary: () => Promise<FlightsSummary>;
+  findById: (flightId: Flight["id"]) => Promise<Flight | undefined>;
 };
 
 export type BidsService = {
-  listBids: (flightId: Flight["id"]) => Promise<Bid[]>;
-  approveBid: (flightId: Flight["id"], bidId: Bid["id"]) => Promise<Bid | undefined>;
-  rejectBid: (flightId: Flight["id"], bidId: Bid["id"]) => Promise<Bid | undefined>;
+  list: (flightId: Flight["id"]) => Promise<Bid[]>;
+  approve: (flightId: Flight["id"], bidId: Bid["id"]) => Promise<Bid | undefined>;
+  reject: (flightId: Flight["id"], bidId: Bid["id"]) => Promise<Bid | undefined>;
   autoSelect: (flightId: Flight["id"]) => Promise<Bid["id"][]>;
 };
 
 export type AirportsService = {
-  listAirports: () => Promise<Airport[]>;
-  findAirportsByIds: (ids: Airport["id"][]) => Promise<Airport[]>;
+  list: () => Promise<Airport[]>;
+  findByIds: (ids: Airport["id"][]) => Promise<Airport[]>;
 };
 
 export type CitiesService = {
-  listCities: () => Promise<City[]>;
-  findCitiesByIds: (ids: City["id"][]) => Promise<City[]>;
+  list: () => Promise<City[]>;
+  findByIds: (ids: City["id"][]) => Promise<City[]>;
 };
 
 export type CountriesService = {
-  listCountries: () => Promise<Country[]>;
-  findCountriesByIds: (ids: Country["id"][]) => Promise<Country[]>;
+  list: () => Promise<Country[]>;
+  findByIds: (ids: Country["id"][]) => Promise<Country[]>;
 };
 
 export type EntityTable = {

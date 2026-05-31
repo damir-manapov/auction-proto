@@ -6,5 +6,5 @@ import { queryKeys } from "./keys";
 export const useFlightBids = (flightId: Flight["id"]) =>
   useQuery({
     queryKey: queryKeys.flightBids(flightId),
-    queryFn: () => backendClient.bids.listBids(flightId),
+    queryFn: () => backendClient.bids.list(flightId),
   });
