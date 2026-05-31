@@ -1,5 +1,5 @@
 import { AIRPORTS_DATA } from "../../../data/airports";
-import type { Airport } from "../../../types";
+import type { Airport, LocalizedString } from "../../../types";
 import type { DbEmulator, EntitySeed } from "../../db/contracts";
 import type { AirportsService } from "./contracts";
 import { findAirportsWithLocationByIds, loadAirportsWithLocation } from "./utils";
@@ -7,6 +7,8 @@ import { findAirportsWithLocationByIds, loadAirportsWithLocation } from "./utils
 export const airportsSeed: EntitySeed = {
   airports: AIRPORTS_DATA,
 };
+
+export const airportsTitle: LocalizedString = { en: "Airports", ru: "Аэропорты" };
 
 export function createAirportsService(db: DbEmulator): AirportsService {
   return {

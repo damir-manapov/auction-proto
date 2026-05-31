@@ -1,11 +1,13 @@
 import { CITIES_DATA } from "../../../data/cities";
-import type { City } from "../../../types";
+import type { City, LocalizedString } from "../../../types";
 import type { DbEmulator, EntitySeed } from "../../db/contracts";
 import type { CitiesService } from "./contracts";
 
 export const citiesSeed: EntitySeed = {
   cities: CITIES_DATA,
 };
+
+export const citiesTitle: LocalizedString = { en: "Cities", ru: "Города" };
 
 export function createCitiesService(db: DbEmulator): CitiesService {
   return {

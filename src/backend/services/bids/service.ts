@@ -1,6 +1,13 @@
 import { SEED_BIDS } from "../../../data/bids";
 import { weighted } from "../../../domain/weighted";
-import type { Bid, BidState, BidWithPassenger, Flight, Passenger } from "../../../types";
+import type {
+  Bid,
+  BidState,
+  BidWithPassenger,
+  Flight,
+  LocalizedString,
+  Passenger,
+} from "../../../types";
 import type { DbEmulator, EntitySeed } from "../../db/contracts";
 import type { BidsService } from "./contracts";
 import { toBidFilters } from "./utils";
@@ -8,6 +15,8 @@ import { toBidFilters } from "./utils";
 export const bidsSeed: EntitySeed = {
   bids: SEED_BIDS,
 };
+
+export const bidsTitle: LocalizedString = { en: "Bids", ru: "Заявки" };
 
 function joinPassenger(db: DbEmulator, bids: Bid[]): BidWithPassenger[] {
   if (bids.length === 0) return [];

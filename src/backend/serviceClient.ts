@@ -1,11 +1,19 @@
 import type { BackendClient, EntitiesService } from "./contracts";
 import { createDbEmulator, type DbEmulator } from "./db/emulator";
-import { airportsSeed, createAirportsService } from "./services/airports/service";
-import { bidsSeed, createBidsService } from "./services/bids/service";
-import { citiesSeed, createCitiesService } from "./services/cities/service";
-import { countriesSeed, createCountriesService } from "./services/countries/service";
-import { flightsSeed, createFlightsService } from "./services/flights/service";
-import { passengersSeed, createPassengersService } from "./services/passengers/service";
+import { airportsSeed, airportsTitle, createAirportsService } from "./services/airports/service";
+import { bidsSeed, bidsTitle, createBidsService } from "./services/bids/service";
+import { citiesSeed, citiesTitle, createCitiesService } from "./services/cities/service";
+import {
+  countriesSeed,
+  countriesTitle,
+  createCountriesService,
+} from "./services/countries/service";
+import { createFlightsService, flightsSeed, flightsTitle } from "./services/flights/service";
+import {
+  createPassengersService,
+  passengersSeed,
+  passengersTitle,
+} from "./services/passengers/service";
 import {
   composeBeforeCall,
   createJitterSleeper,
@@ -13,11 +21,19 @@ import {
   getMockLatencyRange,
   withLatency,
 } from "./latency";
+import type { LocalizedString } from "../types";
 
-function createEntitiesService(db: DbEmulator): EntitiesService {
+function createEntitiesService(
+  db: DbEmulator,
+  titles: Record<string, LocalizedString>,
+): EntitiesService {
   return {
     async listAll() {
-      return db.tableNames().map((name) => ({ name, rows: db.list(name) }));
+      return db.tableNames().map((name) => ({
+        name,
+        title: titles[name] ?? { en: name, ru: name },
+        rows: db.list(name),
+      }));
     },
   };
 }
@@ -32,6 +48,15 @@ export const createServiceClient = (): BackendClient => {
     ...passengersSeed,
   });
 
+  const entityTitles: Record<string, LocalizedString> = {
+    flights: flightsTitle,
+    bids: bidsTitle,
+    airports: airportsTitle,
+    cities: citiesTitle,
+    countries: countriesTitle,
+    passengers: passengersTitle,
+  };
+
   const baseClient: BackendClient = {
     flights: createFlightsService(db),
     bids: createBidsService(db),
@@ -39,7 +64,7 @@ export const createServiceClient = (): BackendClient => {
     cities: createCitiesService(db),
     countries: createCountriesService(db),
     passengers: createPassengersService(db),
-    entities: createEntitiesService(db),
+    entities: createEntitiesService(db, entityTitles),
   };
 
   const sleep = createJitterSleeper(getMockLatencyRange);

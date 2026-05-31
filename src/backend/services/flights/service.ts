@@ -1,5 +1,12 @@
 import { FLIGHTS_DATA } from "../../../data/flights";
-import type { Bid, Flight, FlightListSortCol, FlightWithStats, SortDir } from "../../../types";
+import type {
+  Bid,
+  Flight,
+  FlightListSortCol,
+  FlightWithStats,
+  LocalizedString,
+  SortDir,
+} from "../../../types";
 import type { DbEmulator, EntitySeed } from "../../db/contracts";
 import { findAirportsWithLocationByIds } from "../airports/utils";
 import type { FlightsService, FlightsSummary } from "./contracts";
@@ -8,6 +15,8 @@ import { toDbFilters, toFlightQueryParams, toFlightSummaryQueryParams } from "./
 export const flightsSeed: EntitySeed = {
   flights: FLIGHTS_DATA,
 };
+
+export const flightsTitle: LocalizedString = { en: "Flights", ru: "Рейсы" };
 
 function computeStats(db: DbEmulator, flight: Flight) {
   const bids = db.queryAll<Bid>("bids", {

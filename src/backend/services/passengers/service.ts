@@ -1,5 +1,5 @@
 import { PASSENGERS_DATA } from "../../../data/passengers";
-import type { Passenger } from "../../../types";
+import type { LocalizedString, Passenger } from "../../../types";
 import type { DbEmulator, EntitySeed } from "../../db/contracts";
 import type { PassengersService } from "./contracts";
 
@@ -10,6 +10,8 @@ export const CURRENT_PASSENGER_ID = "p005";
 export const passengersSeed: EntitySeed = {
   passengers: PASSENGERS_DATA,
 };
+
+export const passengersTitle: LocalizedString = { en: "Passengers", ru: "Пассажиры" };
 
 export function createPassengersService(db: DbEmulator): PassengersService {
   return {

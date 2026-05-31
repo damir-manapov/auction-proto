@@ -1,3 +1,4 @@
+import type { LocalizedString } from "../types";
 import type { DbRow } from "./db/contracts";
 import type { AirportsService } from "./services/airports/contracts";
 import type { BidsService } from "./services/bids/contracts";
@@ -21,6 +22,7 @@ export type { PassengersService } from "./services/passengers/contracts";
 
 export type EntityTable = {
   name: string;
+  title: LocalizedString;
   rows: DbRow[];
 };
 
