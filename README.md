@@ -118,8 +118,17 @@ bash all-checks.sh # runs both scripts
 │   ├── primitives.tsx                 # reusable UI primitives
 │   ├── main.tsx                       # React entry point
 │   └── index.css                      # global styles
+│   ├── format/                        # display formatters (flight time, bid distribution)
 │   ├── queries/                       # TanStack Query hooks and keys
 │   └── backend/                       # in-memory backend service + db emulator
+│       ├── db/                        # generic DB emulator + contracts
+│       └── services/<entity>/         # per-entity contracts.ts, service.ts, utils.ts
+│           ├── airports/
+│           ├── bids/
+│           ├── cities/
+│           ├── countries/
+│           ├── flights/
+│           └── passengers/
 ├── index.html                         # app shell
 ├── vite.config.ts                     # Vite config
 ├── tsconfig.json                      # strict TS config
@@ -151,20 +160,27 @@ still reference them while the codebase migrates toward Tailwind/shadcn classes.
 - `getAirport(id)` lookup helper
 
 ### Backend Layering
-- Service contracts and domain models are defined in `src/backend/contracts.ts`
-- Each entity has its own service module (`flightsService.ts`, `bidsService.ts`,
-  `airportsService.ts`) that exports both a `*Seed` and a `create*Service` factory
+- The aggregate `BackendClient` contract lives in `src/backend/contracts.ts`
+- Each entity is a folder under `src/backend/services/<entity>/` containing:
+  - `contracts.ts` — service interface and entity-specific query/filter types
+  - `service.ts` — exports `<entity>Seed` and `create<Entity>Service(db)`
+  - `utils.ts` — pure helpers (filter mapping, joins) shared with tests/other services
 - `src/backend/serviceClient.ts` merges all `*Seed` objects into a single DB and
-  composes services + the generic `entities` service
+  composes services + the generic `entities` service, then wraps everything with
+  latency/failure injection
 - Generic DB emulator is in `src/backend/db/emulator.ts`; metadata access
   (`tableNames`) is split into the `DbSchema` facet
 - DB operations are declarative (`filters` + `patch`, no function arguments)
+- Services own cross-entity joins so callers issue one request: e.g.
+  `bids.list` joins `passengers`, and `flights.findDetailById` joins route
+  airports + cities + countries via `airports/utils.ts`
 
 ### Adding a New Entity
 1. Add the type to `src/types.ts` and seed data to `src/data.ts`.
-2. Create `src/backend/<name>Service.ts` exporting `<name>Seed` and a `create<Name>Service` factory.
-3. Add the service contract to `src/backend/contracts.ts`.
-4. Spread the seed and add the service to `src/backend/serviceClient.ts`.
+2. Create `src/backend/services/<name>/{contracts,service}.ts` (and `utils.ts` if needed),
+   exporting `<name>Seed` and a `create<Name>Service` factory.
+3. Add the service to the `BackendClient` type in `src/backend/contracts.ts`.
+4. Spread the seed and register the service in `src/backend/serviceClient.ts`.
 5. The new table appears automatically on the `/entities` page.
 
 ### Text & Localization Prep
