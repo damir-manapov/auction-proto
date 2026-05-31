@@ -1,6 +1,7 @@
 import { FLIGHTS_DATA } from "../../../data";
 import type { Bid, Flight, FlightListSortCol, FlightWithStats, SortDir } from "../../../types";
 import type { DbEmulator, EntitySeed } from "../../db/contracts";
+import { findAirportsWithLocationByIds } from "../airports/utils";
 import type { FlightsService, FlightsSummary } from "./contracts";
 import { toDbFilters, toFlightQueryParams, toFlightSummaryQueryParams } from "./utils";
 
@@ -102,6 +103,20 @@ export function createFlightsService(db: DbEmulator): FlightsService {
     async findById(flightId) {
       const flight = db.findOne<Flight>("flights", [{ field: "id", op: "eq", value: flightId }]);
       return flight ? enrich(flight) : undefined;
+    },
+
+    async findDetailById(flightId) {
+      const flight = db.findOne<Flight>("flights", [{ field: "id", op: "eq", value: flightId }]);
+      if (!flight) return undefined;
+      const enriched = enrich(flight);
+      const airports = findAirportsWithLocationByIds(db, [
+        flight.fromAirportId,
+        flight.toAirportId,
+      ]);
+      const fromAirport = airports.find((a) => a.id === flight.fromAirportId);
+      const toAirport = airports.find((a) => a.id === flight.toAirportId);
+      if (!fromAirport || !toAirport) return undefined;
+      return { ...enriched, fromAirport, toAirport };
     },
   };
 }

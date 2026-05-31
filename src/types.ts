@@ -51,6 +51,11 @@ export type FlightStats = {
 
 export type FlightWithStats = Flight & FlightStats;
 
+export type FlightWithRoute = FlightWithStats & {
+  fromAirport: AirportWithLocation;
+  toAirport: AirportWithLocation;
+};
+
 export type Passenger = {
   id: string;
   name: string;

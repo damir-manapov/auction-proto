@@ -53,4 +53,16 @@ describe("backend flights service", () => {
 
     await expect(client.flights.findById("HY 999")).resolves.toBeUndefined();
   });
+
+  it("loads flight detail with route airports in a single call", async () => {
+    const client = createServiceClient();
+
+    const detail = await client.flights.findDetailById("HY 602");
+    expect(detail?.fromAirport.id).toBe("TAS");
+    expect(detail?.toAirport.id).toBe(detail?.toAirportId);
+    expect(detail?.fromAirport.city.timezone.length).toBeGreaterThan(0);
+    expect(detail?.fromAirport.country.id.length).toBeGreaterThan(0);
+
+    await expect(client.flights.findDetailById("HY 999")).resolves.toBeUndefined();
+  });
 });

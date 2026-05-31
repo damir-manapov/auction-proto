@@ -6,26 +6,23 @@ import { CH_ICONS, HAUL_LABELS, STATE_META, TIER_META, colorToken, weighted } fr
 import { computeBidDistribution, BC_DIST_COLORS, EXIT_DIST_COLORS } from "./format/bidDistribution";
 import { BarChart, MetricCard, Pill, SeatMap, SectionLabel } from "./primitives";
 import { TXT } from "./i18n";
-import { useFlightById } from "./queries/useFlightById";
+import { useFlightDetail } from "./queries/useFlightDetail";
 import { useFlightBids } from "./queries/useFlightBids";
-import { useAirportsWithLocationByIds } from "./queries/useAirportsWithLocationByIds";
 import { queryKeys } from "./queries/keys";
 import { backendClient } from "./backend/client";
 import { formatFlightArr, formatFlightDep, formatFlightDuration } from "./format/flightTime";
 
 export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onBack: () => void }) {
   const queryClient = useQueryClient();
-  const { data: flight, isLoading, isError } = useFlightById(flightId);
+  const { data: flight, isLoading, isError } = useFlightDetail(flightId);
   const {
     data: bids = [],
     isLoading: isBidsLoading,
     isError: isBidsError,
   } = useFlightBids(flightId, "businessClass");
   const { data: exitBids = [] } = useFlightBids(flightId, "exitRows");
-  const airportIds = flight ? [flight.fromAirportId, flight.toAirportId] : [];
-  const { data: airports = [] } = useAirportsWithLocationByIds(airportIds);
-  const fromAirport = airports.find((a) => a.id === flight?.fromAirportId);
-  const toAirport = airports.find((a) => a.id === flight?.toAirportId);
+  const fromAirport = flight?.fromAirport;
+  const toAirport = flight?.toAirport;
   const fromTz = fromAirport?.city.timezone ?? "UTC";
   const toTz = toAirport?.city.timezone ?? "UTC";
   const [filter, setFilter] = useState<FlightDetailFilter>("all");

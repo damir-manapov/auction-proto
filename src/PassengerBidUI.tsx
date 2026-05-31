@@ -11,20 +11,16 @@ import {
   PASSENGER_MULTIPLIER,
   PASSENGER_PRODUCT_SPECS,
 } from "./passengerConfig";
-import { useAirportsWithLocationByIds } from "./queries/useAirportsWithLocationByIds";
 import { useCurrentPassenger } from "./queries/useCurrentPassenger";
-import { useFlightById } from "./queries/useFlightById";
+import { useFlightDetail } from "./queries/useFlightDetail";
 import { formatFlightDep, formatFlightDuration } from "./format/flightTime";
 import type { ProductActiveMap, ProductBidMap, ProductConfig, ProductKey } from "./types";
 
 export function PassengerBidUI() {
   const { data: passenger } = useCurrentPassenger();
-  const { data: flight } = useFlightById(PASSENGER_FLIGHT_ID);
-  const airportIds = flight ? [flight.fromAirportId, flight.toAirportId] : [];
-  const airportsQuery = useAirportsWithLocationByIds(airportIds);
-  const airports = airportsQuery.data ?? [];
-  const fromAirport = airports.find((a) => a.id === flight?.fromAirportId);
-  const toAirport = airports.find((a) => a.id === flight?.toAirportId);
+  const { data: flight } = useFlightDetail(PASSENGER_FLIGHT_ID);
+  const fromAirport = flight?.fromAirport;
+  const toAirport = flight?.toAirport;
   const fromCityName = fromAirport?.city.name[CURRENT_LOCALE] ?? "";
   const toCityName = toAirport?.city.name[CURRENT_LOCALE] ?? "";
   const departureLabel = flight
