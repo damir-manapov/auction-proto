@@ -39,4 +39,27 @@ describe("backend bids service", () => {
     const bids = await client.bids.list("HY 233", "businessClass");
     expect(bids.every((bid) => bid.state === "pending")).toBe(true);
   });
+
+  it("scopes list by product", async () => {
+    const client = createServiceClient();
+
+    const bcBids = await client.bids.list("HY 602", "businessClass");
+    const exitBids = await client.bids.list("HY 602", "exitRows");
+
+    expect(bcBids).toHaveLength(10);
+    expect(exitBids).toHaveLength(14);
+    expect(bcBids.every((b) => b.product === "businessClass")).toBe(true);
+    expect(exitBids.every((b) => b.product === "exitRows")).toBe(true);
+  });
+
+  it("auto-select only considers business-class bids", async () => {
+    const client = createServiceClient();
+
+    const winners = await client.bids.autoSelect("HY 602");
+
+    // Top exit-row bid on HY 602 has id 11 ($82) — must NOT be picked.
+    expect(winners).toEqual([1, 4]);
+    const exitBids = await client.bids.list("HY 602", "exitRows");
+    expect(exitBids.every((bid) => bid.state === "pending")).toBe(true);
+  });
 });
