@@ -16,8 +16,10 @@ import { BarChart, MetricCard, Pill, SeatMap, SectionLabel } from "./primitives"
 import { TXT } from "./i18n";
 import { useFlightById } from "./queries/useFlightById";
 import { useFlightBids } from "./queries/useFlightBids";
+import { useAirportsWithLocationByIds } from "./queries/useAirportsWithLocationByIds";
 import { queryKeys } from "./queries/keys";
 import { backendClient } from "./backend/client";
+import { formatFlightArr, formatFlightDep, formatFlightDuration } from "./format/flightTime";
 
 export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onBack: () => void }) {
   const queryClient = useQueryClient();
@@ -27,6 +29,12 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
     isLoading: isBidsLoading,
     isError: isBidsError,
   } = useFlightBids(flightId);
+  const airportIds = flight ? [flight.fromAirportId, flight.toAirportId] : [];
+  const { data: airports = [] } = useAirportsWithLocationByIds(airportIds);
+  const fromAirport = airports.find((a) => a.id === flight?.fromAirportId);
+  const toAirport = airports.find((a) => a.id === flight?.toAirportId);
+  const fromTz = fromAirport?.city.timezone ?? "UTC";
+  const toTz = toAirport?.city.timezone ?? "UTC";
   const [filter, setFilter] = useState<FlightDetailFilter>("all");
   const [autoRan, setAutoRan] = useState(false);
   const [sortCol, setSortCol] = useState<FlightDetailSortCol>("weighted");
@@ -293,7 +301,8 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
         </div>
       </div>
       <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 18 }}>
-        {flight.dep} — {flight.arr} · {flight.aircraft} · {flight.duration} ·{" "}
+        {formatFlightDep(flight.depAt, fromTz)} — {formatFlightArr(flight.arrAt, toTz)} ·{" "}
+        {flight.aircraft} · {formatFlightDuration(flight.depAt, flight.arrAt)} ·{" "}
         {HAUL_LABELS[flight.haul]}
       </div>
       <div

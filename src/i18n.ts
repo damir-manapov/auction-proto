@@ -1,5 +1,23 @@
 export const I18N = {
   ru: {
+    flightTime: {
+      monthsAbbr: [
+        "янв",
+        "фев",
+        "мар",
+        "апр",
+        "май",
+        "июн",
+        "июл",
+        "авг",
+        "сен",
+        "окт",
+        "ноя",
+        "дек",
+      ],
+      durationHourSuffix: "ч",
+      durationMinuteSuffix: "м",
+    },
     admin: {
       title: "Auction Admin",
       activeFlightsSuffix: "активных",

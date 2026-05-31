@@ -1,9 +1,11 @@
 import { useSearchParams } from "react-router-dom";
 import { STATUS_META, colorToken } from "./data";
 import { useFlightsQuery } from "./queries/useFlightsQuery";
+import { useAirportsWithLocationByIds } from "./queries/useAirportsWithLocationByIds";
 import { MetricCard, Pill } from "./primitives";
 import { F, T } from "./theme";
 import { TXT } from "./i18n";
+import { formatFlightDep, formatFlightDuration } from "./format/flightTime";
 import type { Flight, FlightListFilter, FlightListSortCol, SortDir } from "./types";
 
 type FlightListProps = {
@@ -27,12 +29,12 @@ export function FlightList({ onSelect }: FlightListProps) {
       ? rawStatus
       : "all";
   const sortCol: FlightListSortCol =
-    rawSortCol === "dep" ||
+    rawSortCol === "depAt" ||
     rawSortCol === "bids" ||
     rawSortCol === "revenue" ||
     rawSortCol === "topBid"
       ? rawSortCol
-      : "dep";
+      : "depAt";
   const sortDir: SortDir = rawSortDir === "desc" ? "desc" : "asc";
   const page = Math.max(1, Number(rawPage ?? "1") || 1);
   const pageSize = 6;
@@ -60,6 +62,12 @@ export function FlightList({ onSelect }: FlightListProps) {
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
+  const flightAirportIds = Array.from(
+    new Set(flights.flatMap((f) => [f.fromAirportId, f.toAirportId])),
+  );
+  const { data: flightAirports = [] } = useAirportsWithLocationByIds(flightAirportIds);
+  const airportTzById = new Map(flightAirports.map((a) => [a.id, a.city.timezone]));
+
   const statusFilters: Array<[FlightListFilter, string]> = [
     ["all", TXT.flightList.statusFilters.all],
     ["active", TXT.flightList.statusFilters.active],
@@ -67,7 +75,7 @@ export function FlightList({ onSelect }: FlightListProps) {
     ["sold", TXT.flightList.statusFilters.sold],
   ];
   const headerCols: Array<[FlightListSortCol | null, string, string]> = [
-    ["dep", TXT.flightList.headers.depRoute, "24%"],
+    ["depAt", TXT.flightList.headers.depRoute, "24%"],
     [null, TXT.flightList.headers.dep, "13%"],
     [null, TXT.flightList.headers.aircraft, "8%"],
     ["bids", TXT.flightList.headers.bids, "9%"],
@@ -272,7 +280,9 @@ export function FlightList({ onSelect }: FlightListProps) {
                         <span style={{ color: T.textSecondary, fontWeight: 600 }}>
                           {f.toAirportId}
                         </span>
-                        <span style={{ marginLeft: 6 }}>{f.duration}</span>
+                        <span style={{ marginLeft: 6 }}>
+                          {formatFlightDuration(f.depAt, f.arrAt)}
+                        </span>
                       </div>
                     </td>
                     <td
@@ -283,7 +293,7 @@ export function FlightList({ onSelect }: FlightListProps) {
                         fontFamily: F.mono,
                       }}
                     >
-                      {f.dep}
+                      {formatFlightDep(f.depAt, airportTzById.get(f.fromAirportId) ?? "UTC")}
                     </td>
                     <td style={{ padding: "11px 14px" }}>
                       <span

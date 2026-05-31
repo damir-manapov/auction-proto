@@ -16,6 +16,7 @@ export type City = {
   id: string;
   name: LocalizedString;
   countryId: Country["id"];
+  timezone: string;
 };
 
 export type Airport = {
@@ -33,9 +34,8 @@ export type Flight = {
   id: string;
   fromAirportId: Airport["id"];
   toAirportId: Airport["id"];
-  dep: string;
-  arr: string;
-  duration: string;
+  depAt: string;
+  arrAt: string;
   aircraft: string;
   bcFree: number;
   bcTotal: number;
@@ -99,7 +99,7 @@ export const MAIN_TAB = {
 export type MainTab = (typeof MAIN_TAB)[keyof typeof MAIN_TAB];
 
 export type FlightListFilter = "all" | FlightStatus;
-export type FlightListSortCol = "dep" | "bids" | "revenue" | "topBid";
+export type FlightListSortCol = "depAt" | "bids" | "revenue" | "topBid";
 export type SortDir = "asc" | "desc";
 
 export type FlightDetailFilter = "all" | BidState;
