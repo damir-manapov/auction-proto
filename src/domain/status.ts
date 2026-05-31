@@ -1,19 +1,8 @@
 import type { FlightStatus } from "../types";
 import type { ColorTokenId } from "./color";
 
-export const STATUS_META: Record<
-  FlightStatus,
-  { label: string; colorId: ColorTokenId; bgId: ColorTokenId }
-> = {
-  active: {
-    label: "Активен",
-    colorId: "statusSuccessFg",
-    bgId: "statusSuccessBg",
-  },
-  sold: { label: "Нет мест", colorId: "statusDangerFg", bgId: "statusDangerBg" },
-  upcoming: {
-    label: "Скоро",
-    colorId: "statusWarningFg",
-    bgId: "statusWarningBg",
-  },
+export const STATUS_META: Record<FlightStatus, { colorId: ColorTokenId; bgId: ColorTokenId }> = {
+  active: { colorId: "statusSuccessFg", bgId: "statusSuccessBg" },
+  sold: { colorId: "statusDangerFg", bgId: "statusDangerBg" },
+  upcoming: { colorId: "statusWarningFg", bgId: "statusWarningBg" },
 };

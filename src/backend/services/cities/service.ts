@@ -1,4 +1,4 @@
-import { CITIES_DATA } from "../../../data";
+import { CITIES_DATA } from "../../../data/cities";
 import type { City } from "../../../types";
 import type { DbEmulator, EntitySeed } from "../../db/contracts";
 import type { CitiesService } from "./contracts";

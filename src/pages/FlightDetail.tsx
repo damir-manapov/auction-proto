@@ -4,7 +4,6 @@ import type { Bid, Flight, FlightDetailFilter, FlightDetailSortCol, SortDir } fr
 import { F, T } from "../theme";
 import { TIER_META } from "../domain/tier";
 import { STATE_META } from "../domain/state";
-import { HAUL_LABELS } from "../domain/haul";
 import { CH_ICONS } from "../domain/channel";
 import { colorToken } from "../domain/color";
 import { weighted } from "../domain/weighted";
@@ -304,7 +303,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
       <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 18 }}>
         {formatFlightDep(flight.depAt, fromTz)} — {formatFlightArr(flight.arrAt, toTz)} ·{" "}
         {flight.aircraft} · {formatFlightDuration(flight.depAt, flight.arrAt)} ·{" "}
-        {HAUL_LABELS[flight.haul]}
+        {TXT.haulLabels[flight.haul]}
       </div>
       <div
         style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 18 }}
@@ -527,10 +526,10 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                       }}
                     >
                       <Pill color={colorToken(tm.colorId)} bg={colorToken(tm.bgId)} size={10}>
-                        {tm.label}
+                        {b.passenger.tier}
                       </Pill>
                       <div style={{ fontSize: 10, color: T.textMuted, marginTop: 2 }}>
-                        {tm.mult}
+                        {TXT.tierMultLabels[b.passenger.tier]}
                       </div>
                     </td>
                     <td
@@ -582,7 +581,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
                       }}
                     >
                       <Pill color={colorToken(sm.colorId)} bg={colorToken(sm.bgId)} size={10}>
-                        {sm.label}
+                        {TXT.bidStateLabels[b.state]}
                       </Pill>
                     </td>
                     <td

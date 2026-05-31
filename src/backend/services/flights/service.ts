@@ -1,4 +1,4 @@
-import { FLIGHTS_DATA } from "../../../data";
+import { FLIGHTS_DATA } from "../../../data/flights";
 import type { Bid, Flight, FlightListSortCol, FlightWithStats, SortDir } from "../../../types";
 import type { DbEmulator, EntitySeed } from "../../db/contracts";
 import { findAirportsWithLocationByIds } from "../airports/utils";

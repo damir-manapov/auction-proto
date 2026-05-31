@@ -1,4 +1,4 @@
-import { COUNTRIES_DATA } from "../../../data";
+import { COUNTRIES_DATA } from "../../../data/countries";
 import type { Country } from "../../../types";
 import type { DbEmulator, EntitySeed } from "../../db/contracts";
 import type { CountriesService } from "./contracts";

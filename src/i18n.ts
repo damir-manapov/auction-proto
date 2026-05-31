@@ -57,6 +57,29 @@ export const I18N = {
       bid: "Заявка",
       free: "Свободно",
     },
+    tierMultLabels: {
+      Platinum: "+10%",
+      Gold: "+5%",
+      Silver: "+3%",
+      Standard: "—",
+    },
+    bidStateLabels: {
+      pending: "Ожидает",
+      approved: "Принята",
+      rejected: "Отклонена",
+    },
+    flightStatusLabels: {
+      active: "Активен",
+      sold: "Нет мест",
+      upcoming: "Скоро",
+    },
+    haulLabels: {
+      "ultra-short": "Ультракороткий (<1.5ч)",
+      short: "Короткий (1.5–3ч)",
+      medium: "Средний (3–5ч)",
+      long: "Длинный (5–8ч)",
+      ultra: "Ультрадальний (8ч+)",
+    },
     flightList: {
       states: {
         loading: "Загрузка списка рейсов...",

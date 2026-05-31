@@ -1,4 +1,4 @@
-import { PASSENGERS_DATA } from "../../../data";
+import { PASSENGERS_DATA } from "../../../data/passengers";
 import type { Passenger } from "../../../types";
 import type { DbEmulator, EntitySeed } from "../../db/contracts";
 import type { PassengersService } from "./contracts";

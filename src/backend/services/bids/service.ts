@@ -1,4 +1,4 @@
-import { SEED_BIDS } from "../../../data";
+import { SEED_BIDS } from "../../../data/bids";
 import { weighted } from "../../../domain/weighted";
 import type { Bid, BidState, BidWithPassenger, Flight, Passenger } from "../../../types";
 import type { DbEmulator, EntitySeed } from "../../db/contracts";

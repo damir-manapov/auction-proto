@@ -341,7 +341,7 @@ export function FlightList({ onSelect }: FlightListProps) {
                     </td>
                     <td style={{ padding: "11px 14px" }}>
                       <Pill color={colorToken(sm.colorId)} bg={colorToken(sm.bgId)}>
-                        {sm.label}
+                        {TXT.flightStatusLabels[f.status]}
                       </Pill>
                     </td>
                     <td style={{ padding: "11px 14px" }}>
