@@ -355,7 +355,7 @@ export function FlightList({ onSelect }: FlightListProps) {
                         {flightStatusesById[f.status]?.name[CURRENT_LOCALE] ?? f.status}
                       </Pill>
                     </td>
-                    <td style={{ padding: "11px 14px" }}>
+                    <td style={{ padding: "11px 20px 11px 14px" }}>
                       <button
                         type="button"
                         onClick={() => onSelect(f.id)}
