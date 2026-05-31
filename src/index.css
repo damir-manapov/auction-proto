@@ -122,9 +122,11 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background: #f4f7fb;
   }
   html {
     @apply font-sans;
+    background: #f4f7fb;
   }
 }
