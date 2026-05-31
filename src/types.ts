@@ -53,6 +53,7 @@ export type FlightWithStats = Flight & FlightStats;
 
 export type Bid = {
   id: number;
+  flightId: Flight["id"];
   name: string;
   tier: Tier;
   bid: number;

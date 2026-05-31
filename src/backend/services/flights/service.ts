@@ -1,7 +1,6 @@
 import { FLIGHTS_DATA } from "../../../data";
-import type { Flight, FlightListSortCol, FlightWithStats, SortDir } from "../../../types";
+import type { Bid, Flight, FlightListSortCol, FlightWithStats, SortDir } from "../../../types";
 import type { DbEmulator, EntitySeed } from "../../db/contracts";
-import type { BidRow } from "../bids/utils";
 import type { FlightsService, FlightsSummary } from "./contracts";
 import { toDbFilters, toFlightQueryParams, toFlightSummaryQueryParams } from "./utils";
 
@@ -10,7 +9,7 @@ export const flightsSeed: EntitySeed = {
 };
 
 function computeStats(db: DbEmulator, flight: Flight) {
-  const bids = db.queryAll<BidRow>("bids", {
+  const bids = db.queryAll<Bid>("bids", {
     filters: [{ field: "flightId", op: "eq", value: flight.id }],
   });
   const topBid = bids.reduce((max, row) => (row.bid > max ? row.bid : max), 0);

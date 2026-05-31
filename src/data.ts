@@ -220,12 +220,10 @@ export const FLIGHTS_DATA: Flight[] = [
   },
 ];
 
-export type SeedBid = Bid & { flightId: Flight["id"] };
-
 // Hand-authored seed. HY 602 keeps the curated 10 bids that drive the detail UI and
 // auto-select tests (top weighted: id 1 = 682, id 4 = 580). Other flights get a small
 // realistic spread so list-view aggregates aren't all zero.
-export const SEED_BIDS: SeedBid[] = [
+export const SEED_BIDS: Bid[] = [
   // HY 602 (bcFree 2 — auto-select picks ids 1 and 4)
   {
     flightId: "HY 602",
