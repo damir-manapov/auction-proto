@@ -11,7 +11,7 @@ describe("backend flights service", () => {
     expect(allFlights).toHaveLength(8);
     expect(summary).toEqual({
       active: 5,
-      bids: 146,
+      bids: 35,
       revenue: 23840,
       freeSeats: 47,
     });
@@ -35,7 +35,7 @@ describe("backend flights service", () => {
     expect(page.items.map((flight) => flight.id)).toEqual(["HY 814", "HY 409"]);
     expect(page.summary).toEqual({
       active: 5,
-      bids: 96,
+      bids: 26,
       revenue: 10140,
       freeSeats: 23,
     });

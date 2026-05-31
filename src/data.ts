@@ -220,8 +220,15 @@ export const FLIGHTS_DATA: Flight[] = [
   },
 ];
 
-export const INITIAL_BIDS: Bid[] = [
+export type SeedBid = Bid & { flightId: Flight["id"] };
+
+// Hand-authored seed. HY 602 keeps the curated 10 bids that drive the detail UI and
+// auto-select tests (top weighted: id 1 = 682, id 4 = 580). Other flights get a small
+// realistic spread so list-view aggregates aren't all zero.
+export const SEED_BIDS: SeedBid[] = [
+  // HY 602 (bcFree 2 — auto-select picks ids 1 and 4)
   {
+    flightId: "HY 602",
     id: 1,
     name: "Иванов А.П.",
     tier: "Platinum",
@@ -232,6 +239,7 @@ export const INITIAL_BIDS: Bid[] = [
     state: "pending",
   },
   {
+    flightId: "HY 602",
     id: 2,
     name: "Ли Вэй",
     tier: "Gold",
@@ -242,6 +250,7 @@ export const INITIAL_BIDS: Bid[] = [
     state: "pending",
   },
   {
+    flightId: "HY 602",
     id: 3,
     name: "Петрова М.С.",
     tier: "Silver",
@@ -252,6 +261,7 @@ export const INITIAL_BIDS: Bid[] = [
     state: "pending",
   },
   {
+    flightId: "HY 602",
     id: 4,
     name: "Smith J.",
     tier: "Standard",
@@ -262,6 +272,7 @@ export const INITIAL_BIDS: Bid[] = [
     state: "pending",
   },
   {
+    flightId: "HY 602",
     id: 5,
     name: "Karimov B.",
     tier: "Platinum",
@@ -272,6 +283,7 @@ export const INITIAL_BIDS: Bid[] = [
     state: "pending",
   },
   {
+    flightId: "HY 602",
     id: 6,
     name: "Ahmadov F.",
     tier: "Standard",
@@ -282,6 +294,7 @@ export const INITIAL_BIDS: Bid[] = [
     state: "pending",
   },
   {
+    flightId: "HY 602",
     id: 7,
     name: "Brown T.",
     tier: "Gold",
@@ -292,6 +305,7 @@ export const INITIAL_BIDS: Bid[] = [
     state: "pending",
   },
   {
+    flightId: "HY 602",
     id: 8,
     name: "Назаров О.",
     tier: "Standard",
@@ -302,6 +316,7 @@ export const INITIAL_BIDS: Bid[] = [
     state: "pending",
   },
   {
+    flightId: "HY 602",
     id: 9,
     name: "Юсупова Д.",
     tier: "Silver",
@@ -312,6 +327,7 @@ export const INITIAL_BIDS: Bid[] = [
     state: "pending",
   },
   {
+    flightId: "HY 602",
     id: 10,
     name: "Kim S.",
     tier: "Gold",
@@ -321,83 +337,296 @@ export const INITIAL_BIDS: Bid[] = [
     time: "12:00",
     state: "pending",
   },
-];
 
-type SeedBidRow = Bid & { flightId: Flight["id"] };
-
-const FLIGHT_BID_TARGETS: Array<{ flightId: Flight["id"]; count: number; topBid: number }> = [
-  { flightId: "HY 602", count: 28, topBid: 620 },
-  { flightId: "HY 814", count: 11, topBid: 480 },
-  { flightId: "HY 233", count: 43, topBid: 390 },
-  { flightId: "HY 177", count: 5, topBid: 550 },
-  { flightId: "HY 409", count: 19, topBid: 510 },
-  { flightId: "HY 551", count: 31, topBid: 540 },
-  { flightId: "HY 088", count: 2, topBid: 600 },
-  { flightId: "HY 312", count: 7, topBid: 95 },
-];
-
-function makePaddingBid(
-  flightId: Flight["id"],
-  id: number,
-  bid: number,
-  index: number,
-): SeedBidRow {
-  const tiers: Tier[] = ["Standard", "Silver", "Gold", "Standard"];
-  const channels: Channel[] = ["Email", "App", "MMB", "Web"];
-  const tier = tiers[index % tiers.length] ?? "Standard";
-  const channel = channels[index % channels.length] ?? "Email";
-  return {
-    id,
-    name: `Bidder ${id}`,
-    tier,
-    bid,
+  // HY 814
+  {
+    flightId: "HY 814",
+    id: 1,
+    name: "Tan W.",
+    tier: "Gold",
+    bid: 480,
+    mult: 1.05,
+    channel: "App",
+    time: "09:20",
+    state: "pending",
+  },
+  {
+    flightId: "HY 814",
+    id: 2,
+    name: "Орлов И.",
+    tier: "Standard",
+    bid: 410,
     mult: 1.0,
-    channel,
+    channel: "Web",
+    time: "10:05",
+    state: "pending",
+  },
+  {
+    flightId: "HY 814",
+    id: 3,
+    name: "Patel R.",
+    tier: "Silver",
+    bid: 360,
+    mult: 1.03,
+    channel: "Email",
+    time: "11:40",
+    state: "pending",
+  },
+  {
+    flightId: "HY 814",
+    id: 4,
+    name: "Khan A.",
+    tier: "Standard",
+    bid: 300,
+    mult: 1.0,
+    channel: "MMB",
+    time: "13:12",
+    state: "pending",
+  },
+
+  // HY 233 (sold)
+  {
+    flightId: "HY 233",
+    id: 1,
+    name: "Соколов В.",
+    tier: "Platinum",
+    bid: 390,
+    mult: 1.1,
+    channel: "Email",
+    time: "07:45",
+    state: "pending",
+  },
+  {
+    flightId: "HY 233",
+    id: 2,
+    name: "Юлдашев Б.",
+    tier: "Gold",
+    bid: 350,
+    mult: 1.05,
+    channel: "App",
+    time: "08:10",
+    state: "pending",
+  },
+  {
+    flightId: "HY 233",
+    id: 3,
+    name: "Ким Д.",
+    tier: "Standard",
+    bid: 280,
+    mult: 1.0,
+    channel: "Web",
+    time: "09:30",
+    state: "pending",
+  },
+  {
+    flightId: "HY 233",
+    id: 4,
+    name: "Морозова Е.",
+    tier: "Silver",
+    bid: 260,
+    mult: 1.03,
+    channel: "Email",
+    time: "10:15",
+    state: "pending",
+  },
+
+  // HY 177
+  {
+    flightId: "HY 177",
+    id: 1,
+    name: "Müller K.",
+    tier: "Gold",
+    bid: 550,
+    mult: 1.05,
+    channel: "App",
+    time: "06:20",
+    state: "pending",
+  },
+  {
+    flightId: "HY 177",
+    id: 2,
+    name: "Schmidt L.",
+    tier: "Standard",
+    bid: 480,
+    mult: 1.0,
+    channel: "Web",
+    time: "07:50",
+    state: "pending",
+  },
+  {
+    flightId: "HY 177",
+    id: 3,
+    name: "Усманов Р.",
+    tier: "Silver",
+    bid: 420,
+    mult: 1.03,
+    channel: "Email",
     time: "09:00",
     state: "pending",
-    flightId,
-  };
-}
+  },
 
-function buildShowcaseBids(flightId: Flight["id"], count: number): SeedBidRow[] {
-  // HY 602 keeps the curated INITIAL_BIDS pool so detail UI / autoSelect stays meaningful.
-  const showcase = INITIAL_BIDS.map((bid) => ({ ...bid, flightId }));
-  const remaining = count - showcase.length;
-  // Padding bids must stay below INITIAL_BIDS' top weighted (id 4 = 580) so they don't disturb autoSelect.
-  const padding: SeedBidRow[] = [];
-  for (let i = 0; i < remaining; i++) {
-    padding.push(makePaddingBid(flightId, showcase.length + i + 1, 200, i));
-  }
-  return [...showcase, ...padding];
-}
+  // HY 409
+  {
+    flightId: "HY 409",
+    id: 1,
+    name: "Wang J.",
+    tier: "Platinum",
+    bid: 510,
+    mult: 1.1,
+    channel: "App",
+    time: "08:00",
+    state: "pending",
+  },
+  {
+    flightId: "HY 409",
+    id: 2,
+    name: "Liu Y.",
+    tier: "Gold",
+    bid: 460,
+    mult: 1.05,
+    channel: "Email",
+    time: "08:35",
+    state: "pending",
+  },
+  {
+    flightId: "HY 409",
+    id: 3,
+    name: "Zhang H.",
+    tier: "Standard",
+    bid: 380,
+    mult: 1.0,
+    channel: "MMB",
+    time: "09:15",
+    state: "pending",
+  },
+  {
+    flightId: "HY 409",
+    id: 4,
+    name: "Chen X.",
+    tier: "Silver",
+    bid: 340,
+    mult: 1.03,
+    channel: "Web",
+    time: "10:00",
+    state: "pending",
+  },
 
-function buildSyntheticBids(flightId: Flight["id"], count: number, topBid: number): SeedBidRow[] {
-  if (count === 0) return [];
-  const rows: SeedBidRow[] = [
-    {
-      id: 1,
-      name: "Top bidder",
-      tier: "Gold",
-      bid: topBid,
-      mult: 1.0,
-      channel: "App",
-      time: "10:00",
-      state: "pending",
-      flightId,
-    },
-  ];
-  for (let i = 1; i < count; i++) {
-    const bid = Math.max(40, topBid - 20 - i * 5);
-    rows.push(makePaddingBid(flightId, i + 1, bid, i));
-  }
-  return rows;
-}
+  // HY 551
+  {
+    flightId: "HY 551",
+    id: 1,
+    name: "Park J.",
+    tier: "Gold",
+    bid: 540,
+    mult: 1.05,
+    channel: "App",
+    time: "11:00",
+    state: "pending",
+  },
+  {
+    flightId: "HY 551",
+    id: 2,
+    name: "Lee H.",
+    tier: "Platinum",
+    bid: 500,
+    mult: 1.1,
+    channel: "Email",
+    time: "11:30",
+    state: "pending",
+  },
+  {
+    flightId: "HY 551",
+    id: 3,
+    name: "Choi S.",
+    tier: "Standard",
+    bid: 420,
+    mult: 1.0,
+    channel: "MMB",
+    time: "12:10",
+    state: "pending",
+  },
+  {
+    flightId: "HY 551",
+    id: 4,
+    name: "Ким Н.",
+    tier: "Silver",
+    bid: 380,
+    mult: 1.03,
+    channel: "Web",
+    time: "12:45",
+    state: "pending",
+  },
+  {
+    flightId: "HY 551",
+    id: 5,
+    name: "Yoon T.",
+    tier: "Standard",
+    bid: 320,
+    mult: 1.0,
+    channel: "App",
+    time: "13:00",
+    state: "pending",
+  },
 
-export const SEED_BIDS: SeedBidRow[] = FLIGHT_BID_TARGETS.flatMap(({ flightId, count, topBid }) =>
-  flightId === "HY 602"
-    ? buildShowcaseBids(flightId, count)
-    : buildSyntheticBids(flightId, count, topBid),
-);
+  // HY 088
+  {
+    flightId: "HY 088",
+    id: 1,
+    name: "Williams P.",
+    tier: "Platinum",
+    bid: 600,
+    mult: 1.1,
+    channel: "Email",
+    time: "22:30",
+    state: "pending",
+  },
+  {
+    flightId: "HY 088",
+    id: 2,
+    name: "Davies M.",
+    tier: "Gold",
+    bid: 540,
+    mult: 1.05,
+    channel: "App",
+    time: "23:10",
+    state: "pending",
+  },
+
+  // HY 312 (ultra-short)
+  {
+    flightId: "HY 312",
+    id: 1,
+    name: "Aliev R.",
+    tier: "Gold",
+    bid: 95,
+    mult: 1.05,
+    channel: "App",
+    time: "15:30",
+    state: "pending",
+  },
+  {
+    flightId: "HY 312",
+    id: 2,
+    name: "Назарбаев А.",
+    tier: "Standard",
+    bid: 80,
+    mult: 1.0,
+    channel: "Web",
+    time: "16:00",
+    state: "pending",
+  },
+  {
+    flightId: "HY 312",
+    id: 3,
+    name: "Tolegen B.",
+    tier: "Silver",
+    bid: 70,
+    mult: 1.03,
+    channel: "Email",
+    time: "16:15",
+    state: "pending",
+  },
+];
 
 export const SEAT_MAP_BC: Array<Array<SeatCell | null>> = [
   [
