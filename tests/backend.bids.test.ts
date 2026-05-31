@@ -6,7 +6,7 @@ describe("backend bids service", () => {
     const client = createServiceClient();
 
     const bids = await client.bids.list("HY 602");
-    expect(bids).toHaveLength(10);
+    expect(bids).toHaveLength(28);
 
     const approved = await client.bids.approve("HY 602", 2);
     expect(approved?.state).toBe("approved");

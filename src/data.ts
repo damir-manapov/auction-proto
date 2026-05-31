@@ -131,9 +131,6 @@ export const FLIGHTS_DATA: Flight[] = [
     aircraft: "A321",
     bcFree: 2,
     bcTotal: 16,
-    bids: 28,
-    topBid: 620,
-    revenue: 1180,
     status: "active",
     haul: "medium",
   },
@@ -146,9 +143,6 @@ export const FLIGHTS_DATA: Flight[] = [
     aircraft: "B787",
     bcFree: 8,
     bcTotal: 24,
-    bids: 11,
-    topBid: 480,
-    revenue: 3840,
     status: "active",
     haul: "medium",
   },
@@ -161,9 +155,6 @@ export const FLIGHTS_DATA: Flight[] = [
     aircraft: "A320",
     bcFree: 0,
     bcTotal: 8,
-    bids: 43,
-    topBid: 390,
-    revenue: 0,
     status: "sold",
     haul: "short",
   },
@@ -176,9 +167,6 @@ export const FLIGHTS_DATA: Flight[] = [
     aircraft: "B767",
     bcFree: 14,
     bcTotal: 20,
-    bids: 5,
-    topBid: 550,
-    revenue: 7700,
     status: "upcoming",
     haul: "long",
   },
@@ -191,9 +179,6 @@ export const FLIGHTS_DATA: Flight[] = [
     aircraft: "A330",
     bcFree: 6,
     bcTotal: 18,
-    bids: 19,
-    topBid: 510,
-    revenue: 3060,
     status: "active",
     haul: "medium",
   },
@@ -206,9 +191,6 @@ export const FLIGHTS_DATA: Flight[] = [
     aircraft: "B787",
     bcFree: 3,
     bcTotal: 20,
-    bids: 31,
-    topBid: 540,
-    revenue: 1620,
     status: "active",
     haul: "long",
   },
@@ -221,9 +203,6 @@ export const FLIGHTS_DATA: Flight[] = [
     aircraft: "B767",
     bcFree: 10,
     bcTotal: 16,
-    bids: 2,
-    topBid: 600,
-    revenue: 6000,
     status: "upcoming",
     haul: "ultra",
   },
@@ -236,9 +215,6 @@ export const FLIGHTS_DATA: Flight[] = [
     aircraft: "A319",
     bcFree: 4,
     bcTotal: 8,
-    bids: 7,
-    topBid: 95,
-    revenue: 380,
     status: "active",
     haul: "ultra-short",
   },
@@ -346,6 +322,82 @@ export const INITIAL_BIDS: Bid[] = [
     state: "pending",
   },
 ];
+
+type SeedBidRow = Bid & { flightId: Flight["id"] };
+
+const FLIGHT_BID_TARGETS: Array<{ flightId: Flight["id"]; count: number; topBid: number }> = [
+  { flightId: "HY 602", count: 28, topBid: 620 },
+  { flightId: "HY 814", count: 11, topBid: 480 },
+  { flightId: "HY 233", count: 43, topBid: 390 },
+  { flightId: "HY 177", count: 5, topBid: 550 },
+  { flightId: "HY 409", count: 19, topBid: 510 },
+  { flightId: "HY 551", count: 31, topBid: 540 },
+  { flightId: "HY 088", count: 2, topBid: 600 },
+  { flightId: "HY 312", count: 7, topBid: 95 },
+];
+
+function makePaddingBid(
+  flightId: Flight["id"],
+  id: number,
+  bid: number,
+  index: number,
+): SeedBidRow {
+  const tiers: Tier[] = ["Standard", "Silver", "Gold", "Standard"];
+  const channels: Channel[] = ["Email", "App", "MMB", "Web"];
+  const tier = tiers[index % tiers.length] ?? "Standard";
+  const channel = channels[index % channels.length] ?? "Email";
+  return {
+    id,
+    name: `Bidder ${id}`,
+    tier,
+    bid,
+    mult: 1.0,
+    channel,
+    time: "09:00",
+    state: "pending",
+    flightId,
+  };
+}
+
+function buildShowcaseBids(flightId: Flight["id"], count: number): SeedBidRow[] {
+  // HY 602 keeps the curated INITIAL_BIDS pool so detail UI / autoSelect stays meaningful.
+  const showcase = INITIAL_BIDS.map((bid) => ({ ...bid, flightId }));
+  const remaining = count - showcase.length;
+  // Padding bids must stay below INITIAL_BIDS' top weighted (id 4 = 580) so they don't disturb autoSelect.
+  const padding: SeedBidRow[] = [];
+  for (let i = 0; i < remaining; i++) {
+    padding.push(makePaddingBid(flightId, showcase.length + i + 1, 200, i));
+  }
+  return [...showcase, ...padding];
+}
+
+function buildSyntheticBids(flightId: Flight["id"], count: number, topBid: number): SeedBidRow[] {
+  if (count === 0) return [];
+  const rows: SeedBidRow[] = [
+    {
+      id: 1,
+      name: "Top bidder",
+      tier: "Gold",
+      bid: topBid,
+      mult: 1.0,
+      channel: "App",
+      time: "10:00",
+      state: "pending",
+      flightId,
+    },
+  ];
+  for (let i = 1; i < count; i++) {
+    const bid = Math.max(40, topBid - 20 - i * 5);
+    rows.push(makePaddingBid(flightId, i + 1, bid, i));
+  }
+  return rows;
+}
+
+export const SEED_BIDS: SeedBidRow[] = FLIGHT_BID_TARGETS.flatMap(({ flightId, count, topBid }) =>
+  flightId === "HY 602"
+    ? buildShowcaseBids(flightId, count)
+    : buildSyntheticBids(flightId, count, topBid),
+);
 
 export const SEAT_MAP_BC: Array<Array<SeatCell | null>> = [
   [

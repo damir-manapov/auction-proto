@@ -39,12 +39,17 @@ export type Flight = {
   aircraft: string;
   bcFree: number;
   bcTotal: number;
-  bids: number;
-  topBid: number;
-  revenue: number;
   status: FlightStatus;
   haul: FlightHaul;
 };
+
+export type FlightStats = {
+  bids: number;
+  topBid: number;
+  revenue: number;
+};
+
+export type FlightWithStats = Flight & FlightStats;
 
 export type Bid = {
   id: number;

@@ -1,4 +1,4 @@
-import type { Flight, FlightListSortCol, SortDir } from "../../../types";
+import type { Flight, FlightListSortCol, FlightWithStats, SortDir } from "../../../types";
 
 export type FlightFilter = {
   field: keyof Flight;
@@ -23,7 +23,7 @@ export type FlightsSummary = {
 };
 
 export type FlightsPage = {
-  items: Flight[];
+  items: FlightWithStats[];
   total: number;
   page: number;
   pageSize: number;
@@ -31,8 +31,8 @@ export type FlightsPage = {
 };
 
 export type FlightsService = {
-  list: () => Promise<Flight[]>;
+  list: () => Promise<FlightWithStats[]>;
   query: (query: FlightQuery) => Promise<FlightsPage>;
   getSummary: () => Promise<FlightsSummary>;
-  findById: (flightId: Flight["id"]) => Promise<Flight | undefined>;
+  findById: (flightId: Flight["id"]) => Promise<FlightWithStats | undefined>;
 };

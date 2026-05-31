@@ -12,7 +12,7 @@ describe("backend flights service", () => {
     expect(summary).toEqual({
       active: 5,
       bids: 146,
-      revenue: 23780,
+      revenue: 23840,
       freeSeats: 47,
     });
   });
@@ -36,7 +36,7 @@ describe("backend flights service", () => {
     expect(page.summary).toEqual({
       active: 5,
       bids: 96,
-      revenue: 10080,
+      revenue: 10140,
       freeSeats: 23,
     });
   });

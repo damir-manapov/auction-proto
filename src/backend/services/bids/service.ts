@@ -1,13 +1,11 @@
-import { FLIGHTS_DATA, INITIAL_BIDS, weighted } from "../../../data";
+import { SEED_BIDS, weighted } from "../../../data";
 import type { Bid, BidState, Flight } from "../../../types";
 import type { DbEmulator, EntitySeed } from "../../db/contracts";
 import type { BidsService } from "./contracts";
 import { type BidRow, bidRowsToBids, toBidRowFilters } from "./utils";
 
 export const bidsSeed: EntitySeed = {
-  bids: FLIGHTS_DATA.flatMap((flight) =>
-    INITIAL_BIDS.map((bid) => ({ ...bid, flightId: flight.id })),
-  ),
+  bids: SEED_BIDS,
 };
 
 function selectWinningBidIds(rows: Bid[], availableSeats: number): Bid["id"][] {
