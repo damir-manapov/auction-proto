@@ -44,28 +44,13 @@ export function AdminHeader({
           marginRight: 24,
         }}
       >
-        <div
-          style={{
-            width: 26,
-            height: 17,
-            background: T.brandPrimary,
-            borderRadius: 3,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <span
-            style={{
-              fontSize: 8,
-              fontWeight: 800,
-              color: T.onBrandPrimarySoft,
-              letterSpacing: 0.5,
-            }}
-          >
-            HY
-          </span>
-        </div>
+        <img
+          src="/favicon.png"
+          alt="Uzbekistan Airways"
+          width={22}
+          height={22}
+          style={{ display: "block", borderRadius: 4 }}
+        />
         <span style={{ fontSize: 12, fontWeight: 700, color: T.textPrimary, letterSpacing: 0.5 }}>
           {TXT.admin.title}
         </span>

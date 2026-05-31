@@ -174,31 +174,38 @@ export function FlightList({ onSelect }: FlightListProps) {
           }}
         />
         <div style={{ display: "flex", gap: 5 }}>
-          {statusFilters.map(([k, l]) => (
-            <button
-              type="button"
-              key={k}
-              onClick={() => {
-                const next = new URLSearchParams(searchParams);
-                if (k === "all") next.delete("status");
-                else next.set("status", k);
-                next.set("page", "1");
-                setSearchParams(next, { replace: true });
-              }}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 20,
-                fontSize: 11,
-                fontWeight: 600,
-                cursor: "pointer",
-                border: `0.5px solid ${statusF === k ? T.brandPrimary : T.borderDefault}`,
-                background: statusF === k ? T.brandPrimaryBg : "transparent",
-                color: statusF === k ? T.brandPrimaryFg : T.textMuted,
-              }}
-            >
-              {l}
-            </button>
-          ))}
+          {statusFilters.map(([k, l]) => {
+            const isActive = statusF === k;
+            const sm = k === "all" ? undefined : flightStatusesById[k];
+            const accent = sm ? colorToken(sm.colorId) : T.brandPrimary;
+            const accentBg = sm ? colorToken(sm.bgId) : T.brandPrimaryBg;
+            return (
+              <button
+                type="button"
+                key={k}
+                onClick={() => {
+                  const next = new URLSearchParams(searchParams);
+                  if (k === "all") next.delete("status");
+                  else next.set("status", k);
+                  next.set("page", "1");
+                  setSearchParams(next, { replace: true });
+                }}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: 20,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  border: `0.5px solid ${isActive ? accent : T.borderDefault}`,
+                  background: isActive ? accentBg : "transparent",
+                  color: isActive ? accent : T.textMuted,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {l}
+              </button>
+            );
+          })}
         </div>
         <div style={{ marginLeft: "auto", fontSize: 12, color: T.textMuted }}>
           {total} {TXT.flightList.flightsSuffix}
@@ -361,6 +368,7 @@ export function FlightList({ onSelect }: FlightListProps) {
                           background: T.brandPrimaryBg,
                           border: `0.5px solid ${T.brandPrimary}`,
                           color: T.brandPrimaryFg,
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {TXT.flightList.openButton}
