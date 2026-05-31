@@ -48,14 +48,17 @@ export type BidsService = {
 
 export type AirportsService = {
   listAirports: () => Promise<Airport[]>;
+  findAirportsByIds: (ids: Airport["id"][]) => Promise<Airport[]>;
 };
 
 export type CitiesService = {
   listCities: () => Promise<City[]>;
+  findCitiesByIds: (ids: City["id"][]) => Promise<City[]>;
 };
 
 export type CountriesService = {
   listCountries: () => Promise<Country[]>;
+  findCountriesByIds: (ids: Country["id"][]) => Promise<Country[]>;
 };
 
 export type EntityTable = {

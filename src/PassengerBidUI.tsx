@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TIER_META, colorToken, getAirport, getCity } from "./data";
+import { TIER_META, colorToken } from "./data";
 import { Pill, Toggle } from "./primitives";
 import { T } from "./theme";
 import { CURRENT_LOCALE, TXT } from "./i18n";
@@ -12,11 +12,25 @@ import {
   PASSENGER_PROFILE,
   passengerRouteLabel,
 } from "./passengerBidData";
+import { useAirportsByIds } from "./queries/useAirportsByIds";
+import { useCitiesByIds } from "./queries/useCitiesByIds";
 import type { ProductActiveMap, ProductBidMap, ProductConfig, ProductKey } from "./types";
 
 export function PassengerBidUI() {
-  const fromAirport = getAirport(PASSENGER_FLIGHT.fromAirportId);
-  const toAirport = getAirport(PASSENGER_FLIGHT.toAirportId);
+  const airportIds = [PASSENGER_FLIGHT.fromAirportId, PASSENGER_FLIGHT.toAirportId];
+  const airportsQuery = useAirportsByIds(airportIds);
+  const airports = airportsQuery.data ?? [];
+  const fromAirport = airports.find((a) => a.id === PASSENGER_FLIGHT.fromAirportId);
+  const toAirport = airports.find((a) => a.id === PASSENGER_FLIGHT.toAirportId);
+  const cityIds = airports.map((a) => a.cityId);
+  const citiesQuery = useCitiesByIds(cityIds);
+  const cities = citiesQuery.data ?? [];
+  const fromCityName = fromAirport
+    ? (cities.find((c) => c.id === fromAirport.cityId)?.name[CURRENT_LOCALE] ?? "")
+    : "";
+  const toCityName = toAirport
+    ? (cities.find((c) => c.id === toAirport.cityId)?.name[CURRENT_LOCALE] ?? "")
+    : "";
   const routeLabel = passengerRouteLabel(PASSENGER_FLIGHT);
   const PRODUCTS: Record<ProductKey, ProductConfig> = {
     bc: {
@@ -283,11 +297,9 @@ export function PassengerBidUI() {
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: T.textPrimary }}>
-                {fromAirport.id}
+                {fromAirport?.id ?? ""}
               </div>
-              <div style={{ fontSize: 10, color: T.textMuted }}>
-                {getCity(fromAirport.cityId).name[CURRENT_LOCALE]}
-              </div>
+              <div style={{ fontSize: 10, color: T.textMuted }}>{fromCityName}</div>
             </div>
             <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 4 }}>
               <div style={{ flex: 1, height: 1, background: T.borderDefault }} />
@@ -296,11 +308,9 @@ export function PassengerBidUI() {
             </div>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: T.textPrimary }}>
-                {toAirport.id}
+                {toAirport?.id ?? ""}
               </div>
-              <div style={{ fontSize: 10, color: T.textMuted }}>
-                {getCity(toAirport.cityId).name[CURRENT_LOCALE]}
-              </div>
+              <div style={{ fontSize: 10, color: T.textMuted }}>{toCityName}</div>
             </div>
           </div>
           <div style={{ fontSize: 11, color: T.textMuted, marginTop: 7 }}>

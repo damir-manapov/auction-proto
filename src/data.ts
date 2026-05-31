@@ -86,34 +86,6 @@ export const AIRPORTS_DATA: Airport[] = [
   },
 ];
 
-const AIRPORTS_BY_ID = new Map(AIRPORTS_DATA.map((airport) => [airport.id, airport]));
-const CITIES_BY_ID = new Map(CITIES_DATA.map((city) => [city.id, city]));
-const COUNTRIES_BY_ID = new Map(COUNTRIES_DATA.map((country) => [country.id, country]));
-
-export function getAirport(id: Airport["id"]): Airport {
-  const airport = AIRPORTS_BY_ID.get(id);
-  if (!airport) {
-    throw new Error(`Unknown airport id: ${id}`);
-  }
-  return airport;
-}
-
-export function getCity(id: City["id"]): City {
-  const city = CITIES_BY_ID.get(id);
-  if (!city) {
-    throw new Error(`Unknown city id: ${id}`);
-  }
-  return city;
-}
-
-export function getCountry(id: Country["id"]): Country {
-  const country = COUNTRIES_BY_ID.get(id);
-  if (!country) {
-    throw new Error(`Unknown country id: ${id}`);
-  }
-  return country;
-}
-
 export const FLIGHTS_DATA: Flight[] = [
   {
     id: "HY 602",

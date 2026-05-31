@@ -3,10 +3,11 @@ import type { EmailTemplateConfig, EmailTemplateType } from "./types";
 import { F, T } from "./theme";
 import { Pill, SectionLabel } from "./primitives";
 import { CURRENT_LOCALE, TXT } from "./i18n";
-import { getAirport, getCity } from "./data";
+import { useAirportsByIds } from "./queries/useAirportsByIds";
+import { useCitiesByIds } from "./queries/useCitiesByIds";
 
-const EMAIL_FROM_AIRPORT = getAirport("TAS");
-const EMAIL_TO_AIRPORT = getAirport("IST");
+const EMAIL_FROM_AIRPORT_ID = "TAS";
+const EMAIL_TO_AIRPORT_ID = "IST";
 
 type MetaRow = [string, string];
 type MetadataRow = { key: string; label: string; value: ReactNode };
@@ -158,6 +159,20 @@ const META_ROWS_BY_TYPE: Record<EmailTemplateType, MetaRow[]> = {
 export function EmailPreview({ type }: { type: EmailTemplateType }) {
   const c = TEMPLATE_CONFIGS[type];
   const metaRows = META_ROWS_BY_TYPE[type];
+  const airportIds = [EMAIL_FROM_AIRPORT_ID, EMAIL_TO_AIRPORT_ID];
+  const airportsQuery = useAirportsByIds(airportIds);
+  const airports = airportsQuery.data ?? [];
+  const fromAirport = airports.find((a) => a.id === EMAIL_FROM_AIRPORT_ID);
+  const toAirport = airports.find((a) => a.id === EMAIL_TO_AIRPORT_ID);
+  const cityIds = airports.map((a) => a.cityId);
+  const citiesQuery = useCitiesByIds(cityIds);
+  const cities = citiesQuery.data ?? [];
+  const fromCityName = fromAirport
+    ? (cities.find((city) => city.id === fromAirport.cityId)?.name[CURRENT_LOCALE] ?? "")
+    : "";
+  const toCityName = toAirport
+    ? (cities.find((city) => city.id === toAirport.cityId)?.name[CURRENT_LOCALE] ?? "")
+    : "";
   const metadataRows: MetadataRow[] = [
     {
       key: "type",
@@ -293,11 +308,9 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
               <div style={FLIGHT_STRIP_STYLE}>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary }}>
-                    {EMAIL_FROM_AIRPORT.id}
+                    {fromAirport?.id ?? EMAIL_FROM_AIRPORT_ID}
                   </div>
-                  <div style={{ fontSize: 9, color: T.textMuted }}>
-                    {getCity(EMAIL_FROM_AIRPORT.cityId).name[CURRENT_LOCALE]}
-                  </div>
+                  <div style={{ fontSize: 9, color: T.textMuted }}>{fromCityName}</div>
                 </div>
                 <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 3 }}>
                   <div style={{ flex: 1, height: 1, background: T.borderDefault }} />
@@ -306,11 +319,9 @@ export function EmailPreview({ type }: { type: EmailTemplateType }) {
                 </div>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary }}>
-                    {EMAIL_TO_AIRPORT.id}
+                    {toAirport?.id ?? EMAIL_TO_AIRPORT_ID}
                   </div>
-                  <div style={{ fontSize: 9, color: T.textMuted }}>
-                    {getCity(EMAIL_TO_AIRPORT.cityId).name[CURRENT_LOCALE]}
-                  </div>
+                  <div style={{ fontSize: 9, color: T.textMuted }}>{toCityName}</div>
                 </div>
               </div>
               {c.urgency && (

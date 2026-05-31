@@ -13,5 +13,11 @@ export function createCountriesService(db: DbEmulator): CountriesService {
     async listCountries() {
       return db.list<Country>("countries");
     },
+    async findCountriesByIds(ids) {
+      if (ids.length === 0) return [];
+      return db.queryAll<Country>("countries", {
+        filters: [{ field: "id", op: "in", value: ids }],
+      });
+    },
   };
 }

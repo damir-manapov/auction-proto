@@ -11,4 +11,7 @@ export const queryKeys = {
   }) => ["flights-query", params] as const,
   flightById: (flightId: string) => ["flight", flightId] as const,
   flightBids: (flightId: string) => ["flight-bids", flightId] as const,
+  airportsByIds: (ids: readonly string[]) => ["airports-by-ids", [...ids].sort()] as const,
+  citiesByIds: (ids: readonly string[]) => ["cities-by-ids", [...ids].sort()] as const,
+  countriesByIds: (ids: readonly string[]) => ["countries-by-ids", [...ids].sort()] as const,
 };

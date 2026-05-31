@@ -13,5 +13,11 @@ export function createAirportsService(db: DbEmulator): AirportsService {
     async listAirports() {
       return db.list<Airport>("airports");
     },
+    async findAirportsByIds(ids) {
+      if (ids.length === 0) return [];
+      return db.queryAll<Airport>("airports", {
+        filters: [{ field: "id", op: "in", value: ids }],
+      });
+    },
   };
 }

@@ -13,5 +13,11 @@ export function createCitiesService(db: DbEmulator): CitiesService {
     async listCities() {
       return db.list<City>("cities");
     },
+    async findCitiesByIds(ids) {
+      if (ids.length === 0) return [];
+      return db.queryAll<City>("cities", {
+        filters: [{ field: "id", op: "in", value: ids }],
+      });
+    },
   };
 }
