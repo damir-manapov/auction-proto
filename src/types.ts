@@ -1,3 +1,5 @@
+import type { ColorTokenId } from "./domain/color";
+
 export type Tier = "Platinum" | "Gold" | "Silver" | "Standard";
 export type BidState = "pending" | "approved" | "rejected";
 export type FlightStatus = "active" | "sold" | "upcoming";
@@ -34,16 +36,22 @@ export type TierRow = {
   id: Tier;
   name: LocalizedString;
   multLabel: LocalizedString;
+  colorId: ColorTokenId;
+  bgId: ColorTokenId;
 };
 
 export type BidStateRow = {
   id: BidState;
   name: LocalizedString;
+  colorId: ColorTokenId;
+  bgId: ColorTokenId;
 };
 
 export type FlightStatusRow = {
   id: FlightStatus;
   name: LocalizedString;
+  colorId: ColorTokenId;
+  bgId: ColorTokenId;
 };
 
 export type FlightHaulRow = {

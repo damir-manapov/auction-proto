@@ -1,5 +1,4 @@
 import { useSearchParams } from "react-router-dom";
-import { STATUS_META } from "../domain/status";
 import { colorToken } from "../domain/color";
 import { useFlightsQuery } from "../queries/useFlightsQuery";
 import { useAirportsWithLocationByIds } from "../queries/useAirportsWithLocationByIds";
@@ -249,7 +248,7 @@ export function FlightList({ onSelect }: FlightListProps) {
             </thead>
             <tbody>
               {flights.map((f) => {
-                const sm = STATUS_META[f.status] ?? STATUS_META.upcoming;
+                const sm = FLIGHT_STATUSES_BY_ID[f.status] ?? FLIGHT_STATUSES_BY_ID.upcoming;
                 const fc =
                   f.bcFree === 0
                     ? T.statusDanger

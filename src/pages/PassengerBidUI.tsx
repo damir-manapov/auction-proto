@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TIER_META } from "../domain/tier";
+import { TIERS_BY_ID } from "../data/tiers";
 import { colorToken } from "../domain/color";
 import { Pill, Toggle } from "../primitives";
 import { T } from "../theme";
@@ -91,7 +91,7 @@ export function PassengerBidUI() {
     return `linear-gradient(to right,${p.trackColor} 0%,${p.trackColor} ${pct}%,${T.borderDefault} ${pct}%,${T.borderDefault} 100%)`;
   };
 
-  const tierMeta = passenger ? TIER_META[passenger.tier] : undefined;
+  const tierMeta = passenger ? TIERS_BY_ID[passenger.tier] : undefined;
 
   if (submitted) {
     const prods = (Object.keys(active) as ProductKey[])

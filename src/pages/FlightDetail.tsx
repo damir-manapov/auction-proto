@@ -2,8 +2,6 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Bid, Flight, FlightDetailFilter, FlightDetailSortCol, SortDir } from "../types";
 import { F, T } from "../theme";
-import { TIER_META } from "../domain/tier";
-import { STATE_META } from "../domain/state";
 import { CH_ICONS } from "../domain/channel";
 import { colorToken } from "../domain/color";
 import { weighted } from "../domain/weighted";
@@ -488,8 +486,8 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
               {sorted.map((b, i) => {
                 const w = weighted(b);
                 const isTop = b.state === "pending" && i < flight.bcFree && filter === "all";
-                const tm = TIER_META[b.passenger.tier];
-                const sm = STATE_META[b.state] ?? STATE_META.pending;
+                const tm = TIERS_BY_ID[b.passenger.tier];
+                const sm = BID_STATES_BY_ID[b.state] ?? BID_STATES_BY_ID.pending;
                 return (
                   <tr key={b.id} style={{ background: isTop ? T.overlayBrand : "transparent" }}>
                     <td

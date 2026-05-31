@@ -13,7 +13,7 @@ import type {
   TimingRow,
 } from "../types";
 import { T } from "../theme";
-import { TIER_META } from "../domain/tier";
+import { TIERS_BY_ID } from "../data/tiers";
 import { DEFAULT_RULES } from "../domain/rules";
 import { colorToken } from "../domain/color";
 import { TXT } from "../i18n";
@@ -534,7 +534,7 @@ export function GlobalRules() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
                 {loyaltyPreview.map((row) => {
-                  const tm = TIER_META[row.tier];
+                  const tm = TIERS_BY_ID[row.tier];
                   return (
                     <div
                       key={row.tier}
