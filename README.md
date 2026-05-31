@@ -8,6 +8,7 @@ It includes:
 - Global auction rules configuration
 - Email template previews (invite, reminder, confirmation)
 - Passenger-side bidding flow mockup
+- Auto-discovered Entities page (every seeded DB table is rendered)
 
 This is a front-end prototype with an in-memory mock backend service layer.
 There is no real network/API integration yet.
@@ -137,27 +138,42 @@ The codebase is flattened under `src/` for prototype speed, while keeping modula
 - Type definitions are centralized in `types.ts`
 
 ### Design Tokens
-Theme uses a palette + semantic token architecture:
-- `PALETTE` in `theme.ts` defines the concrete color values
-- `SEMANTIC` tokens layer on top for role-based naming (e.g., `bgWarning`, `textPrimary`)
-- `data.ts` uses semantic token IDs for maintainable UI-to-color mappings
+The color palette is owned by CSS custom properties on `:root` in `src/index.css`
+(single source of truth, shadcn-compatible). `src/theme.ts` is a thin TypeScript
+bridge that maps semantic names to `var(--token)` strings so inline styles can
+still reference them while the codebase migrates toward Tailwind/shadcn classes.
 
 ### Data & Mappings
 `data.ts` contains:
-- Domain data (flight statuses, tiers, distributions)
+- Domain data (flights, bids, airports dictionary, distributions)
 - UI mapping records (state metadata, color IDs, icons)
 - `colorToken()` resolver for semantic token lookup
+- `getAirport(id)` lookup helper
 
 ### Backend Layering
 - Service contracts and domain models are defined in `src/backend/contracts.ts`
-- Service implementation/orchestration is in `src/backend/serviceClient.ts`
-- Service-specific pure helpers are in `src/backend/serviceUtils.ts`
-- Generic DB emulator is in `src/backend/db/emulator.ts`
-- DB operations are declarative (`filters` + `patch`)
+- Each entity has its own service module (`flightsService.ts`, `bidsService.ts`,
+  `airportsService.ts`) that exports both a `*Seed` and a `create*Service` factory
+- `src/backend/serviceClient.ts` merges all `*Seed` objects into a single DB and
+  composes services + the generic `entities` service
+- Generic DB emulator is in `src/backend/db/emulator.ts`; metadata access
+  (`tableNames`) is split into the `DbSchema` facet
+- DB operations are declarative (`filters` + `patch`, no function arguments)
+
+### Adding a New Entity
+1. Add the type to `src/types.ts` and seed data to `src/data.ts`.
+2. Create `src/backend/<name>Service.ts` exporting `<name>Seed` and a `create<Name>Service` factory.
+3. Add the service contract to `src/backend/contracts.ts`.
+4. Spread the seed and add the service to `src/backend/serviceClient.ts`.
+5. The new table appears automatically on the `/entities` page.
 
 ### Text & Localization Prep
-- User-facing shared labels are centralized in `src/i18n.ts` under a locale dictionary (`ru`)
-- Components consume `TXT` instead of hardcoded strings where extraction is complete
+- User-facing shared labels are centralized in `src/i18n.ts` under a locale
+  dictionary (`ru`)
+- Domain dictionary entries (e.g. airport `name`/`city`/`country`) carry
+  `LocalizedString` shapes resolved via `value[CURRENT_LOCALE]`
+- Components consume `TXT` instead of hardcoded strings where extraction is
+  complete
 - Adding a new locale can be done by extending `I18N` and switching `CURRENT_LOCALE`
 
 ## AI-Assisted shadcn Workflow
