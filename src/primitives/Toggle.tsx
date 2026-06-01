@@ -1,4 +1,4 @@
-import { T } from "../theme";
+import { cn } from "../lib/utils";
 
 export function Toggle({
   checked,
@@ -12,30 +12,16 @@ export function Toggle({
       type="button"
       aria-pressed={checked}
       onClick={() => onChange(!checked)}
-      style={{
-        width: 36,
-        height: 20,
-        borderRadius: 10,
-        border: "none",
-        padding: 0,
-        cursor: "pointer",
-        flexShrink: 0,
-        background: checked ? T.brandPrimary : T.borderDefault,
-        position: "relative",
-        transition: "background .2s",
-      }}
+      className={cn(
+        "relative h-5 w-9 shrink-0 cursor-pointer rounded-full border-0 p-0 transition-colors",
+        checked ? "bg-brand-primary" : "bg-border-default",
+      )}
     >
-      <div
-        style={{
-          position: "absolute",
-          top: 3,
-          left: checked ? 17 : 3,
-          width: 14,
-          height: 14,
-          borderRadius: 7,
-          background: checked ? T.textPrimary : T.neutralText,
-          transition: "left .2s",
-        }}
+      <span
+        className={cn(
+          "absolute top-[3px] h-3.5 w-3.5 rounded-full transition-[left]",
+          checked ? "left-[17px] bg-text-primary" : "left-[3px] bg-neutral-text",
+        )}
       />
     </button>
   );

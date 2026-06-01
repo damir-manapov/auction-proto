@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { F, T } from "../theme";
 
 export function MetricCard({
   label,
@@ -13,38 +12,17 @@ export function MetricCard({
   accent?: string;
 }) {
   return (
-    <div
-      style={{
-        background: T.surfaceElevated,
-        border: `0.5px solid ${T.borderDefault}`,
-        borderRadius: 10,
-        padding: "16px 18px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: 11,
-          color: T.textMuted,
-          textTransform: "uppercase",
-          letterSpacing: 0.9,
-          marginBottom: 6,
-          fontWeight: 600,
-        }}
-      >
+    <div className="rounded-[10px] border-[0.5px] border-border-default bg-surface-elevated px-[18px] py-4">
+      <div className="mb-1.5 text-[11px] font-semibold tracking-[0.9px] text-text-muted uppercase">
         {label}
       </div>
       <div
-        style={{
-          fontSize: 22,
-          fontWeight: 700,
-          color: accent || T.textPrimary,
-          fontFamily: F.mono,
-          lineHeight: 1.1,
-        }}
+        className="font-mono text-[22px] leading-[1.1] font-bold"
+        style={{ color: accent ?? "var(--text-primary)" }}
       >
         {value}
       </div>
-      {sub && <div style={{ fontSize: 12, color: T.textMuted, marginTop: 6 }}>{sub}</div>}
+      {sub && <div className="mt-1.5 text-xs text-text-muted">{sub}</div>}
     </div>
   );
 }

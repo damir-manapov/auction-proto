@@ -1,18 +1,8 @@
 import type { ReactNode } from "react";
-import { T } from "../theme";
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <div
-      style={{
-        fontSize: 11,
-        fontWeight: 700,
-        textTransform: "uppercase",
-        letterSpacing: 1.2,
-        color: T.textMuted,
-        marginBottom: 14,
-      }}
-    >
+    <div className="mb-3.5 text-[11px] font-bold tracking-[1.2px] text-text-muted uppercase">
       {children}
     </div>
   );

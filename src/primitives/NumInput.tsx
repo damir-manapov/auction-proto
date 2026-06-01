@@ -1,5 +1,3 @@
-import { T } from "../theme";
-
 export function NumInput({
   value,
   onChange,
@@ -14,26 +12,16 @@ export function NumInput({
   unit?: string;
 }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+    <div className="flex items-center gap-1.5">
       <input
         type="number"
         value={value}
         min={min}
         max={max}
         onChange={(e) => onChange(Number(e.target.value))}
-        style={{
-          width: 72,
-          padding: "5px 8px",
-          borderRadius: 6,
-          border: `0.5px solid ${T.borderSubtle}`,
-          background: T.surfaceElevated,
-          color: T.textPrimary,
-          fontSize: 13,
-          fontFamily: "monospace",
-          outline: "none",
-        }}
+        className="w-[72px] rounded-md border-[0.5px] border-border-subtle bg-surface-elevated px-2 py-[5px] font-mono text-[13px] text-text-primary outline-none"
       />
-      {unit && <span style={{ fontSize: 11, color: T.textMuted }}>{unit}</span>}
+      {unit && <span className="text-[11px] text-text-muted">{unit}</span>}
     </div>
   );
 }

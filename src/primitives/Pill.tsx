@@ -13,18 +13,8 @@ export function Pill({
 }) {
   return (
     <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        padding: "3px 8px",
-        borderRadius: 20,
-        fontSize: size,
-        fontWeight: 600,
-        letterSpacing: 0.2,
-        color,
-        background: bg,
-        whiteSpace: "nowrap",
-      }}
+      className="inline-flex items-center rounded-full px-2 py-[3px] font-semibold tracking-wide whitespace-nowrap"
+      style={{ color, background: bg, fontSize: size }}
     >
       {children}
     </span>
