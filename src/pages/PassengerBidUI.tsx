@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useTiersById } from "../queries/useTiers";
+import { usePassengerTiersById } from "../queries/useTiers";
 import { colorToken } from "../domain/color";
 import { Pill, Toggle } from "../primitives";
 import { T } from "../theme";
@@ -7,7 +7,7 @@ import { useLocale } from "../locale";
 import { cn } from "../lib/utils";
 import { usePassengerConfig } from "../queries/usePassengerConfig";
 import { useCurrentPassenger } from "../queries/useCurrentPassenger";
-import { useFlightDetail } from "../queries/useFlightDetail";
+import { usePassengerFlightDetail } from "../queries/useFlightDetail";
 import { formatFlightDep, formatFlightDuration } from "../format/flightTime";
 import type { ProductActiveMap, ProductBidMap, ProductConfig, ProductKey } from "../types";
 
@@ -15,8 +15,8 @@ export function PassengerBidUI() {
   const { txt, locale, setLocale } = useLocale();
   const { data: passenger } = useCurrentPassenger();
   const { data: config, isLoading: configLoading } = usePassengerConfig();
-  const { data: flight } = useFlightDetail(config?.flightId);
-  const { byId: tiersById } = useTiersById();
+  const { data: flight } = usePassengerFlightDetail(config?.flightId);
+  const { byId: tiersById } = usePassengerTiersById();
 
   // Initialize state before conditionals, then hydrate from backend config.
   const [bids, setBids] = useState<ProductBidMap | null>(null);

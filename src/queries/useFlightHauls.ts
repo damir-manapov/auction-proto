@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { backendClient } from "../backend/client";
+import { adminBackend } from "../backend/client";
 import type { FlightHaulRow } from "../types";
 import { queryKeys } from "./keys";
 
 export const useFlightHauls = () =>
   useQuery({
     queryKey: queryKeys.flightHauls,
-    queryFn: () => backendClient.flightHauls.list(),
+    queryFn: () => adminBackend.flightHauls.list(),
     staleTime: Number.POSITIVE_INFINITY,
   });
 

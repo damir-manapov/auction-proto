@@ -18,7 +18,7 @@ import { useFlightHaulsById } from "../queries/useFlightHauls";
 import { useFlightDetail } from "../queries/useFlightDetail";
 import { useFlightBids } from "../queries/useFlightBids";
 import { queryKeys } from "../queries/keys";
-import { backendClient } from "../backend/client";
+import { adminBackend } from "../backend/client";
 import { formatFlightArr, formatFlightDep, formatFlightDuration } from "../format/flightTime";
 
 function BackButton({ onBack }: { onBack: () => void }) {
@@ -61,15 +61,15 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
       queryKey: queryKeys.flightBids(flightId, "businessClass"),
     });
   const approveMutation = useMutation({
-    mutationFn: (bidId: Bid["id"]) => backendClient.bids.approve(flightId, bidId),
+    mutationFn: (bidId: Bid["id"]) => adminBackend.bids.approve(flightId, bidId),
     onSuccess: refreshBids,
   });
   const rejectMutation = useMutation({
-    mutationFn: (bidId: Bid["id"]) => backendClient.bids.reject(flightId, bidId),
+    mutationFn: (bidId: Bid["id"]) => adminBackend.bids.reject(flightId, bidId),
     onSuccess: refreshBids,
   });
   const autoSelectMutation = useMutation({
-    mutationFn: () => backendClient.bids.autoSelect(flightId),
+    mutationFn: () => adminBackend.bids.autoSelect(flightId),
     onSuccess: async () => {
       await refreshBids();
       setAutoRan(true);

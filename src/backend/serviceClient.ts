@@ -1,38 +1,8 @@
-import type { BackendClient, EntitiesService } from "./contracts";
-import { createDbEmulator, type DbEmulator } from "./db/emulator";
-import { airportsSeed, airportsTitle, createAirportsService } from "./services/airports/service";
-import { bidsSeed, bidsTitle, createBidsService } from "./services/bids/service";
-import {
-  bidStatesSeed,
-  bidStatesTitle,
-  createBidStatesService,
-} from "./services/bidStates/service";
-import { citiesSeed, citiesTitle, createCitiesService } from "./services/cities/service";
-import {
-  countriesSeed,
-  countriesTitle,
-  createCountriesService,
-} from "./services/countries/service";
-import {
-  createFlightHaulsService,
-  flightHaulsSeed,
-  flightHaulsTitle,
-} from "./services/flightHauls/service";
-import {
-  createFlightStatusesService,
-  flightStatusesSeed,
-  flightStatusesTitle,
-} from "./services/flightStatuses/service";
-import { createFlightsService, flightsSeed, flightsTitle } from "./services/flights/service";
-import {
-  createPassengersService,
-  passengersSeed,
-  passengersTitle,
-} from "./services/passengers/service";
-import { createPassengerConfigService } from "./services/passengerConfig/service";
-import { createRulesService } from "./services/rules/service";
-import { createSeatMapService } from "./services/seatMap/service";
-import { createTiersService, tiersSeed, tiersTitle } from "./services/tiers/service";
+import type { LocalizedString } from "../types";
+import { createAdminClient } from "./admin/client";
+import type { AdminBackendClient } from "./admin/contracts";
+import type { BackendClient } from "./contracts";
+import { createDbEmulator } from "./db/emulator";
 import {
   composeBeforeCall,
   createJitterSleeper,
@@ -40,24 +10,29 @@ import {
   getMockLatencyRange,
   withLatency,
 } from "./latency";
-import type { LocalizedString } from "../types";
+import { createPassengerClient } from "./passenger/client";
+import type { PassengerBackendClient } from "./passenger/contracts";
+import { airportsSeed, airportsTitle } from "./services/airports/service";
+import { bidsSeed, bidsTitle } from "./services/bids/service";
+import { bidStatesSeed, bidStatesTitle } from "./services/bidStates/service";
+import { citiesSeed, citiesTitle } from "./services/cities/service";
+import { countriesSeed, countriesTitle } from "./services/countries/service";
+import { flightHaulsSeed, flightHaulsTitle } from "./services/flightHauls/service";
+import { flightStatusesSeed, flightStatusesTitle } from "./services/flightStatuses/service";
+import { flightsSeed, flightsTitle } from "./services/flights/service";
+import { passengersSeed, passengersTitle } from "./services/passengers/service";
+import { tiersSeed, tiersTitle } from "./services/tiers/service";
 
-function createEntitiesService(
-  db: DbEmulator,
-  titles: Record<string, LocalizedString>,
-): EntitiesService {
-  return {
-    async listAll() {
-      return db.tableNames().map((name) => ({
-        name,
-        title: titles[name] ?? { en: name, ru: name },
-        rows: db.list(name),
-      }));
-    },
-  };
+function createBeforeCall() {
+  const sleep = createJitterSleeper(getMockLatencyRange);
+  const maybeFail = createMockFailureInjector();
+  return composeBeforeCall(async () => sleep(), maybeFail);
 }
 
-export const createServiceClient = (): BackendClient => {
+function buildBaseClients(): {
+  admin: AdminBackendClient;
+  passenger: PassengerBackendClient;
+} {
   const db = createDbEmulator({
     ...flightsSeed,
     ...bidsSeed,
@@ -84,25 +59,34 @@ export const createServiceClient = (): BackendClient => {
     flightHauls: flightHaulsTitle,
   };
 
-  const baseClient: BackendClient = {
-    flights: createFlightsService(db),
-    bids: createBidsService(db),
-    airports: createAirportsService(db),
-    cities: createCitiesService(db),
-    countries: createCountriesService(db),
-    passengers: createPassengersService(db),
-    tiers: createTiersService(db),
-    rules: createRulesService(),
-    passengerConfig: createPassengerConfigService(),
-    seatMap: createSeatMapService(),
-    bidStates: createBidStatesService(db),
-    flightStatuses: createFlightStatusesService(db),
-    flightHauls: createFlightHaulsService(db),
-    entities: createEntitiesService(db, entityTitles),
-  };
+  const admin = createAdminClient(db, entityTitles);
+  const passenger = createPassengerClient(admin);
+  return { admin, passenger };
+}
 
-  const sleep = createJitterSleeper(getMockLatencyRange);
-  const maybeFail = createMockFailureInjector();
-  const beforeCall = composeBeforeCall(async () => sleep(), maybeFail);
-  return withLatency(baseClient, beforeCall);
+/**
+ * Composition root for the split backend: returns latency-wrapped admin and
+ * passenger clients. The passenger client delegates shared reads to admin.
+ */
+export const createBackend = (): {
+  admin: AdminBackendClient;
+  passenger: PassengerBackendClient;
+} => {
+  const { admin, passenger } = buildBaseClients();
+  const beforeCall = createBeforeCall();
+  return {
+    admin: withLatency(admin, beforeCall),
+    passenger: withLatency(passenger, beforeCall),
+  };
+};
+
+/**
+ * Combined client exposing the full admin + passenger surface. Used by backend
+ * tests so each capability can be exercised through a single entry point.
+ */
+export const createServiceClient = (): BackendClient => {
+  const { admin, passenger } = buildBaseClients();
+  const combined: BackendClient = { ...passenger, ...admin };
+  const beforeCall = createBeforeCall();
+  return withLatency(combined, beforeCall);
 };

@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { backendClient } from "../backend/client";
+import { adminBackend } from "../backend/client";
 import type { FlightStatusRow } from "../types";
 import { queryKeys } from "./keys";
 
 export const useFlightStatuses = () =>
   useQuery({
     queryKey: queryKeys.flightStatuses,
-    queryFn: () => backendClient.flightStatuses.list(),
+    queryFn: () => adminBackend.flightStatuses.list(),
     staleTime: Number.POSITIVE_INFINITY,
   });
 

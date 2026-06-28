@@ -18,7 +18,7 @@ import { useTiersById } from "../queries/useTiers";
 import { colorToken } from "../domain/color";
 import { useLocale } from "../locale";
 import { NumInput, Pill, SectionLabel, Toggle } from "../primitives";
-import { backendClient } from "../backend/client";
+import { adminBackend } from "../backend/client";
 import { queryKeys } from "../queries/keys";
 import { useRules } from "../queries/useRules";
 
@@ -260,7 +260,7 @@ export function GlobalRules() {
   } = buildRuleCopy(txt);
 
   const saveMutation = useMutation({
-    mutationFn: (nextRules: Rules) => backendClient.rules.update(nextRules),
+    mutationFn: (nextRules: Rules) => adminBackend.rules.update(nextRules),
     onSuccess: (nextRules) => {
       setRules(nextRules);
       setSaved(true);

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { FlightQuery } from "../backend/contracts";
-import { backendClient } from "../backend/client";
+import { adminBackend } from "../backend/client";
 import { queryKeys } from "./keys";
 
 export const useFlightsQuery = (query: FlightQuery) =>
@@ -13,5 +13,5 @@ export const useFlightsQuery = (query: FlightQuery) =>
       ...(query.page !== undefined ? { page: query.page } : {}),
       ...(query.pageSize !== undefined ? { pageSize: query.pageSize } : {}),
     }),
-    queryFn: () => backendClient.flights.query(query),
+    queryFn: () => adminBackend.flights.query(query),
   });

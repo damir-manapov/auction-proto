@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { backendClient } from "../backend/client";
+import { adminBackend } from "../backend/client";
 import type { BidStateRow } from "../types";
 import { queryKeys } from "./keys";
 
 export const useBidStates = () =>
   useQuery({
     queryKey: queryKeys.bidStates,
-    queryFn: () => backendClient.bidStates.list(),
+    queryFn: () => adminBackend.bidStates.list(),
     staleTime: Number.POSITIVE_INFINITY,
   });
 

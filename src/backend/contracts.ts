@@ -1,5 +1,4 @@
-import type { LocalizedString } from "../types";
-import type { DbRow } from "./db/contracts";
+import type { EntitiesService } from "./admin/contracts";
 import type { AirportsService } from "./services/airports/contracts";
 import type { BidsService } from "./services/bids/contracts";
 import type { BidStatesService } from "./services/bidStates/contracts";
@@ -13,6 +12,8 @@ import type { PassengersService } from "./services/passengers/contracts";
 import type { RulesService } from "./services/rules/contracts";
 import type { SeatMapService } from "./services/seatMap/contracts";
 import type { TiersService } from "./services/tiers/contracts";
+
+export type { EntitiesService, EntityTable } from "./admin/contracts";
 
 export type {
   FlightFilter,
@@ -33,16 +34,6 @@ export type { FlightHaulsService } from "./services/flightHauls/contracts";
 export type { RulesService } from "./services/rules/contracts";
 export type { PassengerConfigService } from "./services/passengerConfig/contracts";
 export type { SeatMapService } from "./services/seatMap/contracts";
-
-export type EntityTable = {
-  name: string;
-  title: LocalizedString;
-  rows: DbRow[];
-};
-
-export type EntitiesService = {
-  listAll: () => Promise<EntityTable[]>;
-};
 
 export type BackendClient = {
   flights: FlightsService;

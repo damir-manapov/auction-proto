@@ -132,9 +132,12 @@ bash all-checks.sh # runs both scripts
 │   ├── lib/                           # small framework-agnostic utilities
 │   ├── queries/                       # TanStack Query hooks and keys
 │   └── backend/                       # in-memory backend service + db emulator
-│       ├── contracts.ts               # aggregate BackendClient contract
-│       ├── serviceClient.ts           # builds db, services, latency wrapper
+│       ├── contracts.ts               # combined BackendClient contract (tests)
+│       ├── client.ts                  # composition root: adminBackend + passengerBackend
+│       ├── serviceClient.ts           # builds db, both clients, latency wrapper
 │       ├── latency.ts                 # latency + failure injection
+│       ├── admin/                     # admin client contract + composition
+│       ├── passenger/                 # passenger client contract + composition
 │       ├── db/                        # generic DB emulator + contracts
 │       └── services/<entity>/         # per-entity contracts.ts, service.ts, seed.ts
 │           ├── airports/
@@ -197,14 +200,26 @@ runtime color values (e.g. conditional Pill colors from entity data).
 - `src/i18n.ts` only contains pure UI text (labels, headings); no per-entity data
 
 ### Backend Layering
-- The aggregate `BackendClient` contract lives in `src/backend/contracts.ts`
+- The backend is split into two client surfaces, composed in `src/backend/client.ts`:
+  - `adminBackend` (`src/backend/admin/`) — full authority: flight operations, bid
+    moderation (`approve`/`reject`/`autoSelect`), `rules.update`, raw entity tables,
+    and ownership of all reference data
+  - `passengerBackend` (`src/backend/passenger/`) — a read-mostly facade for the
+    passenger app. It owns passenger-specific services (`passengerConfig`, `seatMap`)
+    and, like a BFF in a real system, **delegates shared reads to the admin client**.
+    It exposes only a narrowed, safe subset: `flights.findDetailById` (no listing/query),
+    `rules.get` (no update), `passengers.getCurrent`, and re-exported context-free
+    lookups (`tiers`, `flightHauls`, `airports`, `cities`, `countries`)
+- The combined `BackendClient` contract in `src/backend/contracts.ts` (admin ∪ passenger)
+  is used by `createServiceClient()` so backend tests can exercise every capability
+  through a single entry point
 - Each entity is a folder under `src/backend/services/<entity>/` containing:
   - `contracts.ts` — service interface and entity-specific query/filter types
   - `service.ts` — exports `<entity>Seed` and `create<Entity>Service(db)`
   - `utils.ts` — pure helpers (filter mapping, joins) shared with tests/other services
-- `src/backend/serviceClient.ts` merges all `*Seed` objects into a single DB and
-  composes services + the generic `entities` service, then wraps everything with
-  latency/failure injection
+- `src/backend/serviceClient.ts` merges all `*Seed` objects into a single DB, builds the
+  admin client, builds the passenger client on top of it, then wraps each with
+  latency/failure injection (`createBackend()`)
 - Generic DB emulator is in `src/backend/db/emulator.ts`; metadata access
   (`tableNames`) is split into the `DbSchema` facet
 - DB operations are declarative (`filters` + `patch`, no function arguments)
@@ -217,8 +232,12 @@ runtime color values (e.g. conditional Pill colors from entity data).
 2. Create `src/backend/services/<name>/{contracts,service}.ts` (and `utils.ts` if needed),
    exporting `<name>Seed` and a `create<Name>Service(db)` factory.
 3. Merge `<name>Seed` into the `createDbEmulator` call in `src/backend/serviceClient.ts`.
-4. Add the service to the `BackendClient` type in `src/backend/contracts.ts`.
-5. Add a query key in `src/queries/keys.ts` and a `use<Name>` hook under `src/queries/`.
+4. Register the service on the relevant client: `src/backend/admin/{contracts,client}.ts`
+   (and, if the passenger app needs it, expose/delegate it in
+   `src/backend/passenger/{contracts,client}.ts`). Keep `BackendClient` in
+   `src/backend/contracts.ts` in sync for tests.
+5. Add a query key in `src/queries/keys.ts` and a `use<Name>` hook under `src/queries/`
+   importing `adminBackend` or `passengerBackend` as appropriate.
 
 ### Adding a Config/State-only Service (no DB table)
 For services that hold mutable config or non-relational state (like `rules`, `passengerConfig`,
