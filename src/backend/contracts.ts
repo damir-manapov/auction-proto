@@ -11,6 +11,7 @@ import type { FlightsService } from "./services/flights/contracts";
 import type { PassengerConfigService } from "./services/passengerConfig/contracts";
 import type { PassengersService } from "./services/passengers/contracts";
 import type { RulesService } from "./services/rules/contracts";
+import type { SeatMapService } from "./services/seatMap/contracts";
 import type { TiersService } from "./services/tiers/contracts";
 
 export type {
@@ -31,6 +32,7 @@ export type { FlightStatusesService } from "./services/flightStatuses/contracts"
 export type { FlightHaulsService } from "./services/flightHauls/contracts";
 export type { RulesService } from "./services/rules/contracts";
 export type { PassengerConfigService } from "./services/passengerConfig/contracts";
+export type { SeatMapService } from "./services/seatMap/contracts";
 
 export type EntityTable = {
   name: string;
@@ -52,6 +54,7 @@ export type BackendClient = {
   tiers: TiersService;
   rules: RulesService;
   passengerConfig: PassengerConfigService;
+  seatMap: SeatMapService;
   bidStates: BidStatesService;
   flightStatuses: FlightStatusesService;
   flightHauls: FlightHaulsService;

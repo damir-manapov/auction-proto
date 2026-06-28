@@ -247,7 +247,7 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
       <div className="mb-[18px] grid grid-cols-2 gap-4">
         <div className="rounded-xl border-[0.5px] border-border-default bg-surface-card px-[18px] py-4">
           <SectionLabel>{TXT.flightDetail.section.seatMap}</SectionLabel>
-          <SeatMap />
+          <SeatMap flightId={flight.id} />
           <div className="mt-2.5 text-[11px] text-text-muted">
             {flight.bcFree} свободных · {bids.length} заявок
           </div>

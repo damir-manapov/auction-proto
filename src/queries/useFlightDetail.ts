@@ -3,8 +3,9 @@ import type { Flight } from "../types";
 import { backendClient } from "../backend/client";
 import { queryKeys } from "./keys";
 
-export const useFlightDetail = (flightId: Flight["id"]) =>
+export const useFlightDetail = (flightId?: Flight["id"]) =>
   useQuery({
-    queryKey: queryKeys.flightDetail(flightId),
-    queryFn: () => backendClient.flights.findDetailById(flightId),
+    queryKey: queryKeys.flightDetail(flightId ?? "__pending__"),
+    queryFn: () => backendClient.flights.findDetailById(flightId as Flight["id"]),
+    enabled: Boolean(flightId),
   });

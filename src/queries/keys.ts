@@ -20,6 +20,7 @@ export const queryKeys = {
   currentPassenger: ["current-passenger"] as const,
   rules: ["rules"] as const,
   passengerConfig: ["passenger-config"] as const,
+  seatMap: (flightId: string) => ["seat-map", flightId] as const,
   tiers: ["tiers"] as const,
   bidStates: ["bid-states"] as const,
   flightStatuses: ["flight-statuses"] as const,

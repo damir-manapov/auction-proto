@@ -13,16 +13,12 @@ import type { ProductActiveMap, ProductBidMap, ProductConfig, ProductKey } from 
 export function PassengerBidUI() {
   const { data: passenger } = useCurrentPassenger();
   const { data: config, isLoading: configLoading } = usePassengerConfig();
-  const { data: flight } = useFlightDetail(config?.flightId ?? "HY 602");
+  const { data: flight } = useFlightDetail(config?.flightId);
   const { byId: tiersById } = useTiersById();
 
-  // Initialize state with defaults before any conditionals
-  const [bids, setBids] = useState<ProductBidMap>(
-    () => config?.defaultBids ?? { bc: 350, ex: 46, sb: 18 },
-  );
-  const [active, setActive] = useState<ProductActiveMap>(
-    () => config?.defaultActive ?? { bc: true, ex: true, sb: false },
-  );
+  // Initialize state before conditionals, then hydrate from backend config.
+  const [bids, setBids] = useState<ProductBidMap | null>(null);
+  const [active, setActive] = useState<ProductActiveMap | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   // Sync state when config loads
@@ -34,7 +30,7 @@ export function PassengerBidUI() {
     }
   }, [config]);
 
-  if (configLoading || !config) {
+  if (configLoading || !config || !bids || !active) {
     return (
       <div className="flex justify-center px-4 py-6">
         <div className="text-[13px] text-text-muted">{TXT.admin.states.loading}</div>
@@ -302,7 +298,10 @@ export function PassengerBidUI() {
                       <div className="mt-px text-[10px] text-text-muted">{prod.desc}</div>
                     </div>
                   </div>
-                  <Toggle checked={on} onChange={(v) => setActive((a) => ({ ...a, [key]: v }))} />
+                  <Toggle
+                    checked={on}
+                    onChange={(v) => setActive((a) => (a ? { ...a, [key]: v } : a))}
+                  />
                 </div>
 
                 <div
@@ -321,7 +320,9 @@ export function PassengerBidUI() {
                   value={val}
                   step={1}
                   disabled={!on}
-                  onChange={(e) => setBids((b) => ({ ...b, [key]: Number(e.target.value) }))}
+                  onChange={(e) =>
+                    setBids((b) => (b ? { ...b, [key]: Number(e.target.value) } : b))
+                  }
                   style={{
                     width: "100%",
                     height: 4,

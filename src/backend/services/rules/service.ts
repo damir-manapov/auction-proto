@@ -1,4 +1,4 @@
-import { DEFAULT_RULES } from "../../../domain/rules";
+import { DEFAULT_RULES } from "./seed";
 import type { Rules } from "../../../types";
 import type { RulesService } from "./contracts";
 

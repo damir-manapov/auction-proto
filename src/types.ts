@@ -150,6 +150,8 @@ export type SeatCell = {
   bid?: boolean;
 };
 
+export type SeatMapLayout = Array<Array<SeatCell | null>>;
+
 export type RuleSectionId = "timing" | "pricing" | "loyalty" | "channels" | "payment" | "features";
 
 export const EMAIL_TEMPLATE_TYPE = {

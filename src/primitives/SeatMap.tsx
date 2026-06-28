@@ -1,10 +1,12 @@
-import { SEAT_MAP_BC } from "../domain/seatMap";
 import { T } from "../theme";
 import { TXT } from "../i18n";
 import { cn } from "../lib/utils";
-import type { SeatCell } from "../types";
+import type { Flight, SeatCell } from "../types";
+import { useSeatMap } from "../queries/useSeatMap";
 
-export function SeatMap() {
+export function SeatMap({ flightId }: { flightId: Flight["id"] }) {
+  const { data: seatMap = [] } = useSeatMap(flightId);
+
   return (
     <div>
       <div className="mb-2.5 flex flex-wrap gap-3">
@@ -23,7 +25,7 @@ export function SeatMap() {
         ))}
       </div>
       <div className="grid gap-1" style={{ gridTemplateColumns: "repeat(5, 28px)" }}>
-        {SEAT_MAP_BC.flatMap((row) => {
+        {seatMap.flatMap((row) => {
           const rowKey = row
             .filter((seat): seat is SeatCell => seat !== null)
             .map((seat) => seat.id)

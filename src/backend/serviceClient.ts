@@ -31,6 +31,7 @@ import {
 } from "./services/passengers/service";
 import { createPassengerConfigService } from "./services/passengerConfig/service";
 import { createRulesService } from "./services/rules/service";
+import { createSeatMapService } from "./services/seatMap/service";
 import { createTiersService, tiersSeed, tiersTitle } from "./services/tiers/service";
 import {
   composeBeforeCall,
@@ -93,6 +94,7 @@ export const createServiceClient = (): BackendClient => {
     tiers: createTiersService(db),
     rules: createRulesService(),
     passengerConfig: createPassengerConfigService(),
+    seatMap: createSeatMapService(),
     bidStates: createBidStatesService(db),
     flightStatuses: createFlightStatusesService(db),
     flightHauls: createFlightHaulsService(db),

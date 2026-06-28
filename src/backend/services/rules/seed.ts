@@ -1,4 +1,4 @@
-import type { Rules } from "../types";
+import type { Rules } from "../../../types";
 
 export const DEFAULT_RULES: Rules = {
   inviteDaysBefore: 14,
