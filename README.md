@@ -45,6 +45,7 @@ Environment variables:
 - React 19
 - Vite 8
 - TypeScript 6
+- Tailwind CSS 4 + shadcn/ui
 - Biome 2
 - Vitest 4
 - simple-git-hooks + gitleaks checks
@@ -120,8 +121,11 @@ bash all-checks.sh # runs both scripts
 │   │   ├── PassengerBidUI.tsx         # passenger bid mockup
 │   │   └── EntitiesPage.tsx           # auto-discovered DB tables view
 │   ├── primitives/                    # reusable UI primitives (Pill, MetricCard, ...)
-│   ├── components/                    # app-specific composed components
-│   ├── domain/                        # color tokens + cross-entity helpers
+│   ├── components/ui/                 # shadcn/ui component layer
+│   ├── domain/                        # pure helpers shared across UI and backend
+│   │   ├── channel.ts                 # channel-to-icon mapping
+│   │   ├── color.ts                   # color token resolver
+│   │   └── weighted.ts                # bid weighted-score formula
 │   ├── data/<entity>.ts               # per-entity seed data (one file per table)
 │   ├── format/                        # display formatters (flight time, bid distribution)
 │   ├── lib/                           # small framework-agnostic utilities
@@ -131,13 +135,20 @@ bash all-checks.sh # runs both scripts
 │       ├── serviceClient.ts           # builds db, services, latency wrapper
 │       ├── latency.ts                 # latency + failure injection
 │       ├── db/                        # generic DB emulator + contracts
-│       └── services/<entity>/         # per-entity contracts.ts, service.ts, utils.ts
+│       └── services/<entity>/         # per-entity contracts.ts, service.ts, seed.ts
 │           ├── airports/
 │           ├── bids/
+│           ├── bidStates/
 │           ├── cities/
 │           ├── countries/
+│           ├── flightHauls/
+│           ├── flightStatuses/
 │           ├── flights/
-│           └── passengers/
+│           ├── passengers/
+│           ├── passengerConfig/
+│           ├── rules/
+│           ├── seatMap/
+│           └── tiers/
 ├── tests/                             # vitest suites (db emulator + per-service)
 ├── index.html                         # app shell
 ├── vite.config.ts                     # Vite config
@@ -155,6 +166,10 @@ bash all-checks.sh # runs both scripts
 The codebase is organized under `src/` with thin layered folders:
 - Each major UI panel lives in `src/pages/` as a self-contained module
 - Reusable atoms live in `src/primitives/` (`Pill`, `MetricCard`, `BarChart`, ...)
+- UI components follow the shadcn/ui pattern — installed under `src/components/ui/`
+  and styled via Tailwind CSS 4 utility classes with semantic CSS custom property tokens
+- `src/domain/` contains only pure cross-layer helpers: `color.ts` (token resolver),
+  `channel.ts` (icon map), and `weighted.ts` (bid score formula)
 - Color tokens live in `src/domain/color.ts`; enum dictionaries (tiers, bid states,
   flight statuses, flight hauls) are full entities — seed rows in `src/data/<entity>.ts`
   carry `name` (LocalizedString) and `colorId`/`bgId` token references
@@ -163,9 +178,12 @@ The codebase is organized under `src/` with thin layered folders:
 
 ### Design Tokens
 The color palette is owned by CSS custom properties on `:root` in `src/index.css`
-(single source of truth, shadcn-compatible). `src/theme.ts` is a thin TypeScript
-bridge that maps semantic names to `var(--token)` strings so inline styles can
-still reference them while the codebase migrates toward Tailwind/shadcn classes.
+(single source of truth, shadcn-compatible). The design tokens are exposed to
+Tailwind 4 via `@theme inline` so components can use utility classes like
+`bg-surface-card`, `text-text-muted`, and `border-border-default` directly.
+`src/theme.ts` is a thin TypeScript bridge that maps semantic names to
+`var(--token)` strings, retained for dynamic inline styles that still require
+runtime color values (e.g. conditional Pill colors from entity data).
 
 ### Data & Mappings
 - Seed data lives in `src/data/<entity>.ts` — one file per table (countries, cities, airports, passengers, flights, bids)
@@ -193,11 +211,18 @@ still reference them while the codebase migrates toward Tailwind/shadcn classes.
   `bids.list` joins `passengers`, and `flights.findDetailById` joins route
   airports + cities + countries via `airports/utils.ts`
 
-### Adding a New Entity
+### Adding a New Entity (DB-backed)
 1. Add the type to `src/types.ts` and seed data to `src/data/<name>.ts`.
 2. Create `src/backend/services/<name>/{contracts,service}.ts` (and `utils.ts` if needed),
-   exporting `<name>Seed` and a `create<Name>Service` factory.
-3. Add the service to the `BackendClient` type in `src/backend/contracts.ts`.
+   exporting `<name>Seed` and a `create<Name>Service(db)` factory.
+3. Merge `<name>Seed` into the `createDbEmulator` call in `src/backend/serviceClient.ts`.
+4. Add the service to the `BackendClient` type in `src/backend/contracts.ts`.
+5. Add a query key in `src/queries/keys.ts` and a `use<Name>` hook under `src/queries/`.
+
+### Adding a Config/State-only Service (no DB table)
+For services that hold mutable config or non-relational state (like `rules`, `passengerConfig`,
+`seatMap`), skip steps 1 and 3 above — create a `seed.ts` (or inline defaults in `service.ts`)
+instead of `src/data/<name>.ts`, and pass no `db` argument to the factory.
 4. Spread the seed and register the service in `src/backend/serviceClient.ts`.
 5. Add a localized title under `entities.tableTitles` in `src/i18n.ts`.
 6. The new table appears automatically on the `/entities` page.
