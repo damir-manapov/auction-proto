@@ -111,7 +111,8 @@ bash all-checks.sh # runs both scripts
 │   ├── index.css                      # global styles
 │   ├── theme.ts                       # palette + semantic design tokens
 │   ├── types.ts                       # type definitions
-│   ├── i18n.ts                        # locale dictionary (ru) + TXT export
+│   ├── i18n.ts                        # locale dictionaries (ru/en/uz) and Locale type
+│   ├── locale.tsx                     # locale context provider + useLocale hook
 │   ├── pages/                         # top-level page components
 │   │   ├── AdminShell.tsx             # shell header + tab layout
 │   │   ├── FlightList.tsx             # flight table view
@@ -188,7 +189,7 @@ runtime color values (e.g. conditional Pill colors from entity data).
 ### Data & Mappings
 - Seed data lives in `src/data/<entity>.ts` — one file per table (countries, cities, airports, passengers, flights, bids)
 - Domain dictionary entries (e.g. country/city/airport `name`, tier/state/status `name`)
-  carry `LocalizedString` shapes resolved via `value[CURRENT_LOCALE]`
+  carry `LocalizedString` shapes resolved with active `locale` from `useLocale()`
 - Enum dictionaries (tiers, bid states, flight statuses, flight hauls) are served
   through their own backend services and consumed in pages via TanStack Query hooks
   (`useTiersById`, `useBidStatesById`, `useFlightStatusesById`, `useFlightHaulsById`)
@@ -227,14 +228,15 @@ instead of `src/data/<name>.ts`, and pass no `db` argument to the factory.
 5. Add a localized title under `entities.tableTitles` in `src/i18n.ts`.
 6. The new table appears automatically on the `/entities` page.
 
-### Text & Localization Prep
-- User-facing shared labels are centralized in `src/i18n.ts` under a locale
-  dictionary (`ru`)
+### Text & Localization
+- User-facing shared labels are centralized in `src/i18n.ts` under locale
+  dictionaries (`ru`, `en`, `uz`)
+- Runtime locale state is managed by `src/locale.tsx` (`LocaleProvider`, `useLocale`)
+- Components consume `txt` from `useLocale()` instead of global translation constants
 - Domain dictionary entries (e.g. airport `name`/`city`/`country`) carry
-  `LocalizedString` shapes resolved via `value[CURRENT_LOCALE]`
-- Components consume `TXT` instead of hardcoded strings where extraction is
-  complete
-- Adding a new locale can be done by extending `I18N` and switching `CURRENT_LOCALE`
+  `LocalizedString` and are rendered via `value[locale]`
+- Adding a new locale can be done by extending `I18N`; switchers in admin/passenger UI
+  update text reactively
 
 ## AI-Assisted shadcn Workflow
 
