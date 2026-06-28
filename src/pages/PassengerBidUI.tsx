@@ -463,7 +463,7 @@ export function PassengerBidUI() {
             <span className="shrink-0 text-[13px] leading-[1.5] text-brand-primary-fg">ℹ</span>
             <div className="text-[11px] leading-[1.6] text-brand-primary-fg">
               {txt.passenger.infoTextStart}{" "}
-              <strong className="text-on-brand-primary-soft">{txt.passenger.infoTextStrong}</strong>{" "}
+              <strong className="text-brand-primary">{txt.passenger.infoTextStrong}</strong>{" "}
               {txt.passenger.infoTextEnd}
             </div>
           </div>
