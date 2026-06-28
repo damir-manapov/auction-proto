@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
   ChannelRuleKey,
   PaymentMethodKey,
@@ -14,10 +15,12 @@ import type {
 } from "../types";
 import { T } from "../theme";
 import { useTiersById } from "../queries/useTiers";
-import { DEFAULT_RULES } from "../domain/rules";
 import { colorToken } from "../domain/color";
 import { TXT } from "../i18n";
 import { NumInput, Pill, SectionLabel, Toggle } from "../primitives";
+import { backendClient } from "../backend/client";
+import { queryKeys } from "../queries/keys";
+import { useRules } from "../queries/useRules";
 
 type RuleSection = { id: RuleSectionId; l: string };
 type LabelDescRow<K extends string> = { key: K; label: string; desc: string };
@@ -219,13 +222,39 @@ const FEATURE_STATUS_LABELS: Record<FeatureStatusKey, string> = {
 };
 
 export function GlobalRules() {
+  const queryClient = useQueryClient();
   const { byId: tiersById } = useTiersById();
-  const [rules, setRules] = useState<Rules>(DEFAULT_RULES);
+  const { data: loadedRules, isLoading: isRulesLoading, isError: isRulesError } = useRules();
+  const [rules, setRules] = useState<Rules | null>(null);
   const [saved, setSaved] = useState(true);
   const [activeSection, setActiveSection] = useState<RuleSectionId>("timing");
 
+  const saveMutation = useMutation({
+    mutationFn: (nextRules: Rules) => backendClient.rules.update(nextRules),
+    onSuccess: (nextRules) => {
+      setRules(nextRules);
+      setSaved(true);
+      queryClient.setQueryData(queryKeys.rules, nextRules);
+    },
+  });
+
+  useEffect(() => {
+    if (!loadedRules || rules !== null) return;
+    setRules(loadedRules);
+  }, [loadedRules, rules]);
+
+  if (isRulesLoading || !rules) {
+    return <div style={{ fontSize: 13, color: T.textMuted }}>{TXT.admin.states.loading}</div>;
+  }
+
+  if (isRulesError) {
+    return (
+      <div style={{ fontSize: 13, color: T.statusDangerFg }}>{TXT.admin.states.loadError}</div>
+    );
+  }
+
   const setRule = <K extends RulesNumberKey | RulesBooleanKey>(key: K, val: Rules[K]) => {
-    setRules((r) => ({ ...r, [key]: val }));
+    setRules((r) => (r ? { ...r, [key]: val } : null));
     setSaved(false);
   };
   const setNestedRule = <K extends "channels" | "paymentMethods", SK extends keyof Rules[K]>(
@@ -233,7 +262,7 @@ export function GlobalRules() {
     subkey: SK,
     val: boolean,
   ) => {
-    setRules((r) => ({ ...r, [key]: { ...r[key], [subkey]: val } as Rules[K] }));
+    setRules((r) => (r ? { ...r, [key]: { ...r[key], [subkey]: val } as Rules[K] } : null));
     setSaved(false);
   };
 
@@ -329,21 +358,27 @@ export function GlobalRules() {
         <div style={{ padding: "10px 12px", borderTop: `0.5px solid ${T.borderDefault}` }}>
           <button
             type="button"
-            onClick={() => setSaved(true)}
+            onClick={() => saveMutation.mutate(rules)}
+            disabled={saveMutation.isPending || saved}
             style={{
               width: "100%",
               padding: "8px",
               borderRadius: 8,
               fontSize: 12,
               fontWeight: 700,
-              cursor: "pointer",
+              cursor: saveMutation.isPending || saved ? "not-allowed" : "pointer",
               background: saved ? T.statusSuccessBg : T.brandPrimary,
               border: `0.5px solid ${saved ? T.statusSuccess : T.brandPrimary}`,
               color: saved ? T.statusSuccessFg : T.onBrandPrimarySoft,
+              opacity: saveMutation.isPending || saved ? 0.8 : 1,
               transition: "all .2s",
             }}
           >
-            {saved ? TXT.globalRules.side.saved : TXT.globalRules.side.save}
+            {saveMutation.isPending
+              ? `${TXT.globalRules.side.save}...`
+              : saved
+                ? TXT.globalRules.side.saved
+                : TXT.globalRules.side.save}
           </button>
           {!saved && (
             <div

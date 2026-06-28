@@ -18,6 +18,8 @@ export const queryKeys = {
   citiesByIds: (ids: readonly string[]) => ["cities-by-ids", [...ids].sort()] as const,
   countriesByIds: (ids: readonly string[]) => ["countries-by-ids", [...ids].sort()] as const,
   currentPassenger: ["current-passenger"] as const,
+  rules: ["rules"] as const,
+  passengerConfig: ["passenger-config"] as const,
   tiers: ["tiers"] as const,
   bidStates: ["bid-states"] as const,
   flightStatuses: ["flight-statuses"] as const,

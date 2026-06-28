@@ -1,18 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTiersById } from "../queries/useTiers";
 import { colorToken } from "../domain/color";
-import { DEFAULT_RULES } from "../domain/rules";
 import { Pill, Toggle } from "../primitives";
 import { T } from "../theme";
 import { CURRENT_LOCALE, TXT } from "../i18n";
-import {
-  PASSENGER_DEFAULT_ACTIVE,
-  PASSENGER_DEFAULT_BIDS,
-  PASSENGER_FLIGHT_ID,
-  PASSENGER_FRAME,
-  PASSENGER_MULTIPLIER,
-  PASSENGER_PRODUCT_SPECS,
-} from "./passengerConfig";
+import { usePassengerConfig } from "../queries/usePassengerConfig";
 import { useCurrentPassenger } from "../queries/useCurrentPassenger";
 import { useFlightDetail } from "../queries/useFlightDetail";
 import { formatFlightDep, formatFlightDuration } from "../format/flightTime";
@@ -20,8 +12,36 @@ import type { ProductActiveMap, ProductBidMap, ProductConfig, ProductKey } from 
 
 export function PassengerBidUI() {
   const { data: passenger } = useCurrentPassenger();
-  const { data: flight } = useFlightDetail(PASSENGER_FLIGHT_ID);
+  const { data: config, isLoading: configLoading } = usePassengerConfig();
+  const { data: flight } = useFlightDetail(config?.flightId ?? "HY 602");
   const { byId: tiersById } = useTiersById();
+
+  // Initialize state with defaults before any conditionals
+  const [bids, setBids] = useState<ProductBidMap>(
+    () => config?.defaultBids ?? { bc: 350, ex: 46, sb: 18 },
+  );
+  const [active, setActive] = useState<ProductActiveMap>(
+    () => config?.defaultActive ?? { bc: true, ex: true, sb: false },
+  );
+  const [submitted, setSubmitted] = useState(false);
+
+  // Sync state when config loads
+  useEffect(() => {
+    if (config) {
+      setBids(config.defaultBids);
+      setActive(config.defaultActive);
+      setSubmitted(false);
+    }
+  }, [config]);
+
+  if (configLoading || !config) {
+    return (
+      <div className="flex justify-center px-4 py-6">
+        <div className="text-[13px] text-text-muted">{TXT.admin.states.loading}</div>
+      </div>
+    );
+  }
+
   const fromAirport = flight?.fromAirport;
   const toAirport = flight?.toAirport;
   const fromCityName = fromAirport?.city.name[CURRENT_LOCALE] ?? "";
@@ -34,44 +54,42 @@ export function PassengerBidUI() {
     ? `${flight.aircraft} · ${flightDuration} · ${TXT.passenger.flightHeader.classTransition}`
     : "";
   const routeLabel = flight ? `${flight.id} · ${flight.fromAirportId} → ${flight.toAirportId}` : "";
+
   const PRODUCTS: Record<ProductKey, ProductConfig> = {
     bc: {
       label: TXT.passenger.products.bc.label,
       desc: TXT.passenger.products.bc.desc,
-      icon: PASSENGER_PRODUCT_SPECS.bc.icon,
-      min: PASSENGER_PRODUCT_SPECS.bc.min,
-      max: PASSENGER_PRODUCT_SPECS.bc.max,
-      defaultVal: PASSENGER_PRODUCT_SPECS.bc.defaultVal,
+      icon: config.productSpecs.bc.icon,
+      min: config.productSpecs.bc.min,
+      max: config.productSpecs.bc.max,
+      defaultVal: config.productSpecs.bc.defaultVal,
       color: T.brandPrimary,
       trackColor: T.brandPrimary,
     },
     ex: {
       label: TXT.passenger.products.ex.label,
       desc: TXT.passenger.products.ex.desc,
-      icon: PASSENGER_PRODUCT_SPECS.ex.icon,
-      min: PASSENGER_PRODUCT_SPECS.ex.min,
-      max: PASSENGER_PRODUCT_SPECS.ex.max,
-      defaultVal: PASSENGER_PRODUCT_SPECS.ex.defaultVal,
+      icon: config.productSpecs.ex.icon,
+      min: config.productSpecs.ex.min,
+      max: config.productSpecs.ex.max,
+      defaultVal: config.productSpecs.ex.defaultVal,
       color: T.statusSuccess,
       trackColor: T.statusSuccess,
     },
     sb: {
       label: TXT.passenger.products.sb.label,
       desc: TXT.passenger.products.sb.desc,
-      icon: PASSENGER_PRODUCT_SPECS.sb.icon,
-      min: PASSENGER_PRODUCT_SPECS.sb.min,
-      max: PASSENGER_PRODUCT_SPECS.sb.max,
-      defaultVal: PASSENGER_PRODUCT_SPECS.sb.defaultVal,
+      icon: config.productSpecs.sb.icon,
+      min: config.productSpecs.sb.min,
+      max: config.productSpecs.sb.max,
+      defaultVal: config.productSpecs.sb.defaultVal,
       color: T.brandPrimary,
       trackColor: T.brandPrimary,
     },
   };
 
-  const [bids, setBids] = useState<ProductBidMap>(PASSENGER_DEFAULT_BIDS);
-  const [active, setActive] = useState<ProductActiveMap>(PASSENGER_DEFAULT_ACTIVE);
-  const [submitted, setSubmitted] = useState(false);
-  const productEntries = (Object.entries(PRODUCTS) as Array<[ProductKey, ProductConfig]>).filter(
-    ([key]) => !DEFAULT_RULES.onlyUpgrade || key === "bc",
+  const productEntries = (Object.entries(PRODUCTS) as Array<[ProductKey, ProductConfig]>).map(
+    ([key]) => [key, PRODUCTS[key]] as const,
   );
 
   const calcChance = (prod: ProductKey, val: number) => {
@@ -83,7 +101,7 @@ export function PassengerBidUI() {
     p >= 65 ? T.statusSuccess : p >= 40 ? T.statusWarning : T.statusDanger;
 
   const base = productEntries.reduce((sum, [key]) => sum + (active[key] ? bids[key] : 0), 0);
-  const wt = Math.round(base * PASSENGER_MULTIPLIER);
+  const wt = Math.round(base * config.multiplier);
 
   const sliderBg = (prod: ProductKey) => {
     const p = PRODUCTS[prod];
@@ -101,8 +119,8 @@ export function PassengerBidUI() {
         <div className="w-[390px] overflow-hidden rounded-2xl border-[0.5px] border-border-default bg-surface-card">
           {/* Status bar */}
           <div className="flex justify-between bg-surface-elevated px-4 pb-[7px] pt-[9px]">
-            <span className="text-[11px] text-text-muted">{PASSENGER_FRAME.statusBarTime}</span>
-            <span className="text-[11px] text-text-muted">{PASSENGER_FRAME.statusBarHost}</span>
+            <span className="text-[11px] text-text-muted">{config.frame.statusBarTime}</span>
+            <span className="text-[11px] text-text-muted">{config.frame.statusBarHost}</span>
             <span className="text-[11px] text-text-muted">●●●</span>
           </div>
           <div className="px-5 pb-6 pt-8 text-center">
@@ -185,8 +203,8 @@ export function PassengerBidUI() {
       <div className="w-[390px] overflow-hidden rounded-2xl border-[0.5px] border-border-default bg-surface-card">
         {/* Status bar */}
         <div className="flex justify-between bg-surface-elevated px-4 pb-[7px] pt-[9px]">
-          <span className="text-[11px] text-text-muted">{PASSENGER_FRAME.statusBarTime}</span>
-          <span className="text-[11px] text-text-muted">{PASSENGER_FRAME.statusBarHost}</span>
+          <span className="text-[11px] text-text-muted">{config.frame.statusBarTime}</span>
+          <span className="text-[11px] text-text-muted">{config.frame.statusBarHost}</span>
           <span className="text-[11px] text-text-muted">●●●</span>
         </div>
 
@@ -439,7 +457,7 @@ export function PassengerBidUI() {
           </button>
           <div className="pb-1 text-center text-[10px] text-text-muted">
             {TXT.passenger.auctionClosesIn}{" "}
-            <strong className="text-status-warning">{PASSENGER_FRAME.closingIn}</strong>
+            <strong className="text-status-warning">{config.frame.closingIn}</strong>
           </div>
         </div>
       </div>

@@ -124,6 +124,26 @@ export type ProductConfig = {
 export type ProductBidMap = Record<ProductKey, number>;
 export type ProductActiveMap = Record<ProductKey, boolean>;
 
+export type PassengerProductSpec = {
+  icon: string;
+  min: number;
+  max: number;
+  defaultVal: number;
+};
+
+export type PassengerConfig = {
+  flightId: Flight["id"];
+  frame: {
+    statusBarTime: string;
+    statusBarHost: string;
+    closingIn: string;
+  };
+  multiplier: number;
+  productSpecs: Record<ProductKey, PassengerProductSpec>;
+  defaultBids: ProductBidMap;
+  defaultActive: ProductActiveMap;
+};
+
 export type SeatCell = {
   id: string;
   taken: boolean;
