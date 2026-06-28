@@ -1037,9 +1037,3 @@ export const I18N = {
 } as const;
 
 export type Locale = keyof typeof I18N;
-
-/** Static fallback used outside React components (e.g. module-level constants).
- *  For reactive locale inside components, use useLocale() from src/locale.tsx. */
-export const CURRENT_LOCALE: Locale = "ru";
-
-export const TXT = I18N[CURRENT_LOCALE];

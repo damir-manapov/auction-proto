@@ -45,9 +45,9 @@ export function PassengerBidUI() {
   const fromCityName = fromAirport?.city.name[locale] ?? "";
   const toCityName = toAirport?.city.name[locale] ?? "";
   const departureLabel = flight
-    ? formatFlightDep(flight.depAt, fromAirport?.city.timezone ?? "UTC")
+    ? formatFlightDep(flight.depAt, fromAirport?.city.timezone ?? "UTC", locale)
     : "";
-  const flightDuration = flight ? formatFlightDuration(flight.depAt, flight.arrAt) : "";
+  const flightDuration = flight ? formatFlightDuration(flight.depAt, flight.arrAt, locale) : "";
   const aircraftLine = flight
     ? `${flight.aircraft} · ${flightDuration} · ${txt.passenger.flightHeader.classTransition}`
     : "";

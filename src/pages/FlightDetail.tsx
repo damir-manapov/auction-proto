@@ -217,8 +217,8 @@ export function FlightDetail({ flightId, onBack }: { flightId: Flight["id"]; onB
         </div>
       </div>
       <div className="mb-[18px] text-xs text-text-muted">
-        {formatFlightDep(flight.depAt, fromTz)} — {formatFlightArr(flight.arrAt, toTz)} ·{" "}
-        {flight.aircraft} · {formatFlightDuration(flight.depAt, flight.arrAt)} ·{" "}
+        {formatFlightDep(flight.depAt, fromTz, locale)} — {formatFlightArr(flight.arrAt, toTz)} ·{" "}
+        {flight.aircraft} · {formatFlightDuration(flight.depAt, flight.arrAt, locale)} ·{" "}
         {haulsById[flight.haul]?.name[locale] ?? flight.haul}
       </div>
       <div className="mb-[18px] grid grid-cols-4 gap-3">

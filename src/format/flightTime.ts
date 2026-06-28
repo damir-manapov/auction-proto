@@ -1,8 +1,11 @@
-import { TXT } from "../i18n";
+import { I18N } from "../i18n";
+import type { Locale } from "../i18n";
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
 
 type Parts = { day: number; month: number; hour: number; minute: number };
+
+const flightTimeTextFor = (locale: Locale) => I18N[locale].flightTime;
 
 const getParts = (iso: string, timeZone: string): Parts => {
   const fmt = new Intl.DateTimeFormat("en-US", {
@@ -22,9 +25,9 @@ const getParts = (iso: string, timeZone: string): Parts => {
   return { day: get("day"), month: get("month"), hour, minute: get("minute") };
 };
 
-export const formatFlightDep = (iso: string, timeZone: string): string => {
+export const formatFlightDep = (iso: string, timeZone: string, locale: Locale): string => {
   const p = getParts(iso, timeZone);
-  return `${p.day} ${TXT.flightTime.monthsAbbr[p.month - 1]} ${pad2(p.hour)}:${pad2(p.minute)}`;
+  return `${p.day} ${flightTimeTextFor(locale).monthsAbbr[p.month - 1]} ${pad2(p.hour)}:${pad2(p.minute)}`;
 };
 
 export const formatFlightArr = (iso: string, timeZone: string): string => {
@@ -32,10 +35,10 @@ export const formatFlightArr = (iso: string, timeZone: string): string => {
   return `${pad2(p.hour)}:${pad2(p.minute)}`;
 };
 
-export const formatFlightDuration = (depIso: string, arrIso: string): string => {
+export const formatFlightDuration = (depIso: string, arrIso: string, locale: Locale): string => {
   const minutes = Math.round((Date.parse(arrIso) - Date.parse(depIso)) / 60000);
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
-  const { durationHourSuffix, durationMinuteSuffix } = TXT.flightTime;
+  const { durationHourSuffix, durationMinuteSuffix } = flightTimeTextFor(locale);
   return `${h}${durationHourSuffix} ${pad2(m)}${durationMinuteSuffix}`;
 };

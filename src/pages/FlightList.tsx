@@ -235,11 +235,17 @@ export function FlightList({ onSelect }: FlightListProps) {
                         <span className="font-semibold text-text-secondary">{f.fromAirportId}</span>
                         <span className="mx-1">→</span>
                         <span className="font-semibold text-text-secondary">{f.toAirportId}</span>
-                        <span className="ml-1.5">{formatFlightDuration(f.depAt, f.arrAt)}</span>
+                        <span className="ml-1.5">
+                          {formatFlightDuration(f.depAt, f.arrAt, locale)}
+                        </span>
                       </div>
                     </td>
                     <td className="px-[14px] py-[11px] font-mono text-xs text-text-secondary">
-                      {formatFlightDep(f.depAt, airportTzById.get(f.fromAirportId) ?? "UTC")}
+                      {formatFlightDep(
+                        f.depAt,
+                        airportTzById.get(f.fromAirportId) ?? "UTC",
+                        locale,
+                      )}
                     </td>
                     <td className="px-[14px] py-[11px]">
                       <span className="rounded-[4px] border-[0.5px] border-border-default bg-surface-elevated px-1.5 py-0.5 text-[11px] text-text-muted">
