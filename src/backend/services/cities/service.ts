@@ -7,7 +7,7 @@ export const citiesSeed: EntitySeed = {
   cities: CITIES_DATA,
 };
 
-export const citiesTitle: LocalizedString = { en: "Cities", ru: "Города" };
+export const citiesTitle: LocalizedString = { en: "Cities", ru: "Города", uz: "Shaharlar" };
 
 export function createCitiesService(db: DbEmulator): CitiesService {
   return {

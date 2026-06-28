@@ -10,6 +10,7 @@ export const flightStatusesSeed: EntitySeed = {
 export const flightStatusesTitle: LocalizedString = {
   en: "Flight Statuses",
   ru: "Статусы рейсов",
+  uz: "Parvoz holatlari",
 };
 
 export function createFlightStatusesService(db: DbEmulator): FlightStatusesService {

@@ -7,7 +7,7 @@ export const countriesSeed: EntitySeed = {
   countries: COUNTRIES_DATA,
 };
 
-export const countriesTitle: LocalizedString = { en: "Countries", ru: "Страны" };
+export const countriesTitle: LocalizedString = { en: "Countries", ru: "Страны", uz: "Mamlakatlar" };
 
 export function createCountriesService(db: DbEmulator): CountriesService {
   return {

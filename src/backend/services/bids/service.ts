@@ -16,7 +16,7 @@ export const bidsSeed: EntitySeed = {
   bids: SEED_BIDS,
 };
 
-export const bidsTitle: LocalizedString = { en: "Bids", ru: "Заявки" };
+export const bidsTitle: LocalizedString = { en: "Bids", ru: "Заявки", uz: "Takliflar" };
 
 function joinPassenger(db: DbEmulator, bids: Bid[]): BidWithPassenger[] {
   if (bids.length === 0) return [];

@@ -8,7 +8,11 @@ export const airportsSeed: EntitySeed = {
   airports: AIRPORTS_DATA,
 };
 
-export const airportsTitle: LocalizedString = { en: "Airports", ru: "Аэропорты" };
+export const airportsTitle: LocalizedString = {
+  en: "Airports",
+  ru: "Аэропорты",
+  uz: "Aeroportlar",
+};
 
 export function createAirportsService(db: DbEmulator): AirportsService {
   return {

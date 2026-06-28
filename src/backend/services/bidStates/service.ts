@@ -7,7 +7,11 @@ export const bidStatesSeed: EntitySeed = {
   bidStates: BID_STATES_DATA,
 };
 
-export const bidStatesTitle: LocalizedString = { en: "Bid States", ru: "Состояния заявок" };
+export const bidStatesTitle: LocalizedString = {
+  en: "Bid States",
+  ru: "Состояния заявок",
+  uz: "Taklif holatlari",
+};
 
 export function createBidStatesService(db: DbEmulator): BidStatesService {
   return {

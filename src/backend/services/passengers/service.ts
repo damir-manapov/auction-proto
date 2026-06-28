@@ -11,7 +11,11 @@ export const passengersSeed: EntitySeed = {
   passengers: PASSENGERS_DATA,
 };
 
-export const passengersTitle: LocalizedString = { en: "Passengers", ru: "Пассажиры" };
+export const passengersTitle: LocalizedString = {
+  en: "Passengers",
+  ru: "Пассажиры",
+  uz: "Yo'lovchilar",
+};
 
 export function createPassengersService(db: DbEmulator): PassengersService {
   return {

@@ -16,7 +16,7 @@ export const flightsSeed: EntitySeed = {
   flights: FLIGHTS_DATA,
 };
 
-export const flightsTitle: LocalizedString = { en: "Flights", ru: "Рейсы" };
+export const flightsTitle: LocalizedString = { en: "Flights", ru: "Рейсы", uz: "Reyslar" };
 
 function computeStats(db: DbEmulator, flight: Flight) {
   const bids = db.queryAll<Bid>("bids", {
