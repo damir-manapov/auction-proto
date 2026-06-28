@@ -134,9 +134,9 @@ function buildRuleCopy(txt: Txt) {
   ];
 
   const loyaltyRows: LoyaltyRow[] = [
-    { key: "multiplierPlatinum", tier: "Platinum", color: T.statusWarning, bg: T.statusWarningBg },
-    { key: "multiplierGold", tier: "Gold", color: T.brandPrimary, bg: T.brandPrimaryBg },
-    { key: "multiplierSilver", tier: "Silver", color: T.textSecondary, bg: T.neutralBgSoft },
+    { key: "multiplierPlatinum", tier: "platinum", color: T.statusWarning, bg: T.statusWarningBg },
+    { key: "multiplierGold", tier: "gold", color: T.brandPrimary, bg: T.brandPrimaryBg },
+    { key: "multiplierSilver", tier: "silver", color: T.textSecondary, bg: T.neutralBgSoft },
   ];
 
   const channelRows: LabelDescRow<ChannelRuleKey>[] = [
@@ -328,10 +328,10 @@ export function GlobalRules() {
   );
 
   const loyaltyPreview: Array<{ tier: Tier; mult: number }> = [
-    { tier: "Standard", mult: 1 },
-    { tier: "Silver", mult: 1 + rules.multiplierSilver / 100 },
-    { tier: "Gold", mult: 1 + rules.multiplierGold / 100 },
-    { tier: "Platinum", mult: 1 + rules.multiplierPlatinum / 100 },
+    { tier: "standard", mult: 1 },
+    { tier: "silver", mult: 1 + rules.multiplierSilver / 100 },
+    { tier: "gold", mult: 1 + rules.multiplierGold / 100 },
+    { tier: "platinum", mult: 1 + rules.multiplierPlatinum / 100 },
   ];
 
   return (

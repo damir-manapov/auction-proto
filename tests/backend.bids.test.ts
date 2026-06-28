@@ -69,7 +69,7 @@ describe("backend bids service", () => {
 
     expect(bids.every((b) => b.passenger.id === b.passengerId)).toBe(true);
     const top = bids.find((b) => b.id === 1);
-    expect(top?.passenger.tier).toBe("Platinum");
+    expect(top?.passenger.tier).toBe("platinum");
     expect(top?.passenger.name.length).toBeGreaterThan(0);
   });
 });

@@ -1,9 +1,9 @@
 import type { ColorTokenId } from "./domain/color";
 
-export type Tier = "Platinum" | "Gold" | "Silver" | "Standard";
+export type Tier = "platinum" | "gold" | "silver" | "standard";
 export type BidState = "pending" | "approved" | "rejected";
 export type FlightStatus = "active" | "sold" | "upcoming";
-export type FlightHaul = "ultra-short" | "short" | "medium" | "long" | "ultra";
+export type FlightHaul = "ultraShort" | "short" | "medium" | "long" | "ultraLong";
 export type Channel = "Email" | "App" | "MMB" | "Web";
 
 export type LocaleCode = "en" | "ru" | "uz";

@@ -83,7 +83,7 @@ export const FLIGHTS_DATA: Flight[] = [
     bcFree: 10,
     bcTotal: 16,
     status: "upcoming",
-    haul: "ultra",
+    haul: "ultraLong",
   },
   {
     id: "HY 312",
@@ -95,6 +95,6 @@ export const FLIGHTS_DATA: Flight[] = [
     bcFree: 4,
     bcTotal: 8,
     status: "active",
-    haul: "ultra-short",
+    haul: "ultraShort",
   },
 ];

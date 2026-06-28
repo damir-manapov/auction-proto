@@ -55,7 +55,7 @@ describe("backend passengers service", () => {
 
     expect(passenger).toBeDefined();
     expect(passenger?.id).toBe(CURRENT_PASSENGER_ID);
-    expect(passenger?.tier).toBe("Platinum");
+    expect(passenger?.tier).toBe("platinum");
     expect(passenger?.name.length).toBeGreaterThan(0);
   });
 });
@@ -67,7 +67,7 @@ describe("backend tiers service", () => {
 
     expect(tiers).toHaveLength(4);
     expect(tiers.map((t) => t.id).sort()).toEqual(
-      ["Gold", "Platinum", "Silver", "Standard"].sort(),
+      ["gold", "platinum", "silver", "standard"].sort(),
     );
   });
 
