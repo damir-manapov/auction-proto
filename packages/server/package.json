@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.1.0",
   "author": "Damir Manapov",
-  "license": "MIT",
   "type": "module",
   "main": "./src/main.ts",
   "scripts": {

@@ -2,7 +2,6 @@
   "name": "@auction/backend",
   "version": "0.1.0",
   "private": true,
-  "license": "MIT",
   "author": "Damir Manapov",
   "type": "module",
   "main": "./src/index.ts",
