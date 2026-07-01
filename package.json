@@ -2,7 +2,7 @@
   "name": "auction-proto",
   "private": true,
   "version": "0.1.0",
-  "author": "Alex",
+  "author": "Damir Manapov",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -13,8 +13,7 @@
     "preview": "pnpm --filter @auction/web preview",
     "format": "biome format --write . --css-parse-tailwind-directives=true",
     "lint": "biome lint . --error-on-warnings --css-parse-tailwind-directives=true",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "typecheck:server": "pnpm --filter @auction/server typecheck",
+    "typecheck": "tsc -b",
     "typecheck:tests": "tsc --noEmit -p tsconfig.check.json",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -1,12 +1,10 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "noEmit": true,
-    "types": ["vitest/globals", "bun-types"],
-    "paths": {
-      "@/*": ["./packages/web/src/*"]
-    }
-  },
-  "include": ["packages/*/src/**/*.ts", "packages/*/src/**/*.tsx", "packages/*/src/**/*.d.ts"],
-  "exclude": ["node_modules", "**/dist", "packages/server"]
+  "files": [],
+  "include": [],
+  "references": [
+    { "path": "packages/core" },
+    { "path": "packages/backend" },
+    { "path": "packages/web" },
+    { "path": "packages/server" }
+  ]
 }

@@ -103,9 +103,8 @@ pnpm build            # production build of the web app
 pnpm preview          # preview production web build locally
 pnpm format           # format code with Biome
 pnpm lint             # lint with warnings treated as errors
-pnpm typecheck        # tsc --noEmit for @auction/core, @auction/backend, @auction/web
-pnpm typecheck:server # tsc --noEmit for @auction/server (decorator-enabled config)
-pnpm typecheck:tests  # tsc --noEmit including test files
+pnpm typecheck        # tsc -b (composite project references, all packages)
+pnpm typecheck:tests  # flat tsc --noEmit including test files
 pnpm test             # vitest run
 ```
 
@@ -179,8 +178,8 @@ bash all-checks.sh # runs both scripts
 ├── package.json                       # root — shared devDeps + orchestrating scripts
 ├── pnpm-workspace.yaml                # packages, allowBuilds, overrides
 ├── tsconfig.base.json                 # shared strict TS options
-├── tsconfig.json                      # root project references (flat noEmit typecheck)
-├── tsconfig.check.json                # typecheck including tests
+├── tsconfig.json                      # root project references (composite build)
+├── tsconfig.check.json                # flat typecheck including tests
 ├── vitest.config.ts                   # runs packages/*/tests + packages/*/src
 ├── biome.json                         # Biome config (format + lint)
 ├── check.sh                           # quality checks
@@ -202,8 +201,10 @@ bash all-checks.sh # runs both scripts
   server over HTTP through `src/api/httpBackend.ts`, which mirrors the backend
   contract exactly. This keeps a real network boundary between UI and data.
 - Cross-package imports resolve source-first via pnpm workspace symlinks and
-  each package's `exports` field pointing at `./src/index.ts` (no build step needed
-  for typecheck or dev)
+  each package's `main`/`types` field pointing at `./src/index.ts`. TypeScript
+  is configured with composite project references (`tsc -b`) so cross-package
+  types are checked in dependency order; build artifacts emit to gitignored
+  `packages/*/dist/`.
 
 ### HTTP Layer
 - `@auction/server` mounts `AdminController` under `/api/admin` and
