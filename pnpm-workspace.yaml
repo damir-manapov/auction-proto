@@ -5,3 +5,6 @@ allowBuilds:
   esbuild: true
   msw: true
   simple-git-hooks: true
+
+overrides:
+  multer: '^2.2.0'

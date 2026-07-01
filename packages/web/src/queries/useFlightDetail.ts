@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Flight } from "@auction/core";
-import { adminBackend, passengerBackend } from "@auction/backend";
+import { adminBackend, passengerBackend } from "../api/httpBackend";
 import { queryKeys } from "./keys";
 
 export const useFlightDetail = (flightId?: Flight["id"]) =>

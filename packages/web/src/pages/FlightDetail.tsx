@@ -18,7 +18,7 @@ import { useFlightHaulsById } from "../queries/useFlightHauls";
 import { useFlightDetail } from "../queries/useFlightDetail";
 import { useFlightBids } from "../queries/useFlightBids";
 import { queryKeys } from "../queries/keys";
-import { adminBackend } from "@auction/backend";
+import { adminBackend } from "../api/httpBackend";
 import { formatFlightArr, formatFlightDep, formatFlightDuration } from "../format/flightTime";
 
 function BackButton({ onBack }: { onBack: () => void }) {

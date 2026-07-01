@@ -18,7 +18,7 @@ import { useTiersById } from "../queries/useTiers";
 import { colorToken } from "../domain/color";
 import { useLocale } from "../locale";
 import { NumInput, Pill, SectionLabel, Toggle } from "../primitives";
-import { adminBackend } from "@auction/backend";
+import { adminBackend } from "../api/httpBackend";
 import { queryKeys } from "../queries/keys";
 import { useRules } from "../queries/useRules";
 

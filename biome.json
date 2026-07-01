@@ -21,5 +21,15 @@
         "noNonNullAssertion": "error"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["packages/server/**"],
+      "javascript": {
+        "parser": {
+          "unsafeParameterDecoratorsEnabled": true
+        }
+      }
+    }
+  ]
 }

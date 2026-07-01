@@ -12,6 +12,9 @@ pnpm lint
 echo "=== Typecheck ==="
 pnpm typecheck
 
+echo "=== Typecheck (server) ==="
+pnpm typecheck:server
+
 echo "=== Typecheck (tests) ==="
 pnpm typecheck:tests
 

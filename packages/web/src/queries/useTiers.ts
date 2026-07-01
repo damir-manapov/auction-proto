@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { adminBackend, passengerBackend } from "@auction/backend";
+import { adminBackend, passengerBackend } from "../api/httpBackend";
 import type { TierRow } from "@auction/core";
 import { queryKeys } from "./keys";
 

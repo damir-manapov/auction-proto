@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { adminBackend } from "@auction/backend";
+import { adminBackend } from "../api/httpBackend";
 import { queryKeys } from "./keys";
 
 export const useRules = () =>

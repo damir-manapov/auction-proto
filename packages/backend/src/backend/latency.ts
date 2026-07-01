@@ -33,20 +33,32 @@ function toBoolean(value: string | undefined): boolean | null {
   return null;
 }
 
+function readEnv(key: string): string | undefined {
+  const meta = import.meta as unknown as { env?: Record<string, string | undefined> };
+  const fromVite = meta.env?.[key];
+  if (fromVite !== undefined) return fromVite;
+  if (typeof process !== "undefined") return process.env[key];
+  return undefined;
+}
+
+function readMode(): string {
+  return readEnv("MODE") ?? readEnv("NODE_ENV") ?? "development";
+}
+
 export function getMockLatencyRange(): LatencyRange {
   // Keep tests deterministic and fast unless explicitly overridden.
-  if (import.meta.env.MODE === "test") {
+  if (readMode() === "test") {
     return { minMs: 0, maxMs: 0 };
   }
 
-  const envEnabled = import.meta.env.VITE_MOCK_LATENCY_ENABLED;
+  const envEnabled = readEnv("VITE_MOCK_LATENCY_ENABLED");
   const enabled = envEnabled ? envEnabled.toLowerCase() !== "false" : true;
   if (!enabled) {
     return { minMs: 0, maxMs: 0 };
   }
 
-  const minFromEnv = toNumber(import.meta.env.VITE_MOCK_LATENCY_MIN_MS);
-  const maxFromEnv = toNumber(import.meta.env.VITE_MOCK_LATENCY_MAX_MS);
+  const minFromEnv = toNumber(readEnv("VITE_MOCK_LATENCY_MIN_MS"));
+  const maxFromEnv = toNumber(readEnv("VITE_MOCK_LATENCY_MAX_MS"));
 
   const minMs = Math.max(0, minFromEnv ?? DEFAULT_MOCK_LATENCY_MIN_MS);
   const maxCandidate = maxFromEnv ?? DEFAULT_MOCK_LATENCY_MAX_MS;
@@ -65,14 +77,14 @@ export function createJitterSleeper(getRange: () => LatencyRange): () => Promise
 }
 
 export function getMockFailureConfig(): MockFailureConfig {
-  if (import.meta.env.MODE === "test") {
+  if (readMode() === "test") {
     return { enabled: false, rate: 0 };
   }
 
-  const enabledFromEnv = toBoolean(import.meta.env.VITE_MOCK_FAILURE_ENABLED);
+  const enabledFromEnv = toBoolean(readEnv("VITE_MOCK_FAILURE_ENABLED"));
   const enabled = enabledFromEnv ?? true;
 
-  const rateFromEnv = toNumber(import.meta.env.VITE_MOCK_FAILURE_RATE);
+  const rateFromEnv = toNumber(readEnv("VITE_MOCK_FAILURE_RATE"));
   const rate = Math.min(1, Math.max(0, rateFromEnv ?? DEFAULT_MOCK_FAILURE_RATE));
 
   return {
