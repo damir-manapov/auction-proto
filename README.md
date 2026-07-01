@@ -299,6 +299,36 @@ For services that hold mutable config or non-relational state (like `rules`,
 - Adding a new locale can be done by extending `I18N`; switchers in admin/passenger UI
   update text reactively
 
+## Deployment
+
+The web app (`@auction/web`) is a static bundle; the server (`@auction/server`)
+is a long-lived Node process. They deploy separately.
+
+### Web on Vercel
+The repository ships a root-level `vercel.json` that builds the Vite package:
+- Import the GitHub repo into Vercel — no dashboard overrides needed.
+- Set `VITE_API_TARGET` in project env vars to the deployed API origin
+  (e.g. `https://auction-proto-api.fly.dev`). The web fetch client uses that as
+  the base URL for `/api/*` calls; if unset, requests use a relative `/api`
+  which only resolves through the Vite dev proxy.
+
+### Server on Fly.io
+The repo ships a root-level `Dockerfile` (multi-stage, node:22-alpine, non-root
+`app` user, stripped of `npm`/`yarn`) and a `fly.toml` with scale-to-zero:
+
+```bash
+fly launch --no-deploy   # first time: reads fly.toml, provisions the app
+fly deploy                # builds Dockerfile, deploys to primary_region (fra)
+```
+
+Fly config:
+- `internal_port = 3000`, `force_https = true`
+- `auto_stop_machines = "stop"`, `min_machines_running = 0` — scales to zero
+  when idle; TCP wakeup takes ~1–3s
+- 256 MB, shared-cpu-1x — smallest tier, enough for the mocked backend
+
+After deploy, put the app URL in Vercel's `VITE_API_TARGET`.
+
 ## AI-Assisted shadcn Workflow
 
 This repository includes project-level shadcn skills for agent-driven development.
